@@ -1,0 +1,49 @@
+﻿dataset,symbol,underlying,end_month,status,rows,message
+options,华夏上证50ETF期权,510050,2606,ok,48,
+options,华夏上证50ETF期权,510050,2607,ok,20,
+options,华夏上证50ETF期权,510050,2608,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,华夏上证50ETF期权,510050,2609,ok,28,
+options,华夏上证50ETF期权,510050,2610,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,华夏上证50ETF期权,510050,2611,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,华夏上证50ETF期权,510050,2612,ok,22,
+options,华夏上证50ETF期权,510050,2701,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,华泰柏瑞沪深300ETF期权,510300,2606,ok,54,
+options,华泰柏瑞沪深300ETF期权,510300,2607,ok,18,
+options,华泰柏瑞沪深300ETF期权,510300,2608,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,华泰柏瑞沪深300ETF期权,510300,2609,ok,30,
+options,华泰柏瑞沪深300ETF期权,510300,2610,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,华泰柏瑞沪深300ETF期权,510300,2611,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,华泰柏瑞沪深300ETF期权,510300,2612,ok,22,
+options,华泰柏瑞沪深300ETF期权,510300,2701,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,南方中证500ETF期权,510500,2606,ok,60,
+options,南方中证500ETF期权,510500,2607,ok,22,
+options,南方中证500ETF期权,510500,2608,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,南方中证500ETF期权,510500,2609,ok,30,
+options,南方中证500ETF期权,510500,2610,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,南方中证500ETF期权,510500,2611,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,南方中证500ETF期权,510500,2612,ok,24,
+options,南方中证500ETF期权,510500,2701,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,华夏科创50ETF期权,588000,2606,ok,46,
+options,华夏科创50ETF期权,588000,2607,ok,26,
+options,华夏科创50ETF期权,588000,2608,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,华夏科创50ETF期权,588000,2609,ok,46,
+options,华夏科创50ETF期权,588000,2610,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,华夏科创50ETF期权,588000,2611,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,华夏科创50ETF期权,588000,2612,ok,38,
+options,华夏科创50ETF期权,588000,2701,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,易方达科创50ETF期权,588080,2606,ok,44,
+options,易方达科创50ETF期权,588080,2607,ok,26,
+options,易方达科创50ETF期权,588080,2608,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,易方达科创50ETF期权,588080,2609,ok,44,
+options,易方达科创50ETF期权,588080,2610,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,易方达科创50ETF期权,588080,2611,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,易方达科创50ETF期权,588080,2612,ok,38,
+options,易方达科创50ETF期权,588080,2701,error,0,"Length mismatch: Expected axis has 0 elements, new values have 5 elements"
+options,嘉实沪深300ETF期权,159919,2606,error,0,'日期'
+options,嘉实沪深300ETF期权,159919,2607,error,0,'日期'
+options,嘉实沪深300ETF期权,159919,2608,error,0,Expecting value: line 1 column 1 (char 0)
+options,嘉实沪深300ETF期权,159919,2609,error,0,Expecting value: line 1 column 1 (char 0)
+options,嘉实沪深300ETF期权,159919,2610,error,0,Expecting value: line 1 column 1 (char 0)
+options,嘉实沪深300ETF期权,159919,2611,error,0,Expecting value: line 1 column 1 (char 0)
+options,嘉实沪深300ETF期权,159919,2612,error,0,Expecting value: line 1 column 1 (char 0)
+options,嘉实沪深300ETF期权,159919,2701,error,0,Expecting value: line 1 column 1 (char 0)

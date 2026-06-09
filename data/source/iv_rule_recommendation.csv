@@ -1,0 +1,6 @@
+﻿etf_code,style_group,recommended_rule,recommended_moneyness,recommended_stage,reason,annualized_return,excess_return_annualized,max_drawdown,net_option_contribution,average_coverage_ratio,option_sale_success_rate
+510300,broad_base,RuleB_BroadBaseEnhanced,atm,core_atm,核心宽基，低IV也保留少量覆盖，增强长期权利金收取。,-0.006372170450999692,0.06893602784035324,-0.2828797257889536,0.31068428985583857,0.7923076923076923,1.0
+510050,broad_base,RuleB_BroadBaseEnhanced,atm,core_atm,大盘蓝筹宽基，固定ATM备兑有效，低IV不完全跳过更符合收租属性。,-0.01766257027989604,0.07180554783462686,-0.28639992662160385,0.3236167840766061,0.7653846153846153,1.0
+588000,growth_high_beta,RuleD_HighIVOnly,otm5,otm5_check,科创高弹性标的，上涨截断风险高，仅在高IV且更虚值时卖出。,0.06555136241933046,0.0362332191768817,-0.5626892792247122,0.18880981609432607,0.13846153846153847,0.13846153846153847
+159915,growth_high_beta,RuleD_HighIVOnly,otm5,otm5_check,创业板高弹性标的，normal IV卖出容易损失反弹，优先高IV-only。,0.0460370495831357,-0.0013362804984344303,-0.5964137311029171,-0.006948658591859017,0.16923076923076924,0.16923076923076924
+510500,growth_high_beta,RuleD_HighIVOnly,otm5,otm5_check,中盘成长属性较强，采用高IV-only降低趋势行情中的截断成本。,0.009540348046103153,0.005166416541361055,-0.5145342596137779,0.02686536601507747,0.18461538461538463,0.18461538461538463

@@ -1,0 +1,27 @@
+# Secrets
+config/*.txt
+configs/*.txt
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local environments
+.venv/
+venv/
+env/
+
+# Large regenerated raw data
+data/raw/options_daily.csv
+data/raw/tushare_opt_daily_full_raw.csv
+data/raw/_option_daily_collection_status.csv
+data/source/delta_enriched_options.csv
+
+# Local temp files
+*.tmp
+*.bak
+~$*
