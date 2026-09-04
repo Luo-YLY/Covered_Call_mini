@@ -1,0 +1,2404 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ver3 实验看板</title>
+  <script src="../../outputs/ver3_0_dashboard_data/ver3_dashboard_data.js"></script>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --panel: #ffffff;
+      --ink: #18212f;
+      --muted: #627083;
+      --line: #dbe3ec;
+      --nav: #1d2935;
+      --nav-soft: #2d3b49;
+      --blue: #2f6fbd;
+      --green: #247a5a;
+      --red: #bd4b43;
+      --amber: #9b6a18;
+      --teal: #23858b;
+      --shadow: 0 1px 7px rgba(17, 31, 48, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      font-size: 13px;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    aside {
+      background: var(--nav);
+      color: #f3f7fb;
+      padding: 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+    }
+    main { padding: 18px; min-width: 0; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 20px; margin-bottom: 4px; }
+    h2 { font-size: 15px; margin-bottom: 10px; }
+    h3 { font-size: 14px; margin-bottom: 8px; }
+    p { color: var(--muted); line-height: 1.5; }
+    aside p { color: #c8d4df; }
+    .brand {
+      border-bottom: 1px solid #41505f;
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+    .brand .title {
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+    .brand .subtitle {
+      color: #c8d4df;
+      font-size: 12px;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    label {
+      display: block;
+      color: #d8e2eb;
+      font-size: 12px;
+      margin: 14px 0 6px;
+    }
+    select {
+      width: 100%;
+      height: 34px;
+      border: 1px solid #455666;
+      border-radius: 6px;
+      background: #121b24;
+      color: #ffffff;
+      padding: 0 10px;
+      font: inherit;
+    }
+    .nav-tabs {
+      display: grid;
+      gap: 7px;
+      margin-top: 16px;
+    }
+    .nav-tabs button,
+    .seg button {
+      border: 1px solid transparent;
+      border-radius: 6px;
+      font: inherit;
+      cursor: pointer;
+    }
+    .nav-tabs button {
+      height: 34px;
+      text-align: left;
+      padding: 0 10px;
+      background: var(--nav-soft);
+      color: #ecf3f9;
+    }
+    .nav-tabs button.active {
+      background: #e9f3f4;
+      color: #10393f;
+      border-color: #b7d6d8;
+      font-weight: 700;
+    }
+    .side-note {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #41505f;
+      color: #c8d4df;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .universe-note {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #41505f;
+    }
+    .universe-note strong {
+      color: #ffffff;
+      font-weight: 800;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    .status {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 7px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: #3b4b5d;
+      white-space: nowrap;
+    }
+    .badge.pass {
+      border-color: #b7d7c8;
+      background: #edf8f2;
+      color: #1f684d;
+      font-weight: 700;
+    }
+    .badge.fail {
+      border-color: #e2b7b2;
+      background: #fff2f0;
+      color: #9a3932;
+      font-weight: 700;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 12px;
+      min-width: 0;
+    }
+    .span-2 { grid-column: span 2; }
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+    .metric {
+      font-size: 21px;
+      font-weight: 800;
+      margin-top: 3px;
+      line-height: 1.2;
+    }
+    .metric small {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+      margin-top: 5px;
+    }
+    .metric.positive { color: var(--green); }
+    .metric.warning { color: var(--amber); }
+    .metric.risk { color: var(--red); }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .seg {
+      display: inline-flex;
+      gap: 6px;
+      flex-wrap: nowrap;
+      max-width: 100%;
+      overflow-x: auto;
+      padding: 1px 0 6px;
+      scrollbar-width: thin;
+    }
+    .seg button {
+      flex: 0 0 auto;
+      height: 32px;
+      padding: 0 12px;
+      background: #eef3f7;
+      color: #2d3d4d;
+      border-color: #d6e0e9;
+      font-weight: 700;
+    }
+    .seg button.active {
+      background: #dcefee;
+      color: #143f43;
+      border-color: #afd4d2;
+      font-weight: 700;
+    }
+    .chart {
+      width: 100%;
+      height: 268px;
+      overflow: hidden;
+    }
+    .chart.with-legend {
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      gap: 6px;
+    }
+    .chart.short { height: 205px; }
+    .chart.tall { height: 318px; }
+    .chart.depth { height: 318px; }
+    .chart-figure {
+      width: 100%;
+      height: 318px;
+      object-fit: contain;
+      display: block;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .zoomable-image {
+      cursor: zoom-in;
+    }
+    .zoomable-image:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 3px;
+    }
+    .surface-chart {
+      width: 100%;
+      height: 338px;
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      overflow: hidden;
+      touch-action: none;
+    }
+    .surface-chart canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+    .surface-chart canvas.dragging { cursor: grabbing; }
+    .surface-tooltip {
+      position: absolute;
+      pointer-events: none;
+      max-width: 245px;
+      padding: 7px 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: var(--shadow);
+      color: var(--ink);
+      font-size: 11px;
+      line-height: 1.45;
+      display: none;
+      z-index: 2;
+    }
+    svg { width: 100%; height: 100%; display: block; }
+    .axis { stroke: #cfd8e3; stroke-width: 1; }
+    .gridline { stroke: #e6edf3; stroke-width: 1; }
+    .line { fill: none; stroke-width: 2.2; }
+    .bar { opacity: .9; }
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 0;
+      min-height: 18px;
+      align-items: center;
+    }
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+    .legend span.active {
+      color: var(--ink);
+      font-weight: 800;
+    }
+    .legend span.dim {
+      opacity: 0.55;
+    }
+    .dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 6px 6px;
+      text-align: right;
+      white-space: nowrap;
+    }
+    th:first-child, td:first-child { text-align: left; }
+    th {
+      color: var(--muted);
+      font-weight: 700;
+      background: #fafbfd;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    th.sortable { padding: 0; }
+    .sort-button {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      font-weight: 700;
+      padding: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    th:first-child .sort-button { justify-content: flex-start; }
+    .sort-button.active { color: var(--blue); }
+    .sort-icon {
+      display: inline-block;
+      min-width: 10px;
+      font-size: 10px;
+      color: #7c8da0;
+    }
+    .sort-button.active .sort-icon { color: var(--blue); }
+    td.long-text {
+      min-width: 190px;
+      max-width: 320px;
+      white-space: normal;
+      line-height: 1.4;
+    }
+    .table-wrap {
+      overflow: auto;
+      max-height: 390px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .callout {
+      border-left: 4px solid var(--teal);
+      background: #eef8f8;
+      padding: 10px 11px;
+      border-radius: 6px;
+      color: #24444a;
+      line-height: 1.55;
+    }
+    .definition-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .definition {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fbfcfd;
+    }
+    .definition b {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--ink);
+    }
+    .definition span {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .compare-control {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #41505f;
+    }
+    .compare-title {
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .compare-group {
+      color: #aebdcc;
+      font-size: 11px;
+      margin: 9px 0 5px;
+    }
+    .compare-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      padding: 4px 0;
+      color: #dce6ee;
+      font-size: 12px;
+      line-height: 1.35;
+      cursor: pointer;
+    }
+    .compare-option input {
+      flex: 0 0 auto;
+      margin-top: 2px;
+      accent-color: #8fd6d1;
+    }
+    .compare-option span {
+      min-width: 0;
+    }
+    .empty {
+      color: var(--muted);
+      padding: 26px 0;
+      text-align: center;
+    }
+    .figure-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .figure-grid img {
+      width: 100%;
+      display: block;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+    .figure-caption {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+    .image-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 10px;
+      padding: 18px;
+      background: rgba(13, 21, 31, 0.78);
+    }
+    .image-modal[hidden] {
+      display: none;
+    }
+    .image-modal-close {
+      justify-self: end;
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--ink);
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .image-modal img {
+      align-self: center;
+      justify-self: center;
+      max-width: min(96vw, 1400px);
+      max-height: 82vh;
+      object-fit: contain;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.26);
+    }
+    .image-modal-caption {
+      justify-self: center;
+      max-width: min(96vw, 1400px);
+      color: #ffffff;
+      font-size: 13px;
+      line-height: 1.45;
+      text-align: center;
+    }
+    body.modal-open {
+      overflow: hidden;
+    }
+    .chart-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      margin-top: 6px;
+    }
+    .formula-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      padding: 10px;
+    }
+    .formula-box b {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .formula-main {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 6px 0 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: #f2f5f8;
+      color: #243142;
+      font-family: "Cambria Math", "Times New Roman", "Microsoft YaHei", serif;
+      font-size: 14px;
+    }
+    .formula-main .score-name {
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .frac {
+      display: inline-grid;
+      grid-template-rows: auto auto;
+      align-items: center;
+      justify-items: center;
+      line-height: 1.1;
+      vertical-align: middle;
+    }
+    .frac .top {
+      border-bottom: 1px solid currentColor;
+      padding: 0 4px 2px;
+    }
+    .frac .bottom {
+      padding-top: 2px;
+    }
+    .formula-list {
+      display: grid;
+      gap: 5px;
+      margin: 8px 0;
+    }
+    .formula-row {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 7px;
+      align-items: start;
+    }
+    .formula-row .term {
+      color: var(--ink);
+      font-weight: 800;
+      font-family: "Cambria Math", "Times New Roman", serif;
+    }
+    .formula-row .expr {
+      color: #445369;
+      line-height: 1.45;
+    }
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      aside {
+        position: static;
+        height: auto;
+      }
+      .span-2, .span-3, .span-4, .span-5, .span-6, .span-7, .span-8, .span-12 {
+        grid-column: span 12;
+      }
+      .topbar { flex-direction: column; }
+      .status { justify-content: flex-start; }
+      .definition-grid { grid-template-columns: 1fr; }
+      .figure-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div class="title">ver3 实验看板</div>
+        <div class="subtitle">ETF 备兑策略当前实验结果</div>
+      </div>
+
+      <label for="candidateSelect">候选组合</label>
+      <select id="candidateSelect"></select>
+
+      <nav class="nav-tabs" aria-label="dashboard sections">
+        <button class="active" data-tab="overview">总览</button>
+        <button data-tab="sleeves">单券策略腿</button>
+        <button data-tab="fixed">固定权重</button>
+        <button data-tab="frontier">MDD Frontier</button>
+        <button data-tab="robustness">稳健性</button>
+        <button data-tab="figures">图表原件</button>
+      </nav>
+
+      <div class="side-note">
+        <div>主样本：<span id="sampleText"></span></div>
+        <div>数据生成：<span id="generatedText"></span></div>
+        <div>主候选：<span id="primaryText"></span></div>
+        <div class="universe-note">
+          <div><strong>A组</strong>：510300 + 510500 + 159915</div>
+          <div><strong>B组</strong>：510300 + 510050 + 159915</div>
+        </div>
+      </div>
+
+      <div id="overviewCompareControls" class="compare-control" hidden></div>
+    </aside>
+
+    <main>
+      <div class="topbar">
+        <div>
+          <h1 id="pageTitle">ver3.1 当前实验总览</h1>
+          <p id="pageLead">当前看板以 target-delta × coverage 主线、回撤预算组合和动态权重研究为核心展示口径。</p>
+        </div>
+        <div class="status">
+          <span class="badge">静态数据包</span>
+          <span class="badge">不重跑回测</span>
+          <span class="badge">中文报告口径</span>
+        </div>
+      </div>
+
+      <section id="kpis" class="grid"></section>
+      <section id="content"></section>
+    </main>
+  </div>
+
+  <div id="imageModal" class="image-modal" hidden aria-hidden="true">
+    <button type="button" class="image-modal-close" data-modal-close aria-label="Close image preview">&times;</button>
+    <img id="imageModalImg" alt="" />
+    <div id="imageModalCaption" class="image-modal-caption"></div>
+  </div>
+
+  <script>
+    const DATA = window.VER3_DASHBOARD_DATA || {};
+    const state = {
+      tab: "overview",
+      candidate: DATA.primary_candidate || "B_v31_D20_51030070_51005014_15991516",
+      robustnessCandidate: (DATA.stepC?.stability_scorecard || []).some(row => row.portfolio_name === "B_default_D20") ? "B_default_D20" : ((DATA.stepC?.recommendations || [])[0]?.portfolio_name || (DATA.stepC?.stability_scorecard || [])[0]?.portfolio_name || "B_default_D20"),
+      constraint: "default",
+      sleeveEtf: "ALL",
+      surfaceEtf: (DATA.stepA?.target_delta_surface_metadata || DATA.stepA?.moneyness_refined_surface_metadata || DATA.stepA?.parameter_surface_metadata || [])[0]?.etf_code || "510300",
+      surfaceMetric: "sharpe_daily_mean",
+      surfaceYaw: -0.72,
+      surfacePitch: 0.72,
+      surfaceGridSort: { key: null, direction: null },
+      candidateComparisonKeys: new Set(),
+      comparisonKeys: new Set((DATA.overviewComparisons?.options || []).filter(row => row.default_selected).map(row => row.key))
+    };
+
+    const palette = ["#2f6fbd", "#247a5a", "#bd4b43", "#9b6a18", "#23858b", "#6f5ca8", "#536476", "#b75d69", "#4f8f40", "#8b6bb6", "#7b8794", "#cf7d28"];
+    const candidateNames = {
+      B_v31_D18_51030070_51005021_15991509: "B组 回撤预算18%",
+      B_v31_D20_51030070_51005014_15991516: "B组 回撤预算20% 主线",
+      B_v31_D22_51030070_51005007_15991523: "B组 回撤预算22%",
+      B_v31_D25_51030068_51005005_15991527: "B组 回撤预算25%",
+      A_v31_D22_51030070_51050013_15991517: "A组 回撤预算22%",
+      A_v31_D25_51030070_51050005_15991525: "A组 回撤预算25%",
+      B_default_D18: "B组 D18 严格防御",
+      B_default_D20: "B组 D20 主线",
+      B_default_D22: "B组 D22 平衡",
+      A_default_D25: "A组 D25 成长对照"
+    };
+    const selectedSleeveFallback = {
+      "510300": "510300_DTE30_D40_Q70_Hold",
+      "510050": "510050_DTE30_D40_Q70_Hold",
+      "510500": "510500_ETF_BuyHold",
+      "159915": "159915_DTE30_D20_Q10_Hold",
+      "588000": "588000_ETF_BuyHold"
+    };
+    const comparisonNames = Object.fromEntries((DATA.overviewComparisons?.options || []).map(row => [row.key, row.label]));
+    function mainLineRows(key) {
+      const main = rows(DATA.mainLine?.[key]);
+      if (main.length) return main;
+      return rows(DATA.stepC?.[key]);
+    }
+    function activeCandidateRows() {
+      return mainLineRows("full_sample");
+    }
+    function activeCandidateWeights() {
+      return mainLineRows("candidate_weights");
+    }
+    function activeCandidateNav() {
+      return mainLineRows("daily_nav");
+    }
+    function activeCandidateDrawdowns() {
+      return mainLineRows("drawdowns");
+    }
+    function activeRecommendations() {
+      return mainLineRows("recommendations");
+    }
+    function overviewBacktestRows(candidateKeys, selectedKeys) {
+      const selectedCandidateKeys = Array.from(candidateKeys || []).filter(Boolean);
+      const selectedComparisonKeys = rows(DATA.overviewComparisons?.options)
+        .map(row => row.key)
+        .filter(key => selectedKeys?.has(key));
+      const extraComparisonKeys = Array.from(selectedKeys || []).filter(key => !selectedComparisonKeys.includes(key));
+      const legacySummary = rows(DATA.stepB?.legacy_portfolio_summary);
+      const singleEtfRows = rows(DATA.stepA?.sleeves);
+      const output = [];
+      const seen = new Set();
+      function push(row, key, source) {
+        if (!row || !key || seen.has(key)) return;
+        seen.add(key);
+        output.push({
+          ...row,
+          backtest_key: key,
+          backtest_label: labelCandidate(key),
+          backtest_source: source
+        });
+      }
+      selectedCandidateKeys.forEach(key => {
+        const row = activeCandidateRows().find(item => item.portfolio_name === key);
+        push(row, key, key === state.candidate ? "当前主线候选" : "勾选主线候选");
+      });
+      [...selectedComparisonKeys, ...extraComparisonKeys].forEach(key => {
+        const portfolioRow = legacySummary.find(row => row.portfolio_name === key);
+        if (portfolioRow) {
+          const source = String(portfolioRow.portfolio_type || "").includes("Pure")
+            ? "纯ETF固定权重"
+            : "固定权重备兑";
+          push(portfolioRow, key, source);
+          return;
+        }
+        const sleeveRow = singleEtfRows.find(row => (row.sleeve_name || row.portfolio_name) === key);
+        push(sleeveRow, key, "单ETF裸持");
+      });
+      return output;
+    }
+    function stabilityFormulaNote() {
+      return `
+        <div class="chart-note formula-box">
+          <b>稳定性评分公式</b>
+          <div class="formula-main">
+            <span class="score-name">稳定性评分</span>
+            <span>=</span>
+            <span class="frac">
+              <span class="top">S₁ + S₂ + S₃ + S₄ + S₅ + S₆ + S₇</span>
+              <span class="bottom">7</span>
+            </span>
+            <span>，每项得分均限制在 0 到 1 之间</span>
+          </div>
+          <div class="formula-list">
+            <div class="formula-row"><span class="term">S₁ 事件收益</span><span class="expr">1 − |极端事件剔除后的 Sharpe 变化| ÷ max(|全样本 Sharpe|, 0.20)</span></div>
+            <div class="formula-row"><span class="term">S₂ 事件回撤</span><span class="expr">1 − |极端事件剔除后的最大回撤变化| ÷ max(全样本最大回撤, 5%)</span></div>
+            <div class="formula-row"><span class="term">S₃ 滚动收益</span><span class="expr">252 日滚动窗口中，Sharpe 大于 0 的窗口占比</span></div>
+            <div class="formula-row"><span class="term">S₄ 滚动回撤</span><span class="expr">惩罚“最差滚动回撤明显超过全样本回撤”的情形</span></div>
+            <div class="formula-row"><span class="term">S₅ 成本压力</span><span class="expr">最差成本情景下，Sharpe 相对基础情景的保持程度</span></div>
+            <div class="formula-row"><span class="term">S₆ 期权腿</span><span class="expr">成本压力情景中，期权腿贡献仍为正的情景占比</span></div>
+            <div class="formula-row"><span class="term">S₇ 权重结构</span><span class="expr">组合权重是否保留清晰、可解释的中间资产配置</span></div>
+          </div>
+          <div>评级阈值：≥0.75 为高稳定，≥0.55 为中等稳定，≥0.35 为低稳定；低于 0.35 仅作诊断参考。</div>
+        </div>`;
+    }
+
+    const tabs = {
+      overview: ["ver3.1 当前实验总览", "3.1 主线候选、组合净值、回撤和权重结构。"],
+      sleeves: ["单券策略腿画像", "单 ETF 备兑增强、目标Delta参数图谱与裸持基准对照。"],
+      fixed: ["固定权重组合", "3.1 策略单元在固定权重组合中的风险收益表现。"],
+      frontier: ["回撤预算下的组合优化", "3.1 在不同最大回撤预算下选择 Sharpe 较高的组合权重。"],
+      robustness: ["稳健性诊断", "事件剔除、滚动窗口、成本敏感性和调仓时点敏感性的研究证据。"],
+      figures: ["图表原件", "Step C 已生成图表图片的集中浏览。"]
+    };
+
+    function byId(id) { return document.getElementById(id); }
+    function rows(path, fallback = []) { return path || fallback; }
+    function num(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : null;
+    }
+    function fmt(value, digits = 3) {
+      const n = num(value);
+      return n === null ? "--" : n.toFixed(digits);
+    }
+    function pct(value, digits = 2) {
+      const n = num(value);
+      return n === null ? "--" : `${(n * 100).toFixed(digits)}%`;
+    }
+    function cagrPct(value) {
+      return pct(value, 3);
+    }
+    function bps(value) {
+      const n = num(value);
+      return n === null ? "--" : `${n.toFixed(0)} bps`;
+    }
+    function dateLabel(value) {
+      const t = typeof value === "number" ? value : Date.parse(value);
+      if (!Number.isFinite(t)) return String(value || "--");
+      const d = new Date(t);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    }
+    function dateAxis(records, xField) {
+      const times = (records || []).map(row => xToNumber(row[xField])).filter(Number.isFinite);
+      if (!times.length) return {};
+      const min = Math.min(...times);
+      const max = Math.max(...times);
+      const startYear = new Date(min).getFullYear();
+      const endYear = new Date(max).getFullYear();
+      const ticks = [];
+      for (let year = startYear; year <= endYear; year += 1) {
+        const t = Date.parse(`${year}-01-01`);
+        if (t >= min && t <= max) ticks.push(t);
+      }
+      return {
+        xTicks: ticks.length ? ticks : [min, max],
+        xFormat: dateLabel,
+        xLabel: "Date"
+      };
+    }
+    function valueDate(value) {
+      if (!value) return "";
+      const text = String(value).slice(0, 10);
+      return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : "";
+    }
+    function formatBacktestPeriod(value, row) {
+      const start = valueDate(row?.sample_start || row?.window_start || row?.date);
+      const end = valueDate(row?.sample_end || row?.window_end || row?.date);
+      const n = num(row?.n_trading_days) ?? num(row?.n_obs) ?? num(row?.window_days);
+      if (!start && !end) return "--";
+      return `${start || "--"} 至 ${end || "--"}${n ? ` / ${Math.round(n)}日` : ""}`;
+    }
+    function periodText(records, dateField = "date") {
+      const data = rows(records).filter(Boolean);
+      const starts = [];
+      const ends = [];
+      const ns = [];
+      data.forEach(row => {
+        const start = valueDate(row.sample_start || row.window_start || row[dateField]);
+        const end = valueDate(row.sample_end || row.window_end || row[dateField]);
+        if (start) starts.push(start);
+        if (end) ends.push(end);
+        const n = num(row.n_trading_days) ?? num(row.n_obs);
+        if (n !== null) ns.push(n);
+      });
+      if (!starts.length && DATA.sample?.start) starts.push(DATA.sample.start);
+      if (!ends.length && DATA.sample?.end) ends.push(DATA.sample.end);
+      if (!ns.length && DATA.sample?.n_obs) ns.push(DATA.sample.n_obs);
+      if (!starts.length || !ends.length) return "回测周期：--";
+      const start = starts.sort()[0];
+      const end = ends.sort()[ends.length - 1];
+      const uniqueN = Array.from(new Set(ns.map(n => Math.round(n))));
+      const nText = uniqueN.length === 1 ? ` / ${uniqueN[0]}日` : (uniqueN.length > 1 ? " / 多周期" : "");
+      return `回测周期：${start} 至 ${end}${nText}`;
+    }
+    function periodNote(records, dateField = "date") {
+      return `<div class="chart-note">${esc(periodText(records, dateField))}</div>`;
+    }
+    function rollingPeriodText(records) {
+      const data = rows(records);
+      const base = periodText(data, "window_end");
+      const windows = Array.from(new Set(data.map(row => num(row.window_days)).filter(v => v !== null))).sort((a, b) => a - b);
+      return windows.length ? `${base}；滚动窗口：${windows.map(v => `${Math.round(v)}日`).join(" / ")}` : base;
+    }
+    function esc(value) {
+      return String(value ?? "").replace(/[&<>"']/g, ch => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[ch]));
+    }
+    function zoomableImage(src, alt, caption, className = "") {
+      const classes = ["zoomable-image", className].filter(Boolean).join(" ");
+      const label = caption || alt || "chart image";
+      return `<img class="${esc(classes)}" src="${esc(src)}" alt="${esc(alt || label)}" data-zoom-src="${esc(src)}" data-zoom-caption="${esc(label)}" tabindex="0" />`;
+    }
+    function openImageModal(src, caption) {
+      const modal = byId("imageModal");
+      const image = byId("imageModalImg");
+      const label = byId("imageModalCaption");
+      if (!modal || !image || !src) return;
+      image.src = src;
+      image.alt = caption || "Expanded chart image";
+      if (label) label.textContent = caption || "";
+      modal.hidden = false;
+      modal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("modal-open");
+    }
+    function closeImageModal() {
+      const modal = byId("imageModal");
+      const image = byId("imageModalImg");
+      const label = byId("imageModalCaption");
+      if (!modal) return;
+      modal.hidden = true;
+      modal.setAttribute("aria-hidden", "true");
+      if (image) image.removeAttribute("src");
+      if (label) label.textContent = "";
+      document.body.classList.remove("modal-open");
+    }
+    function bindImageModal() {
+      document.addEventListener("click", event => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const opener = target.closest("[data-zoom-src]");
+        if (opener) {
+          event.preventDefault();
+          openImageModal(opener.getAttribute("data-zoom-src"), opener.getAttribute("data-zoom-caption") || opener.getAttribute("alt"));
+          return;
+        }
+        if (target.closest("[data-modal-close]") || target === byId("imageModal")) closeImageModal();
+      });
+      document.addEventListener("keydown", event => {
+        const target = event.target;
+        if (event.key === "Escape") {
+          closeImageModal();
+          return;
+        }
+        if (!(target instanceof Element)) return;
+        const opener = target.closest("[data-zoom-src]");
+        if (opener && (event.key === "Enter" || event.key === " ")) {
+          event.preventDefault();
+          openImageModal(opener.getAttribute("data-zoom-src"), opener.getAttribute("data-zoom-caption") || opener.getAttribute("alt"));
+        }
+      });
+    }
+    function labelCandidate(name) {
+      return candidateNames[name] || comparisonNames[name] || name || "--";
+    }
+    function labelCandidateCompact(name) {
+      const text = String(name || "");
+      let m = text.match(/^([AB])_v31_D(\d+)/);
+      if (m) return `${m[1]} D${m[2]}`;
+      m = text.match(/^([AB])_default_D(\d+)/);
+      if (m) return `${m[1]} D${m[2]}`;
+      return labelCandidate(name);
+    }
+    function isPassed(value) {
+      return value === true || String(value).toLowerCase() === "true";
+    }
+    function labelPortfolio(name) {
+      const text = String(name || "");
+      if (candidateNames[text]) return candidateNames[text];
+      let m = text.match(/^([AB])_v31_(\d+_\d+_\d+)$/);
+      if (m) return `${m[1]}组 3.1 固定权重 ${m[2].replaceAll("_", "/")}`;
+      m = text.match(/^([AB])_v31_D(\d+)_/);
+      if (m) return `${m[1]}组 3.1 回撤预算${m[2]}%`;
+      m = text.match(/^([AB])_v31_D(\d+)_NA$/);
+      if (m) return `${m[1]}组 3.1 回撤预算${m[2]}% 不可行`;
+      m = text.match(/^([AB])_(Selected|Pure_ETF)_(\d+_\d+_\d+)$/);
+      if (m) return `${m[1]}组${m[2] === "Selected" ? "备兑精选" : "纯ETF"} ${m[3].replaceAll("_", "/")}`;
+      m = text.match(/^([AB])_(default|relaxed)_D(\d+)_/);
+      if (m) return `${m[1]}组${translateConstraint(m[2])} 回撤${m[3]}%`;
+      m = text.match(/^([AB])_(default|relaxed)_D(\d+)_NA$/);
+      if (m) return `${m[1]}组${translateConstraint(m[2])} 回撤${m[3]}% 不可行`;
+      return text.replaceAll("_", " ");
+    }
+    function labelSleeve(name) {
+      const raw = String(name || "");
+      const text = raw.replace(/^\d{6}_/, "");
+      if (text === "ETF_BuyHold") return "ETF买入持有";
+      const parts = [];
+      if (text.includes("DTE30")) parts.push("约30天");
+      if (text.includes("ATM")) parts.push("ATM");
+      if (text.includes("OTM5up")) parts.push("OTM+5%");
+      const otm = text.match(/OTM(\d+)/);
+      if (otm && !text.includes("OTM5up")) parts.push(`OTM${otm[1]}`);
+      const delta = text.match(/D([1-5]0)/);
+      if (delta) parts.push(`目标Delta${delta[1]}`);
+      const q = text.match(/Q(\d+)/);
+      if (q) parts.push(`覆盖${q[1]}%`);
+      if (text.includes("TP80")) parts.push("止盈80%");
+      if (text.includes("TouchK")) parts.push("触碰行权价回补");
+      if (text.includes("Hold")) parts.push("持有到期");
+      return parts.length ? parts.join(" / ") : raw.replaceAll("_", " ");
+    }
+    function labelSleeveChart(name) {
+      const raw = String(name || "");
+      const text = raw.replace(/^\d{6}_/, "");
+      if (text === "ETF_BuyHold") return "ETF买持";
+      const parts = [];
+      if (text.includes("DTE30")) parts.push("30天");
+      if (text.includes("ATM")) parts.push("ATM");
+      if (text.includes("OTM5up")) parts.push("OTM+5");
+      const otm = text.match(/OTM(\d+)/);
+      if (otm && !text.includes("OTM5up")) parts.push(`OTM${otm[1]}`);
+      const delta = text.match(/D([1-5]0)/);
+      if (delta) parts.push(`D${delta[1]}`);
+      const q = text.match(/Q(\d+)/);
+      if (q) parts.push(`Q${q[1]}`);
+      if (text.includes("TP80")) parts.push("止盈80");
+      if (text.includes("TouchK")) parts.push("触K");
+      if (text.includes("Hold")) parts.push("到期");
+      return parts.length ? parts.join(" ") : raw.replaceAll("_", " ");
+    }
+    function labelSurfaceMetric(name) {
+      return ({
+        sharpe_daily_mean: "Sharpe",
+        annualized_return_cagr: "CAGR",
+        annualized_volatility: "年化波动率",
+        max_drawdown: "MDD",
+        option_leg_annualized_pnl_contribution: "Option leg"
+      })[name] || name || "--";
+    }
+    function formatSurfaceMetric(name, value) {
+      if (name === "sharpe_daily_mean") return fmt(value, 3);
+      if (name === "annualized_return_cagr") return cagrPct(value);
+      return pct(value);
+    }
+    function formatAssignmentFraction(value, row) {
+      const periods = num(row.selected_periods);
+      if (!periods || periods <= 0) return "--";
+      const count = num(row.assignment_count);
+      const assignmentCount = count === null ? Math.round(periods * (num(row.assignment_rate) || 0)) : Math.round(count);
+      return `${assignmentCount}/${Math.round(periods)}`;
+    }
+    function sortSurfaceRows(records, metricName) {
+      const valid = [...(records || [])].filter(row => num(row[metricName]) !== null);
+      return valid.sort((a, b) => {
+        const left = num(a[metricName]);
+        const right = num(b[metricName]);
+        return ["max_drawdown", "annualized_volatility"].includes(metricName) ? left - right : right - left;
+      });
+    }
+    function surfaceGridRowsWithBuyhold(surfaceRows, sleeveRows, etfCode) {
+      const gridRows = [...(surfaceRows || [])]
+        .map(row => {
+          const moneynessDepth = Math.max(num(row.moneyness_axis) ?? 0, 0);
+          return {
+            ...row,
+            moneyness_depth: moneynessDepth,
+            parameter_depth: moneynessDepth * (num(row.coverage) || 0),
+            assignment_count: num(row.assignment_count) ?? Math.round((num(row.selected_periods) || 0) * (num(row.assignment_rate) || 0)),
+            parameter_grid_role: "surface"
+          };
+        })
+        .sort((a, b) => {
+          const da = num(a.parameter_depth) ?? 0;
+          const db = num(b.parameter_depth) ?? 0;
+          if (da !== db) return da - db;
+          const ma = num(a.moneyness_depth) ?? 0;
+          const mb = num(b.moneyness_depth) ?? 0;
+          if (ma !== mb) return ma - mb;
+          return (num(a.coverage) ?? 0) - (num(b.coverage) ?? 0);
+        });
+      const buyhold = (sleeveRows || []).find(row =>
+        String(row.etf_code) === String(etfCode) &&
+        String(row.sleeve_name || "").endsWith("ETF_BuyHold")
+      );
+      if (!buyhold) return gridRows;
+      return [{
+        ...buyhold,
+        moneyness_label: "BuyHold",
+        moneyness_axis: 0,
+        moneyness_depth: 0,
+        coverage: 0,
+        coverage_label: "0%",
+        parameter_depth: 0,
+        assignment_count: 0,
+        parameter_grid_role: "buyhold",
+        source_detail: "ETF BuyHold baseline"
+      }, ...gridRows];
+    }
+
+    function refinedSurfaceFigurePath(etfCode, metricName) {
+      const figures = rows(DATA.stepA?.moneyness_refined_surface_figures);
+      const match = figures.find(row =>
+        String(row.etf_code) === String(etfCode) &&
+        String(row.metric_name || row.figure_type) === String(metricName) &&
+        String(row.figure_kind || "").toLowerCase() === "surface_3d"
+      ) || figures.find(row =>
+        String(row.etf_code) === String(etfCode) &&
+        String(row.figure_type) === `${metricName}_3d_surface`
+      );
+      return match ? String(match.path || "") : "";
+    }
+    function targetDeltaSurfaceFigurePath(etfCode, figureType = "sharpe") {
+      const figures = rows(DATA.stepA?.target_delta_surface_figures);
+      const match = figures.find(row =>
+        String(row.etf_code) === String(etfCode) &&
+        String(row.figure_type || "") === String(figureType)
+      );
+      return match ? String(match.path || "") : "";
+    }
+    function targetDeltaFigureTypeForMetric(metricName) {
+      if (metricName === "sharpe_daily_mean") return "sharpe";
+      if (metricName === "annualized_return_cagr") return "cagr";
+      if (metricName === "annualized_volatility") return "annualized_volatility";
+      if (metricName === "max_drawdown") return "max_drawdown";
+      if (metricName === "option_leg_annualized_pnl_contribution") return "option_leg";
+      return "full_metrics";
+    }
+    function surfaceAxisType(records) {
+      const first = (records || []).find(row => row && row.parameter_grid_role !== "buyhold");
+      if (first && String(first.surface_axis_type || "") === "target_delta") return "target_delta";
+      if (first && num(first.target_delta) !== null && num(first.target_moneyness) === null) return "target_delta";
+      return "moneyness";
+    }
+    function surfaceXAxisLabel(records) {
+      return surfaceAxisType(records) === "target_delta" ? "Target delta" : "Target moneyness";
+    }
+    function nextSortState(current, key) {
+      if (!current || current.key !== key) return { key, direction: "desc" };
+      if (current.direction === "desc") return { key, direction: "asc" };
+      return { key: null, direction: null };
+    }
+    function sortValue(row, col) {
+      const raw = row[col[0]];
+      const getter = col[4];
+      if (typeof getter === "function") return getter(raw, row);
+      if (typeof getter === "string") return row[getter];
+      return raw;
+    }
+    function compareSortValues(a, b) {
+      const aEmpty = a === null || a === undefined || a === "";
+      const bEmpty = b === null || b === undefined || b === "";
+      if (aEmpty && bEmpty) return 0;
+      if (aEmpty) return 1;
+      if (bEmpty) return -1;
+      const an = num(a);
+      const bn = num(b);
+      if (an !== null && bn !== null) return an - bn;
+      return String(a).localeCompare(String(b), "zh-Hans-CN", { numeric: true });
+    }
+    function isBuyholdRow(row) {
+      if (!row) return false;
+      return [
+        row.parameter_grid_role,
+        row.sleeve_name,
+        row.strategy,
+        row.strategy_name,
+        row.moneyness_label,
+        row.source_detail
+      ].some(value => String(value || "").toLowerCase().includes("buyhold"));
+    }
+    function selectedSleeveNameForEtf(etfCode) {
+      const code = String(etfCode || "");
+      const selectionRows = rows(DATA.stepA?.portfolio_sleeve_selection);
+      const match = selectionRows.find(row => String(row.etf_code) === code);
+      return String(match?.selected_sleeve_name || selectedSleeveFallback[code] || "");
+    }
+    function isSelectedSleeveRow(row) {
+      if (!row || isBuyholdRow(row)) return false;
+      const selected = selectedSleeveNameForEtf(row.etf_code);
+      return selected && String(row.sleeve_name || "") === selected;
+    }
+    function pinnedTableRank(row) {
+      if (isBuyholdRow(row)) return 0;
+      if (isSelectedSleeveRow(row)) return 1;
+      return 2;
+    }
+    function sortTableRows(records, cols, sortState) {
+      if (!records || !records.length) return records;
+      if (!sortState?.key || !sortState?.direction) {
+        return [...records].sort((a, b) => pinnedTableRank(a) - pinnedTableRank(b));
+      }
+      const col = cols.find(item => item[0] === sortState.key);
+      if (!col) return records;
+      const direction = sortState.direction === "desc" ? -1 : 1;
+      return [...records].sort((a, b) => {
+        const pinned = pinnedTableRank(a) - pinnedTableRank(b);
+        if (pinned) return pinned;
+        if (pinnedTableRank(a) < 2) return 0;
+        const av = sortValue(a, col);
+        const bv = sortValue(b, col);
+        const aEmpty = av === null || av === undefined || av === "";
+        const bEmpty = bv === null || bv === undefined || bv === "";
+        if (aEmpty || bEmpty) return compareSortValues(av, bv);
+        return direction * compareSortValues(av, bv);
+      });
+    }
+    function labelSourceGroup(value) {
+      return ({
+        "Step A main": "主样本",
+        "510050 extension": "510050 补充实验",
+        "588000 extension": "588000 补充实验",
+        "Fixed moneyness grid": "固定虚值网格",
+        "Delta anchor": "D40 Delta锚点",
+        "BuyHold baseline": "BuyHold基准"
+      })[value] || value || "--";
+    }
+    function labelPortfolioType(value) {
+      return ({ Selected: "备兑精选", Pure_ETF: "纯ETF", Selected_Grid: "备兑网格" })[value] || value || "--";
+    }
+    function translateConstraint(value) {
+      return ({ default: "默认约束", relaxed: "放宽约束" })[value] || value || "--";
+    }
+    function translateStatus(value) {
+      return ({ feasible: "可行", infeasible: "不可行" })[value] || value || "--";
+    }
+    function translateStability(value) {
+      return ({
+        "High Stability": "高稳定",
+        "Medium Stability": "中等稳定",
+        "Low Stability": "低稳定",
+        "Diagnostic Only": "仅供诊断"
+      })[value] || value || "--";
+    }
+    function translateRole(value) {
+      return ({
+        "主线 defensive-income candidate": "主线防御收益候选"
+      })[value] || value || "--";
+    }
+    function translateDiagnosticCase(value) {
+      return ({
+        full_sample_metrics: "全样本",
+        exclude_downside_event_metrics: "剔除下跌事件",
+        exclude_upside_event_metrics: "剔除上涨事件",
+        exclude_all_extreme_event_metrics: "剔除全部极端事件"
+      })[value] || String(value || "").replaceAll("_", " ");
+    }
+    function assetUrl(path) {
+      return "../../" + String(path || "").replaceAll("\\", "/");
+    }
+    function groupBy(items, key) {
+      const map = new Map();
+      items.forEach(item => {
+        const k = item[key];
+        if (!map.has(k)) map.set(k, []);
+        map.get(k).push(item);
+      });
+      return map;
+    }
+    function colorFor(index) {
+      return palette[index % palette.length];
+    }
+
+    function init() {
+      bindImageModal();
+      if (!DATA.mainLine && !DATA.stepC) {
+        byId("content").innerHTML = `<div class="panel empty">未找到 ver3 看板数据。请先运行 python ver3\\scripts\\python\\build_ver3_dashboard_data.py</div>`;
+        return;
+      }
+      populateCandidateSelect();
+      byId("sampleText").textContent = `${DATA.sample?.start || "--"} 至 ${DATA.sample?.end || "--"} / ${DATA.sample?.n_obs || "--"} 日`;
+      byId("generatedText").textContent = DATA.generated_at || "--";
+      byId("primaryText").textContent = labelCandidate(DATA.primary_candidate);
+      document.querySelectorAll("[data-tab]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.tab = button.dataset.tab;
+          document.querySelectorAll("[data-tab]").forEach(item => item.classList.toggle("active", item === button));
+          render();
+        });
+      });
+      byId("candidateSelect").addEventListener("change", event => {
+        state.candidate = event.target.value;
+        render();
+      });
+      render();
+    }
+
+    function populateCandidateSelect() {
+      const select = byId("candidateSelect");
+      const candidates = activeCandidateRows().map(row => row.portfolio_name);
+      select.innerHTML = candidates.map(name => (
+        `<option value="${esc(name)}"${name === state.candidate ? " selected" : ""}>${esc(labelCandidate(name))}</option>`
+      )).join("");
+    }
+
+    function render() {
+      const [title, lead] = tabs[state.tab];
+      byId("pageTitle").textContent = title;
+      byId("pageLead").textContent = lead;
+      renderComparisonControls();
+      renderKpis();
+      if (state.tab === "overview") renderOverview();
+      if (state.tab === "sleeves") renderSleeves();
+      if (state.tab === "fixed") renderFixed();
+      if (state.tab === "frontier") renderFrontier();
+      if (state.tab === "robustness") renderRobustness();
+      if (state.tab === "figures") renderFigures();
+    }
+
+    function renderComparisonControls() {
+      const container = byId("overviewCompareControls");
+      if (!container) return;
+      const candidateOptions = activeCandidateRows()
+        .map(row => row.portfolio_name)
+        .filter(name => name && name !== state.candidate);
+      const options = rows(DATA.overviewComparisons?.options);
+      if (state.tab !== "overview" || (!candidateOptions.length && !options.length)) {
+        container.hidden = true;
+        container.innerHTML = "";
+        return;
+      }
+      container.hidden = false;
+      const candidateControls = candidateOptions.length
+        ? `<div class="compare-group">3.1 主线候选</div>${candidateOptions.map(name => `
+          <label class="compare-option">
+            <input type="checkbox" data-candidate-key="${esc(name)}"${state.candidateComparisonKeys.has(name) ? " checked" : ""}>
+            <span>${esc(labelCandidate(name))}</span>
+          </label>`).join("")}`
+        : "";
+      let currentGroup = "";
+      const controls = options.map(option => {
+        const groupLabel = option.group !== currentGroup ? `<div class="compare-group">${esc(option.group)}</div>` : "";
+        currentGroup = option.group;
+        return `${groupLabel}
+          <label class="compare-option">
+            <input type="checkbox" data-comparison-key="${esc(option.key)}"${state.comparisonKeys.has(option.key) ? " checked" : ""}>
+            <span>${esc(option.label)}</span>
+          </label>`;
+      }).join("");
+      container.innerHTML = `<div class="compare-title">净值/回撤对比</div>${candidateControls}${controls}`;
+      container.querySelectorAll("[data-candidate-key]").forEach(input => {
+        input.addEventListener("change", () => {
+          const key = input.dataset.candidateKey;
+          if (input.checked) state.candidateComparisonKeys.add(key);
+          else state.candidateComparisonKeys.delete(key);
+          if (state.tab === "overview") renderOverview();
+        });
+      });
+      container.querySelectorAll("[data-comparison-key]").forEach(input => {
+        input.addEventListener("change", () => {
+          const key = input.dataset.comparisonKey;
+          if (input.checked) state.comparisonKeys.add(key);
+          else state.comparisonKeys.delete(key);
+          if (state.tab === "overview") renderOverview();
+        });
+      });
+    }
+
+    function currentFullRow() {
+      return activeCandidateRows().find(row => row.portfolio_name === state.candidate) || {};
+    }
+    function currentScoreRow() {
+      const scores = rows(DATA.stepC?.stability_scorecard);
+      return scores.find(row => row.portfolio_name === state.candidate)
+        || scores.find(row => row.portfolio_name === state.robustnessCandidate)
+        || scores.find(row => row.portfolio_name === "B_default_D20")
+        || {};
+    }
+
+    function renderKpis() {
+      const full = currentFullRow();
+      const score = currentScoreRow();
+      const stabilityValue = num(score.overall_stability_score) === null ? "--" : fmt(score.overall_stability_score, 3);
+      const stabilityNote = score.portfolio_name
+        ? `StepC诊断 ${labelCandidateCompact(score.portfolio_name)} / ${translateStability(score.overall_stability_label)}`
+        : "3.1稳健性归因待整合";
+      byId("kpis").innerHTML = [
+        kpi("候选", labelCandidate(state.candidate), full.role || "当前选中组合", ""),
+        kpi("年化收益", cagrPct(full.annualized_return_cagr), "全样本复合收益", "positive"),
+        kpi("夏普比率", fmt(full.sharpe_daily_mean, 3), "按日均值年化", "positive"),
+        kpi("最大回撤", pct(full.max_drawdown), "正数幅度", "risk"),
+        kpi("期权腿贡献", pct(full.option_leg_annualized_pnl_contribution), "年化损益贡献", num(full.option_leg_annualized_pnl_contribution) >= 0 ? "positive" : "warning"),
+        kpi("稳定性", stabilityValue, stabilityNote, "positive")
+      ].join("");
+    }
+
+    function kpi(title, value, note, cls) {
+      return `<div class="panel span-2"><h3>${esc(title)}</h3><div class="metric ${cls || ""}">${esc(value)}<small>${esc(note)}</small></div></div>`;
+    }
+
+    function renderOverview() {
+      const weights = activeCandidateWeights().filter(row => row.portfolio_name === state.candidate);
+      const selectedKeys = state.comparisonKeys;
+      const candidateKeys = new Set([state.candidate, ...state.candidateComparisonKeys]);
+      const candidateNav = activeCandidateNav().filter(row => candidateKeys.has(row.portfolio_name));
+      const candidateDd = activeCandidateDrawdowns().filter(row => candidateKeys.has(row.portfolio_name));
+      const comparisonNav = rows(DATA.overviewComparisons?.daily_nav).filter(row => selectedKeys.has(row.portfolio_name));
+      const comparisonDd = rows(DATA.overviewComparisons?.drawdowns).filter(row => selectedKeys.has(row.portfolio_name));
+      const nav = [...candidateNav, ...comparisonNav];
+      const dd = [...candidateDd, ...comparisonDd];
+      const backtestRows = overviewBacktestRows(candidateKeys, selectedKeys);
+      const comparisonCount = selectedKeys.size;
+      const candidateCount = candidateKeys.size;
+      byId("content").innerHTML = `
+        <div class="grid">
+          <div class="panel span-12">
+            <div class="toolbar"><h2>A/B 组合池说明</h2><span class="badge">Portfolio universe</span></div>
+            <div class="definition-grid">
+              <div class="definition">
+                <b>A组：主成长分散组合池</b>
+                <span>510300 作为大盘备兑核心，510500 作为中证500成长分散，159915 作为创业板成长防御覆盖。</span>
+              </div>
+              <div class="definition">
+                <b>B组：防御收益组合池</b>
+                <span>510300 与 510050 作为双大盘备兑核心，159915 作为成长防御覆盖；当前主线候选来自 B组。</span>
+              </div>
+            </div>
+          </div>
+          <div class="panel span-7">
+            <div class="toolbar"><h2>净值曲线</h2><span class="badge">${candidateCount} mainline candidate${candidateCount > 1 ? "s" : ""}${comparisonCount ? ` + ${comparisonCount} baselines` : ""}</span></div>
+            <div id="navChart" class="chart"></div>
+            ${periodNote(nav)}
+          </div>
+          <div class="panel span-5">
+            <h2>当前组合权重</h2>
+            ${table(weights, [
+              ["etf_code", "ETF"],
+              ["sleeve_name", "策略腿", labelSleeve, "long-text"],
+              ["weight", "权重", pct]
+            ])}
+          </div>
+          <div class="panel span-7">
+            <div class="toolbar"><h2>回撤曲线</h2><span class="badge">MDD magnitude / ${candidateCount} mainline${comparisonCount ? ` + ${comparisonCount} baselines` : ""}</span></div>
+            <div id="ddChart" class="chart"></div>
+            ${periodNote(dd)}
+          </div>
+          <div class="panel span-5">
+            <div class="toolbar"><h2>回测对比</h2><span class="badge">${backtestRows.length} selected</span></div>
+            ${table(backtestRows, [
+              ["backtest_label", "组合/基准", v => v, "long-text"],
+              ["backtest_source", "类型"],
+              ["annualized_return_cagr", "CAGR", cagrPct],
+              ["sharpe_daily_mean", "Sharpe", v => fmt(v, 3)],
+              ["max_drawdown", "MDD", pct],
+              ["annualized_volatility", "年化波动", pct],
+              ["option_leg_annualized_pnl_contribution", "期权腿", cagrPct]
+            ])}
+          </div>
+        </div>`;
+      lineChart("navChart", nav, "date", "nav", "portfolio_name", {
+        valueFormat: v => fmt(v, 2),
+        highlight: state.candidate,
+        dimOpacity: 0.55,
+        ...dateAxis(nav, "date")
+      });
+      lineChart("ddChart", dd, "date", "drawdown_magnitude", "portfolio_name", {
+        valueFormat: pct,
+        highlight: state.candidate,
+        zeroMin: true,
+        dimOpacity: 0.55,
+        ...dateAxis(dd, "date")
+      });
+    }
+
+    function renderSleeves() {
+      const rankingCurrent = rows(DATA.stepA?.sleeve_ranking_current);
+      const legacySleeves = rows(DATA.stepA?.sleeves);
+      const all = rankingCurrent.length ? rankingCurrent : legacySleeves;
+      const etfs = ["ALL", ...Array.from(new Set(all.map(row => String(row.etf_code)))).sort()];
+      const filtered = state.sleeveEtf === "ALL" ? all : all.filter(row => String(row.etf_code) === state.sleeveEtf);
+      const sorted = [...filtered].sort((a, b) => (num(b.sharpe_daily_mean) || -9) - (num(a.sharpe_daily_mean) || -9));
+      const targetDeltaSurfaceGrid = rows(DATA.stepA?.target_delta_surface_grid);
+      const targetDeltaBuyholdRows = rows(DATA.stepA?.target_delta_surface_buyhold);
+      const useTargetDeltaSurface = targetDeltaSurfaceGrid.length > 0;
+      const surfaceGrid = useTargetDeltaSurface
+        ? targetDeltaSurfaceGrid
+        : rows(DATA.stepA?.moneyness_refined_surface_grid, rows(DATA.stepA?.parameter_surface_grid));
+      const surfaceMeta = useTargetDeltaSurface
+        ? rows(DATA.stepA?.target_delta_surface_metadata)
+        : rows(DATA.stepA?.moneyness_refined_surface_metadata, rows(DATA.stepA?.parameter_surface_metadata));
+      const surfaceEtfs = Array.from(new Set(surfaceMeta.map(row => String(row.etf_code)).filter(Boolean))).sort();
+      if (surfaceEtfs.length && !surfaceEtfs.includes(String(state.surfaceEtf))) state.surfaceEtf = surfaceEtfs[0];
+      const surfaceMetrics = ["sharpe_daily_mean", "annualized_return_cagr", "annualized_volatility", "max_drawdown", "option_leg_annualized_pnl_contribution"];
+      if (!surfaceMetrics.includes(state.surfaceMetric)) state.surfaceMetric = "sharpe_daily_mean";
+      const currentSurfaceRows = surfaceGrid.filter(row => String(row.etf_code) === String(state.surfaceEtf));
+      const currentBuyholdBaseline = useTargetDeltaSurface
+        ? targetDeltaBuyholdRows.find(row => String(row.etf_code) === String(state.surfaceEtf)) || null
+        : null;
+      const currentSurfaceMeta = surfaceMeta.find(row => String(row.etf_code) === String(state.surfaceEtf)) || {};
+      const currentSurfaceFigureType = useTargetDeltaSurface ? targetDeltaFigureTypeForMetric(state.surfaceMetric) : state.surfaceMetric;
+      const currentSurfaceFigure = useTargetDeltaSurface
+        ? targetDeltaSurfaceFigurePath(state.surfaceEtf, currentSurfaceFigureType)
+        : refinedSurfaceFigurePath(state.surfaceEtf, currentSurfaceFigureType);
+      const currentSurfaceFigureCaption = useTargetDeltaSurface
+        ? (currentSurfaceFigureType === "full_metrics"
+          ? `${state.surfaceEtf} target-delta x coverage full metrics`
+          : `${state.surfaceEtf} target-delta x coverage ${labelSurfaceMetric(state.surfaceMetric)}`)
+        : `${state.surfaceEtf} parameter surface ${labelSurfaceMetric(state.surfaceMetric)}`;
+      const parameterGridCols = [
+        ["moneyness_label", useTargetDeltaSurface ? "Target Delta" : "规则", null, "", (value, row) => row.parameter_grid_role === "buyhold" ? -1 : num(row.moneyness_depth)],
+        ["coverage_label", "覆盖率", null, "", (value, row) => num(row.coverage)],
+        ["parameter_depth", useTargetDeltaSurface ? "Effective short delta" : "参数深度", v => fmt(v, 4)],
+        ["sharpe_daily_mean", "Sharpe", v => fmt(v, 3)],
+        ["annualized_return_cagr", "CAGR", cagrPct],
+        ["annualized_volatility", "年化波动", pct],
+        ["max_drawdown", "MDD", pct],
+        ["option_leg_annualized_pnl_contribution", "Option leg", pct],
+        ...(useTargetDeltaSurface ? [
+          ["avg_selected_delta", "Avg selected delta", v => fmt(v, 3)],
+          ["avg_realized_moneyness", "Avg realized mny", pct]
+        ] : []),
+        ["assignment_count", "被行权/周期", formatAssignmentFraction],
+        ["sample_start", "起点"],
+        ["sample_end", "终点"],
+        ["source_detail", "来源", v => String(v || "").replace("ETF BuyHold baseline", "纯ETF基准").replace("ver2_1_dte30_full_rule_grid", "ver2.1 DTE30 规则网格").replace("ver2_6_stepA_available_rules", "ver2.6 Step A 已有规则").replace("ver3_stepA_588000_q100_scaled", "588000 Q100 缩放"), "long-text"]
+      ];
+      const parameterGridBaseRows = surfaceGridRowsWithBuyhold(currentSurfaceRows, all, state.surfaceEtf);
+      const parameterGridRows = sortTableRows(parameterGridBaseRows, parameterGridCols, state.surfaceGridSort);
+      byId("content").innerHTML = `
+        <div class="grid">
+          <div class="panel span-7">
+            <div class="toolbar">
+              <h2>策略腿风险收益排序</h2>
+              <div class="seg">${etfs.map(etf => `<button data-etf="${esc(etf)}" class="${etf === state.sleeveEtf ? "active" : ""}">${esc(etf === "ALL" ? "全部" : etf)}</button>`).join("")}</div>
+            </div>
+            <div id="sleeveSharpeChart" class="chart tall"></div>
+            ${periodNote(sorted)}
+            <div class="chart-note">排序仍使用当前已冻结的策略腿排序口径；本页右侧参数曲面切换为 target-delta × coverage 证据层，用于重新建立主线策略前的第一层展示。TP80 与 Touch-K 不进入当前主排序。</div>
+          </div>
+          <div class="panel span-5">
+            <div class="toolbar">
+              <h2>动态参数曲面</h2>
+              <span class="badge">${esc(currentSurfaceRows.length)} 个真实格点</span>
+            </div>
+            <div class="seg">${surfaceEtfs.map(etf => `<button data-surface-etf="${esc(etf)}" class="${etf === String(state.surfaceEtf) ? "active" : ""}">${esc(etf)}</button>`).join("")}</div>
+            <div class="seg">${surfaceMetrics.map(metric => `<button data-surface-metric="${esc(metric)}" class="${metric === state.surfaceMetric ? "active" : ""}">${esc(labelSurfaceMetric(metric))}</button>`).join("")}</div>
+            <div id="surfaceInteractiveChart" class="surface-chart"></div>
+            ${periodNote(currentSurfaceRows)}
+            ${currentBuyholdBaseline ? `<div class="chart-note">BuyHold baseline plane: ${esc(labelSurfaceMetric(state.surfaceMetric))} = ${esc(formatSurfaceMetric(state.surfaceMetric, currentBuyholdBaseline[state.surfaceMetric]))}</div>` : ""}
+            ${currentSurfaceFigure ? zoomableImage(assetUrl(currentSurfaceFigure), `${state.surfaceEtf} target-delta coverage surface`, currentSurfaceFigureCaption, "chart-figure") : ""}
+            <div class="chart-note">
+              ${esc((useTargetDeltaSurface ? currentSurfaceMeta.available_delta_rules : currentSurfaceMeta.available_moneyness_rules) || "已完成规则")}；覆盖率按 10%-100% 日频动态重算。${useTargetDeltaSurface ? "静态图叠加 coverage × target delta 等值线。" : ""}曲面为前端插值展示，黑点/红星为真实回测格点。
+            </div>
+          </div>
+          <div class="panel span-12">
+            <div class="toolbar">
+              <h2>${esc(state.surfaceEtf)} 参数网格</h2>
+              <span class="badge">${useTargetDeltaSurface ? "BuyHold + Delta×覆盖率" : "BuyHold + 虚值×覆盖率"}</span>
+            </div>
+            <div class="callout">BuyHold 为覆盖率 0 的基准行；其后按参数深度从浅到深排列。${useTargetDeltaSurface ? "参数深度 = target delta × 覆盖率，可近似视作卖购侧 effective delta 暴露。" : "参数深度 = max(虚值程度, 0) × 覆盖率。"}${esc(currentSurfaceMeta.backtest_note ? ` ${currentSurfaceMeta.backtest_note}` : "")}</div>
+            ${table(parameterGridRows, parameterGridCols, { sortableId: "surface-grid", sortState: state.surfaceGridSort })}
+          </div>
+          <div class="panel span-12">
+            ${table(sorted, [
+              ["etf_code", "ETF"],
+              ["source_group", "来源", labelSourceGroup],
+              ["moneyness_label", "规则"],
+              ["coverage_label", "覆盖率"],
+              ["sleeve_name", "策略腿", labelSleeve, "long-text"],
+              ["annualized_return_cagr", "年化收益", cagrPct],
+              ["sharpe_daily_mean", "夏普", v => fmt(v, 3)],
+              ["max_drawdown", "最大回撤", pct],
+              ["option_leg_annualized_pnl_contribution", "期权腿", pct],
+              ["sample_start", "起点"],
+              ["sample_end", "终点"],
+              ["notes", "备注", v => String(v || "").replace("pure ETF baseline", "纯ETF基准").replace("main 510050 covered-call candidate", "510050主备兑候选").replace("stress diagnostic", "压力诊断").replace("stress-test-only", "仅压力测试"), "long-text"]
+            ])}
+          </div>
+        </div>`;
+      document.querySelectorAll("[data-etf]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.sleeveEtf = button.dataset.etf;
+          renderSleeves();
+        });
+      });
+      document.querySelectorAll("[data-surface-etf]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.surfaceEtf = button.dataset.surfaceEtf;
+          renderSleeves();
+        });
+      });
+      document.querySelectorAll("[data-surface-metric]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.surfaceMetric = button.dataset.surfaceMetric;
+          renderSleeves();
+        });
+      });
+      document.querySelectorAll('[data-table-sort="surface-grid"]').forEach(button => {
+        button.addEventListener("click", () => {
+          state.surfaceGridSort = nextSortState(state.surfaceGridSort, button.dataset.sortKey);
+          renderSleeves();
+        });
+      });
+      barChart("sleeveSharpeChart", sorted.slice(0, 12), "sharpe_daily_mean", row => `${row.etf_code} ${labelSleeveChart(row.sleeve_name)}`, { valueFormat: v => fmt(v, 3), left: 210, rowH: 22, labelFontSize: 10, valueFontSize: 10 });
+      renderInteractiveSurface("surfaceInteractiveChart", currentSurfaceRows, state.surfaceMetric, currentBuyholdBaseline);
+    }
+
+    function renderFixed() {
+      const summary = rows(DATA.stepB?.portfolio_summary);
+      const legacySummary = rows(DATA.stepB?.legacy_portfolio_summary);
+      const deltas = rows(DATA.stepB?.selected_vs_pure);
+      const universe = rows(DATA.stepB?.universe_comparison);
+      byId("content").innerHTML = `
+        <div class="grid">
+          <div class="panel span-12">
+            <div class="callout">
+              本页同时保留两层固定权重证据：上方为 3.1 target-delta 策略单元的固定权重组合，下方为迁移前 StepB 的完整备兑组合与纯ETF基准对照。
+            </div>
+          </div>
+          <div class="panel span-12">
+            <h2>3.1 固定权重组合</h2>
+            ${table(summary, [
+              ["portfolio_name", "组合", labelPortfolio, "long-text"],
+              ["universe_short", "组合池", v => `${v}组`],
+              ["portfolio_type", "类型", labelPortfolioType],
+              ["annualized_return_cagr", "年化收益", cagrPct],
+              ["sharpe_daily_mean", "夏普", v => fmt(v, 3)],
+              ["max_drawdown", "最大回撤", pct],
+              ["option_leg_annualized_pnl_contribution", "期权腿", pct],
+              ["weight_510300", "510300", pct],
+              ["weight_510050", "510050", pct],
+              ["weight_510500", "510500", pct],
+              ["weight_159915", "159915", pct]
+            ])}
+          </div>
+          ${deltas.length ? `<div class="panel span-5">
+            <h2>备兑组合相对纯ETF基准</h2>
+            <div id="fixedDeltaChart" class="chart short"></div>
+            ${periodNote(deltas)}
+          </div>` : ""}
+          ${legacySummary.length ? `<div class="panel span-${deltas.length ? "7" : "12"}">
+            <h2>StepB 完整固定权重对照</h2>
+            ${table(legacySummary, [
+              ["portfolio_name", "组合", labelPortfolio, "long-text"],
+              ["universe_short", "组合池", v => `${v}组`],
+              ["portfolio_type", "类型", labelPortfolioType],
+              ["weight_scheme", "权重"],
+              ["annualized_return_cagr", "年化收益", cagrPct],
+              ["sharpe_daily_mean", "夏普", v => fmt(v, 3)],
+              ["max_drawdown", "最大回撤", pct],
+              ["option_leg_annualized_pnl_contribution", "期权腿", pct]
+            ])}
+          </div>` : ""}
+          ${universe.length ? `<div class="panel span-12">
+            <h2>A/B 组合池对比</h2>
+            ${table(universe, [
+              ["left_portfolio", "B组组合", labelPortfolio, "long-text"],
+              ["right_portfolio", "A组组合", labelPortfolio, "long-text"],
+              ["portfolio_type", "类型", labelPortfolioType],
+              ["weight_scheme", "权重"],
+              ["delta_cagr", "CAGR差", cagrPct],
+              ["delta_sharpe", "Sharpe差", v => fmt(v, 3)],
+              ["delta_mdd", "MDD差", pct],
+              ["interpretation_hint", "解释", v => v, "long-text"]
+            ])}
+          </div>` : ""}
+        </div>`;
+      if (deltas.length) barChart("fixedDeltaChart", deltas, "delta_sharpe_vs_baseline", row => labelPortfolio(row.selected_portfolio), { valueFormat: v => fmt(v, 3), left: 220 });
+    }
+
+    function renderFrontier() {
+      const mainFrontier = rows(DATA.mainLine?.frontier);
+      const useMainFrontier = mainFrontier.length > 0;
+      const data = useMainFrontier ? mainFrontier : (state.constraint === "default" ? rows(DATA.stepBPlus?.frontier_default) : rows(DATA.stepBPlus?.frontier_relaxed));
+      const feasible = data.filter(row => row.frontier_status === "feasible");
+      byId("content").innerHTML = `
+        <div class="grid">
+          <div class="panel span-12">
+            <div class="toolbar">
+              <h2>${useMainFrontier ? "3.1 回撤预算优化" : `${translateConstraint(state.constraint)} frontier`}</h2>
+              ${useMainFrontier ? `<span class="badge">target-delta mainline</span>` : `<div class="seg">
+                <button data-constraint="default" class="${state.constraint === "default" ? "active" : ""}">默认约束</button>
+                <button data-constraint="relaxed" class="${state.constraint === "relaxed" ? "active" : ""}">放宽约束</button>
+              </div>`}
+            </div>
+            <div class="grid">
+              <div class="span-6"><div id="frontierSharpeChart" class="chart short"></div></div>
+              <div class="span-6"><div id="frontierWeightChart" class="chart short"></div></div>
+            </div>
+            ${periodNote(data)}
+          </div>
+          <div class="panel span-12">
+            ${table(data, [
+              ["portfolio_name", "Frontier point", labelPortfolio, "long-text"],
+              ["universe_short", "组合池", v => `${v}组`],
+              ["D_star", "回撤预算", pct],
+              ["frontier_status", "状态", translateStatus],
+              ["feasible_candidate_count", "可行数", v => fmt(v, 0)],
+              ["annualized_return_cagr", "年化收益", cagrPct],
+              ["sharpe_daily_mean", "夏普", v => fmt(v, 3)],
+              ["max_drawdown", "最大回撤", pct],
+              ["weight_510300", "510300", pct],
+              ["weight_510050", "510050", pct],
+              ["weight_510500", "510500", pct],
+              ["weight_159915", "159915", pct]
+            ])}
+          </div>
+        </div>`;
+      if (!useMainFrontier) document.querySelectorAll("[data-constraint]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.constraint = button.dataset.constraint;
+          renderFrontier();
+        });
+      });
+      barChart("frontierSharpeChart", feasible, "sharpe_daily_mean", row => `${row.universe_short}组 回撤${Math.round(num(row.D_star) * 100)}%`, { valueFormat: v => fmt(v, 3), left: 130 });
+      stackedWeightChart("frontierWeightChart", feasible);
+    }
+
+    function renderRobustness() {
+      const score = rows(DATA.stepC?.stability_scorecard);
+      const robustnessOptions = score.map(row => row.portfolio_name).filter(Boolean);
+      if (robustnessOptions.length && !robustnessOptions.includes(state.robustnessCandidate)) {
+        state.robustnessCandidate = robustnessOptions.includes("B_default_D20") ? "B_default_D20" : robustnessOptions[0];
+      }
+      const diagnosticCandidate = state.robustnessCandidate;
+      const rolling252 = rows(DATA.stepC?.rolling_252).filter(row => row.portfolio_name === diagnosticCandidate);
+      const rolling504 = rows(DATA.stepC?.rolling_504).filter(row => row.portfolio_name === diagnosticCandidate);
+      const eventRows = rows(DATA.stepC?.event_exclusion).filter(row => row.portfolio_name === diagnosticCandidate);
+      const costRows = rows(DATA.stepC?.cost_sensitivity).filter(row => row.portfolio_name === diagnosticCandidate);
+      const validationPass = rows(DATA.stepC?.validation).filter(row => isPassed(row.passed)).length;
+      const validationAll = rows(DATA.stepC?.validation).length;
+      const validationOk = validationAll > 0 && validationPass === validationAll;
+      byId("content").innerHTML = `
+        <div class="grid">
+          <div class="panel span-6">
+            <div class="toolbar">
+              <h2>稳定性评分</h2>
+              <span class="badge ${validationOk ? "pass" : "fail"}" title="Step C validation checks">${validationPass}/${validationAll} Validation passed</span>
+            </div>
+            <div id="stabilityChart" class="chart short"></div>
+            ${periodNote(score)}
+            ${stabilityFormulaNote()}
+          </div>
+          <div class="panel span-6">
+            <div class="toolbar">
+              <h2>${esc(labelCandidate(diagnosticCandidate))} 滚动夏普</h2>
+              ${robustnessOptions.length ? `<select id="robustnessCandidateSelect">${robustnessOptions.map(name => `<option value="${esc(name)}"${name === diagnosticCandidate ? " selected" : ""}>${esc(labelCandidate(name))}</option>`).join("")}</select>` : ""}
+            </div>
+            <div id="rollingChart" class="chart short"></div>
+            <div class="chart-note">${esc(rollingPeriodText([...rolling252, ...rolling504]))}</div>
+          </div>
+          <div class="panel span-6">
+            <h2>事件剔除</h2>
+            ${table(eventRows, [
+              ["diagnostic_case", "Diagnostic case", translateDiagnosticCase],
+              ["removed_trading_days", "删去日", v => fmt(v, 0)],
+              ["annualized_return_cagr", "年化收益", cagrPct],
+              ["sharpe_daily_mean", "夏普", v => fmt(v, 3)],
+              ["max_drawdown", "最大回撤", pct],
+              ["delta_sharpe_vs_full_sample", "夏普变化", v => fmt(v, 3)]
+            ])}
+          </div>
+          <div class="panel span-6">
+            <h2>成本敏感性</h2>
+            <div id="costChart" class="chart short"></div>
+            ${periodNote(costRows)}
+          </div>
+        </div>`;
+      const robustnessSelect = byId("robustnessCandidateSelect");
+      if (robustnessSelect) robustnessSelect.addEventListener("change", event => {
+        state.robustnessCandidate = event.target.value;
+        renderRobustness();
+      });
+      barChart("stabilityChart", score, "overall_stability_score", row => labelCandidateCompact(row.portfolio_name), { valueFormat: v => fmt(v, 3), maxValue: 1, left: 92, rowH: 24, labelFontSize: 10, valueFontSize: 10 });
+      lineChart("rollingChart", [
+        ...rolling252.map(row => ({ ...row, window_label: "252日" })),
+        ...rolling504.map(row => ({ ...row, window_label: "504日" }))
+      ], "window_end", "rolling_sharpe", "window_label", { valueFormat: v => fmt(v, 2) });
+      lineChart(
+        "costChart",
+        costRows.sort((a, b) => num(a.extra_cost_bps) - num(b.extra_cost_bps)),
+        "extra_cost_bps",
+        "sharpe_daily_mean",
+        "portfolio_name",
+        {
+          valueFormat: v => fmt(v, 3),
+          xFormat: bps,
+          xTicks: [0, 5, 10, 20, 30],
+          xLabel: "Extra option cost, annualized bps"
+        }
+      );
+    }
+
+    function renderInteractiveSurface(id, records, metricName, baselineRow = null) {
+      const host = byId(id);
+      if (!host) return;
+      const valid = (records || []).filter(row =>
+        num(row.moneyness_axis) !== null &&
+        num(row.coverage) !== null &&
+        num(row[metricName]) !== null
+      );
+      if (valid.length < 3) {
+        host.innerHTML = `<div class="empty">暂无曲面数据</div>`;
+        return;
+      }
+      const axisType = surfaceAxisType(valid);
+      const xAxisLabel = surfaceXAxisLabel(valid);
+      host.innerHTML = `<canvas aria-label="interactive parameter surface"></canvas><div class="surface-tooltip"></div>`;
+      const canvas = host.querySelector("canvas");
+      const tip = host.querySelector(".surface-tooltip");
+      const ctx = canvas.getContext("2d");
+      const xValues = Array.from(new Set(valid.map(row => num(row.moneyness_axis)))).sort((a, b) => a - b);
+      const yValues = Array.from(new Set(valid.map(row => num(row.coverage)))).sort((a, b) => a - b);
+      const zValues = valid.map(row => num(row[metricName]));
+      const xMin = Math.min(...xValues), xMax = Math.max(...xValues);
+      const yMin = Math.min(...yValues), yMax = Math.max(...yValues);
+      const baselineValue = baselineRow ? num(baselineRow[metricName]) : null;
+      const zDomainValues = baselineValue === null ? zValues : [...zValues, baselineValue];
+      const zMin = Math.min(...zDomainValues), zMax = Math.max(...zDomainValues);
+      const baselineNz = baselineValue === null ? null : normUnit(baselineValue, zMin, zMax);
+      const best = sortSurfaceRows(valid, metricName)[0];
+      const pointKey = (x, y) => `${Number(x).toFixed(12)}|${Number(y).toFixed(6)}`;
+      const pointMap = new Map();
+      const points = valid.map(row => {
+        const x = num(row.moneyness_axis);
+        const y = num(row.coverage);
+        const z = num(row[metricName]);
+        const p = {
+          row,
+          rawX: x,
+          rawY: y,
+          rawZ: z,
+          nx: normUnit(x, xMin, xMax),
+          ny: normUnit(y, yMin, yMax),
+          nz: normUnit(z, zMin, zMax)
+        };
+        pointMap.set(pointKey(x, y), p);
+        return p;
+      });
+      const triangles = [];
+      for (let i = 0; i < xValues.length - 1; i += 1) {
+        for (let j = 0; j < yValues.length - 1; j += 1) {
+          const p00 = pointMap.get(pointKey(xValues[i], yValues[j]));
+          const p10 = pointMap.get(pointKey(xValues[i + 1], yValues[j]));
+          const p01 = pointMap.get(pointKey(xValues[i], yValues[j + 1]));
+          const p11 = pointMap.get(pointKey(xValues[i + 1], yValues[j + 1]));
+          if (p00 && p10 && p11) triangles.push([p00, p10, p11]);
+          if (p00 && p11 && p01) triangles.push([p00, p11, p01]);
+        }
+      }
+      let projectedPoints = [];
+      let dragging = false;
+      let lastX = 0;
+      let lastY = 0;
+
+      function resize() {
+        const rect = host.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+        canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        draw(rect.width, rect.height);
+      }
+
+      function draw(width = host.clientWidth, height = host.clientHeight) {
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, width, height);
+        const projected = new Map();
+        for (const p of points) projected.set(p, projectSurfacePoint(p, width, height));
+
+        const projectedTriangles = triangles.map(tri => {
+          const pts = tri.map(p => projected.get(p));
+          const zAvg = tri.reduce((sum, p) => sum + p.nz, 0) / tri.length;
+          const depth = pts.reduce((sum, p) => sum + p.depth, 0) / pts.length;
+          return { pts, zAvg, depth };
+        }).sort((a, b) => a.depth - b.depth);
+
+        drawSurfaceAxes(ctx, width, height, metricName, zMin, zMax, xAxisLabel);
+        projectedTriangles.forEach(tri => {
+          ctx.beginPath();
+          ctx.moveTo(tri.pts[0].x, tri.pts[0].y);
+          ctx.lineTo(tri.pts[1].x, tri.pts[1].y);
+          ctx.lineTo(tri.pts[2].x, tri.pts[2].y);
+          ctx.closePath();
+          ctx.fillStyle = surfaceColor(tri.zAvg, 0.72);
+          ctx.fill();
+          ctx.strokeStyle = "rgba(255,255,255,0.42)";
+          ctx.lineWidth = 0.55;
+          ctx.stroke();
+        });
+        if (baselineNz !== null) drawBaselinePlane(ctx, width, height, metricName, baselineValue, baselineNz);
+
+        projectedPoints = points.map(p => ({ ...projected.get(p), point: p }));
+        projectedPoints.sort((a, b) => a.depth - b.depth).forEach(item => {
+          const isBest = best && item.point.row.surface_point_id === best.surface_point_id;
+          if (isBest) {
+            drawStar(ctx, item.x, item.y, 8.5, "#bd4b43");
+          } else {
+            ctx.beginPath();
+            ctx.arc(item.x, item.y, 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = "#263545";
+            ctx.fill();
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+        });
+        drawSurfaceColorBar(ctx, width, height, metricName, zMin, zMax);
+        if (baselineValue !== null) drawBaselineBadge(ctx, width, height, metricName, baselineValue);
+      }
+
+      function showTooltip(event) {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        let nearest = null;
+        let bestDistance = Infinity;
+        for (const item of projectedPoints) {
+          const distance = Math.hypot(item.x - x, item.y - y);
+          if (distance < bestDistance) {
+            bestDistance = distance;
+            nearest = item;
+          }
+        }
+        if (!nearest || bestDistance > 10) {
+          tip.style.display = "none";
+          return;
+        }
+        const row = nearest.point.row;
+        const target = axisType === "target_delta"
+          ? `Delta ${fmt(row.target_delta, 2)} / Effective ${fmt(row.parameter_depth, 4)}`
+          : pct(row.target_moneyness);
+        tip.innerHTML = `
+          <b>${esc(row.etf_code)} ${esc(row.moneyness_label)} ${esc(row.coverage_label)}</b><br>
+          ${esc(labelSurfaceMetric(metricName))}: ${esc(formatSurfaceMetric(metricName, row[metricName]))}<br>
+          ${esc(xAxisLabel)}: ${esc(target)} / Coverage: ${esc(pct(row.coverage))}<br>
+          CAGR: ${esc(cagrPct(row.annualized_return_cagr))} / MDD: ${esc(pct(row.max_drawdown))}`;
+        tip.style.left = `${Math.max(8, Math.min(x + 12, rect.width - 252))}px`;
+        tip.style.top = `${Math.max(8, y - 58)}px`;
+        tip.style.display = "block";
+      }
+
+      canvas.addEventListener("pointerdown", event => {
+        dragging = true;
+        lastX = event.clientX;
+        lastY = event.clientY;
+        canvas.classList.add("dragging");
+        tip.style.display = "none";
+        canvas.setPointerCapture(event.pointerId);
+      });
+      canvas.addEventListener("pointermove", event => {
+        if (!dragging) {
+          showTooltip(event);
+          return;
+        }
+        const dx = event.clientX - lastX;
+        const dy = event.clientY - lastY;
+        lastX = event.clientX;
+        lastY = event.clientY;
+        state.surfaceYaw += dx * 0.012;
+        state.surfacePitch = Math.max(0.22, Math.min(1.24, state.surfacePitch + dy * 0.01));
+        draw();
+      });
+      canvas.addEventListener("pointerup", event => {
+        dragging = false;
+        canvas.classList.remove("dragging");
+        try { canvas.releasePointerCapture(event.pointerId); } catch (_err) {}
+      });
+      canvas.addEventListener("pointerleave", () => {
+        if (!dragging) tip.style.display = "none";
+      });
+      setTimeout(resize, 0);
+    }
+
+    function normUnit(value, min, max) {
+      const span = max - min || 1;
+      return (value - min) / span;
+    }
+
+    function projectSurfacePoint(point, width, height) {
+      const scale = Math.min(width, height) * 0.29;
+      let x = (point.nx - 0.5) * 2.35;
+      let y = (point.ny - 0.5) * 1.78;
+      let z = (point.nz - 0.5) * 1.42;
+      const cy = Math.cos(state.surfaceYaw), sy = Math.sin(state.surfaceYaw);
+      const x1 = x * cy - y * sy;
+      const y1 = x * sy + y * cy;
+      const cp = Math.cos(state.surfacePitch), sp = Math.sin(state.surfacePitch);
+      const y2 = y1 * cp - z * sp;
+      const z2 = y1 * sp + z * cp;
+      return {
+        x: width / 2 + x1 * scale,
+        y: height * 0.55 - z2 * scale,
+        depth: y2
+      };
+    }
+
+    function drawSurfaceAxes(ctx, width, height, metricName, zMin, zMax, xAxisLabel = "Target moneyness") {
+      const axes = [
+        [{ nx: 0, ny: 0, nz: 0 }, { nx: 1, ny: 0, nz: 0 }, xAxisLabel],
+        [{ nx: 0, ny: 0, nz: 0 }, { nx: 0, ny: 1, nz: 0 }, "Coverage"],
+        [{ nx: 0, ny: 0, nz: 0 }, { nx: 0, ny: 0, nz: 1 }, labelSurfaceMetric(metricName)]
+      ];
+      ctx.save();
+      ctx.strokeStyle = "#b8c4cf";
+      ctx.fillStyle = "#566575";
+      ctx.lineWidth = 1;
+      ctx.font = "11px Microsoft YaHei, Segoe UI, Arial";
+      axes.forEach(([a, b, label]) => {
+        const p1 = projectSurfacePoint(a, width, height);
+        const p2 = projectSurfacePoint(b, width, height);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+        ctx.fillText(label, p2.x + 6, p2.y + 4);
+      });
+      ctx.fillText(`低 ${formatSurfaceMetric(metricName, zMin)}`, 12, height - 12);
+      ctx.fillText(`高 ${formatSurfaceMetric(metricName, zMax)}`, 12, height - 28);
+      ctx.restore();
+    }
+
+    function drawBaselinePlane(ctx, width, height, metricName, baselineValue, baselineNz) {
+      const corners = [
+        { nx: 0, ny: 0, nz: baselineNz },
+        { nx: 1, ny: 0, nz: baselineNz },
+        { nx: 1, ny: 1, nz: baselineNz },
+        { nx: 0, ny: 1, nz: baselineNz }
+      ].map(point => projectSurfacePoint(point, width, height));
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(corners[0].x, corners[0].y);
+      for (let i = 1; i < corners.length; i += 1) ctx.lineTo(corners[i].x, corners[i].y);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(155, 106, 24, 0.14)";
+      ctx.fill();
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = "rgba(155, 106, 24, 0.92)";
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+      ctx.setLineDash([]);
+      const labelPoint = corners[2];
+      ctx.fillStyle = "#7c5312";
+      ctx.font = "11px Microsoft YaHei, Segoe UI, Arial";
+      ctx.fillText(`BuyHold ${formatSurfaceMetric(metricName, baselineValue)}`, labelPoint.x + 8, labelPoint.y - 4);
+      ctx.restore();
+    }
+
+    function drawBaselineBadge(ctx, width, height, metricName, baselineValue) {
+      const text = `BuyHold ${labelSurfaceMetric(metricName)}: ${formatSurfaceMetric(metricName, baselineValue)}`;
+      ctx.save();
+      ctx.font = "11px Microsoft YaHei, Segoe UI, Arial";
+      const textWidth = ctx.measureText(text).width;
+      const x = 12;
+      const y = 16;
+      ctx.fillStyle = "rgba(255, 248, 232, 0.94)";
+      ctx.strokeStyle = "rgba(155, 106, 24, 0.65)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(x, y, textWidth + 18, 24, 6);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#7c5312";
+      ctx.fillText(text, x + 9, y + 16);
+      ctx.restore();
+    }
+
+    function drawSurfaceColorBar(ctx, width, height, metricName, zMin, zMax) {
+      const x = width - 28;
+      const y = 42;
+      const h = Math.max(110, height - 98);
+      ctx.save();
+      for (let i = 0; i < h; i += 1) {
+        const t = 1 - i / h;
+        ctx.fillStyle = surfaceColor(t, 1);
+        ctx.fillRect(x, y + i, 10, 1);
+      }
+      ctx.strokeStyle = "#8d99a6";
+      ctx.strokeRect(x, y, 10, h);
+      ctx.fillStyle = "#4c5b6b";
+      ctx.font = "10px Microsoft YaHei, Segoe UI, Arial";
+      ctx.fillText(formatSurfaceMetric(metricName, zMax), x - 4, y - 8);
+      ctx.fillText(formatSurfaceMetric(metricName, zMin), x - 4, y + h + 16);
+      ctx.restore();
+    }
+
+    function surfaceColor(t, alpha = 1) {
+      const clamped = Math.max(0, Math.min(1, t));
+      const hue = 218 - clamped * 158;
+      const light = 44 + clamped * 12;
+      return `hsla(${hue}, 62%, ${light}%, ${alpha})`;
+    }
+
+    function drawStar(ctx, cx, cy, radius, fill) {
+      ctx.save();
+      ctx.beginPath();
+      for (let i = 0; i < 10; i += 1) {
+        const r = i % 2 === 0 ? radius : radius * 0.45;
+        const a = -Math.PI / 2 + i * Math.PI / 5;
+        const x = cx + Math.cos(a) * r;
+        const y = cy + Math.sin(a) * r;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = fill;
+      ctx.fill();
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.1;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function renderFigures() {
+      const figs = DATA.figure_paths || {};
+      const parameterFigures = rows(DATA.stepA?.parameter_surface_figures);
+      const refinedSurfaceFigures = rows(DATA.stepA?.moneyness_refined_surface_figures)
+        .filter(row => String(row.figure_kind || "").toLowerCase() === "surface_3d");
+      const targetDeltaSurfaceFigures = rows(DATA.stepA?.target_delta_surface_figures);
+      const names = [
+        ["nav", "候选净值曲线"],
+        ["drawdown", "候选回撤曲线"],
+        ["rolling_sharpe", "滚动夏普"],
+        ["rolling_mdd", "滚动最大回撤"],
+        ["cost", "成本敏感性"],
+        ["stability", "稳定性评分"],
+        ["sleeve_moneyness_coverage_surface", "Sleeve 虚值-覆盖率曲面"],
+        ["sleeve_moneyness_coverage_3d", "Sleeve 虚值-覆盖率点图"]
+      ];
+      byId("content").innerHTML = `
+        <div class="panel">
+          <div class="figure-grid">
+            ${names.map(([key, title]) => figs[key] ? `
+              <figure>
+                ${zoomableImage(assetUrl(figs[key]), title, title)}
+                <figcaption class="figure-caption">${esc(title)}</figcaption>
+              </figure>` : "").join("")}
+            ${parameterFigures.map(row => `
+              <figure>
+                ${zoomableImage(assetUrl(`outputs/ver3_0_sleeve_diagnostics_report_pack/${row.figure_path}`), `${row.etf_code} parameter surface`, `${row.etf_code} parameter surface: ${labelSurfaceMetric(row.metric_name)}`)}
+                <figcaption class="figure-caption">${esc(row.etf_code)} 参数曲面：${esc(labelSurfaceMetric(row.metric_name))}</figcaption>
+              </figure>`).join("")}
+            ${refinedSurfaceFigures.map(row => `
+              <figure>
+                ${zoomableImage(assetUrl(row.path), `${row.etf_code} refined daily-MTM 3D surface`, `${row.etf_code} refined daily-MTM 3D: ${labelSurfaceMetric(row.metric_name)}`)}
+                <figcaption class="figure-caption">${esc(row.etf_code)} refined daily-MTM 3D: ${esc(labelSurfaceMetric(row.metric_name))}</figcaption>
+              </figure>`).join("")}
+            ${targetDeltaSurfaceFigures.map(row => `
+              <figure>
+                ${zoomableImage(assetUrl(row.path), `${row.etf_code} target-delta coverage surface`, `${row.etf_code} target-delta x coverage: ${row.figure_type}`)}
+                <figcaption class="figure-caption">${esc(row.etf_code)} target-delta × coverage: ${esc(row.figure_type)}</figcaption>
+              </figure>`).join("")}
+          </div>
+        </div>`;
+    }
+
+    function table(records, cols, options = {}) {
+      if (!records || !records.length) return `<div class="empty">暂无数据</div>`;
+      const sortableId = options.sortableId || "";
+      const sortState = options.sortState || {};
+      const hasPeriod = options.showPeriod !== false && records.some(row =>
+        row && (row.sample_start || row.sample_end || row.window_start || row.window_end)
+      );
+      const displayCols = hasPeriod && !cols.some(col => col[0] === "backtest_period")
+        ? [...cols, ["backtest_period", "回测周期", formatBacktestPeriod, "long-text"]]
+        : cols;
+      const headers = displayCols.map(col => {
+        if (!sortableId) return `<th>${esc(col[1])}</th>`;
+        const active = sortState.key === col[0] && sortState.direction;
+        const icon = active ? (sortState.direction === "desc" ? "↓" : "↑") : "↕";
+        const title = active
+          ? (sortState.direction === "desc" ? "当前高到低；再次点击改为低到高" : "当前低到高；再次点击复原")
+          : "点击按此列从高到低排序";
+        return `<th class="sortable"><button type="button" class="sort-button${active ? " active" : ""}" data-table-sort="${esc(sortableId)}" data-sort-key="${esc(col[0])}" title="${esc(title)}"><span>${esc(col[1])}</span><span class="sort-icon">${esc(icon)}</span></button></th>`;
+      }).join("");
+      return `<div class="table-wrap"><table><thead><tr>${headers}</tr></thead><tbody>${
+        records.map(row => `<tr>${displayCols.map(col => {
+          const raw = row[col[0]];
+          const formatter = col[2];
+          const value = formatter ? formatter(raw, row) : raw;
+          const klass = col[3] || "";
+          return `<td class="${esc(klass)}" title="${esc(raw)}">${esc(value)}</td>`;
+        }).join("")}</tr>`).join("")
+      }</tbody></table></div>`;
+    }
+
+    function scaleLinear(domainMin, domainMax, rangeMin, rangeMax) {
+      const span = domainMax - domainMin || 1;
+      return value => rangeMin + (value - domainMin) / span * (rangeMax - rangeMin);
+    }
+
+    function lineChart(id, records, xField, yField, groupField, options = {}) {
+      const container = byId(id);
+      if (!container) return;
+      container.classList.add("with-legend");
+      const valid = (records || []).filter(row => num(row[yField]) !== null && row[xField] !== null && row[xField] !== undefined);
+      if (!valid.length) {
+        container.innerHTML = `<div class="empty">暂无图表数据</div>`;
+        return;
+      }
+      const width = 760;
+      const height = 280;
+      const left = 48;
+      const right = 16;
+      const top = 16;
+      const bottom = options.xLabel || options.xTicks ? 50 : 34;
+      const xVals = valid.map(row => xToNumber(row[xField]));
+      const yVals = valid.map(row => num(row[yField]));
+      const xMin = Math.min(...xVals), xMax = Math.max(...xVals);
+      let yMin = Math.min(...yVals), yMax = Math.max(...yVals);
+      const pad = (yMax - yMin || Math.abs(yMax) || 1) * 0.08;
+      yMin -= pad; yMax += pad;
+      if (options.zeroMin) yMin = Math.min(0, yMin);
+      const sx = scaleLinear(xMin, xMax, left, width - right);
+      const sy = scaleLinear(yMin, yMax, height - bottom, top);
+      const groups = Array.from(groupBy(valid, groupField).entries());
+      const yTicks = [yMin, (yMin + yMax) / 2, yMax];
+      const xTicks = (options.xTicks || []).map(xToNumber).filter(Number.isFinite);
+      const xTickMarkup = xTicks.map(t => {
+        const x = sx(t);
+        const label = (options.xFormat || fmt)(t);
+        return `
+          <line class="axis" x1="${x}" x2="${x}" y1="${height - bottom}" y2="${height - bottom + 4}"></line>
+          <text x="${x}" y="${height - bottom + 17}" text-anchor="middle" font-size="10" fill="#627083">${esc(label)}</text>`;
+      }).join("");
+      const xAxisLabel = options.xLabel
+        ? `<text x="${(left + width - right) / 2}" y="${height - 6}" text-anchor="middle" font-size="10" fill="#627083">${esc(options.xLabel)}</text>`
+        : "";
+      const paths = groups.map(([name, items], index) => {
+        const ordered = [...items].sort((a, b) => xToNumber(a[xField]) - xToNumber(b[xField]));
+        const d = ordered.map((row, i) => `${i ? "L" : "M"}${sx(xToNumber(row[xField])).toFixed(1)},${sy(num(row[yField])).toFixed(1)}`).join(" ");
+        const active = !options.highlight || name === options.highlight;
+        const opacity = active ? 1 : (options.dimOpacity ?? 0.3);
+        return `<path class="line" d="${d}" stroke="${colorFor(index)}" opacity="${opacity}" />`;
+      }).join("");
+      const legend = groups.map(([name], index) => {
+        const active = !options.highlight || name === options.highlight;
+        const klass = active ? "active" : "dim";
+        return `<span class="${klass}"><i class="dot" style="background:${colorFor(index)}"></i>${esc(labelCandidate(name))}</span>`;
+      }).join("");
+      container.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+          ${yTicks.map(t => `<line class="gridline" x1="${left}" x2="${width - right}" y1="${sy(t)}" y2="${sy(t)}"></line><text x="8" y="${sy(t) + 4}" font-size="10" fill="#627083">${esc((options.valueFormat || fmt)(t))}</text>`).join("")}
+          <line class="axis" x1="${left}" x2="${width - right}" y1="${height - bottom}" y2="${height - bottom}"></line>
+          <line class="axis" x1="${left}" x2="${left}" y1="${top}" y2="${height - bottom}"></line>
+          ${xTickMarkup}
+          ${xAxisLabel}
+          ${paths}
+        </svg>
+        <div class="legend">${legend}</div>`;
+    }
+
+    function xToNumber(value) {
+      if (typeof value === "number") return value;
+      const parsed = Date.parse(value);
+      if (Number.isFinite(parsed)) return parsed;
+      return num(value) ?? 0;
+    }
+
+    function barChart(id, records, valueField, labelFn, options = {}) {
+      const container = byId(id);
+      if (container) container.classList.remove("with-legend");
+      const valid = (records || []).filter(row => num(row[valueField]) !== null);
+      if (!valid.length) {
+        container.innerHTML = `<div class="empty">暂无图表数据</div>`;
+        return;
+      }
+      const width = 760;
+      const rowH = options.rowH || 22;
+      const left = options.left || 170;
+      const right = options.right || 52;
+      const top = 8;
+      const labelFont = options.labelFontSize || 10;
+      const valueFont = options.valueFontSize || 10;
+      const barH = options.barHeight || 12;
+      const height = Math.max(160, top * 2 + valid.length * rowH);
+      const values = valid.map(row => num(row[valueField]));
+      const min = Math.min(0, ...values);
+      const max = options.maxValue ?? Math.max(0, ...values);
+      const sx = scaleLinear(min, max, left, width - right);
+      const zero = sx(0);
+      const labelClipId = `${id}-label-clip`.replace(/[^a-zA-Z0-9_-]/g, "-");
+      const labelClipWidth = Math.max(24, left - 14);
+      const bars = valid.map((row, index) => {
+        const value = num(row[valueField]);
+        const x = Math.min(zero, sx(value));
+        const w = Math.abs(sx(value) - zero);
+        const y = top + index * rowH;
+        const textY = y + Math.floor(rowH / 2) + 4;
+        const barY = y + Math.max(3, Math.floor((rowH - barH) / 2));
+        const color = value >= 0 ? colorFor(index) : "#bd4b43";
+        const label = labelFn(row);
+        const valueText = (options.valueFormat || fmt)(value);
+        return `
+          <g>
+            <title>${esc(label)} ${esc(valueText)}</title>
+            <text x="6" y="${textY}" font-size="${labelFont}" fill="#4c5b6b" clip-path="url(#${labelClipId})">${esc(label)}</text>
+            <rect class="bar" x="${x}" y="${barY}" width="${Math.max(w, 1)}" height="${barH}" rx="2" fill="${color}"></rect>
+            <text x="${width - 6}" y="${textY}" text-anchor="end" font-size="${valueFont}" fill="#4c5b6b">${esc(valueText)}</text>
+          </g>`;
+      }).join("");
+      container.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+          <defs>
+            <clipPath id="${labelClipId}">
+              <rect x="0" y="0" width="${labelClipWidth}" height="${height}"></rect>
+            </clipPath>
+          </defs>
+          <line class="axis" x1="${zero}" x2="${zero}" y1="4" y2="${height - 4}"></line>
+          ${bars}
+        </svg>`;
+    }
+
+    function scatter3dChart(id, records) {
+      const container = byId(id);
+      if (!container) return;
+      container.classList.add("with-legend");
+      const valid = (records || []).filter(row =>
+        num(row.moneyness_axis) !== null &&
+        num(row.coverage_axis) !== null &&
+        num(row.sharpe_daily_mean) !== null
+      );
+      if (!valid.length) {
+        container.innerHTML = `<div class="empty">暂无 3D 诊断数据</div>`;
+        return;
+      }
+      const width = 760;
+      const height = 300;
+      const origin = { x: 126, y: 246 };
+      const xLen = 500;
+      const yDx = 82;
+      const yDy = 88;
+      const zLen = 178;
+      const xs = valid.map(row => num(row.moneyness_axis));
+      const ys = valid.map(row => num(row.coverage_axis));
+      const zs = valid.map(row => num(row.sharpe_daily_mean));
+      const xMin = Math.min(0, ...xs);
+      const xMax = Math.max(...xs);
+      const yMin = Math.min(0, ...ys);
+      const yMax = Math.max(1, ...ys);
+      const zMin = Math.min(0, ...zs);
+      const zMax = Math.max(...zs);
+      const norm = (value, min, max) => {
+        const span = max - min || 1;
+        return (value - min) / span;
+      };
+      const project = row => {
+        const x = norm(num(row.moneyness_axis), xMin, xMax);
+        const y = norm(num(row.coverage_axis), yMin, yMax);
+        const z = norm(num(row.sharpe_daily_mean), zMin, zMax);
+        return {
+          x: origin.x + x * xLen - y * yDx,
+          y: origin.y - y * yDy - z * zLen,
+          depth: y,
+        };
+      };
+      const etfs = Array.from(new Set(valid.map(row => String(row.etf_code)))).sort();
+      const colorMap = Object.fromEntries(etfs.map((etf, index) => [etf, colorFor(index)]));
+      const axis = `
+        <line class="axis" x1="${origin.x}" y1="${origin.y}" x2="${origin.x + xLen}" y2="${origin.y}"></line>
+        <line class="axis" x1="${origin.x}" y1="${origin.y}" x2="${origin.x - yDx}" y2="${origin.y - yDy}"></line>
+        <line class="axis" x1="${origin.x}" y1="${origin.y}" x2="${origin.x}" y2="${origin.y - zLen}"></line>
+        <text x="${origin.x + xLen + 8}" y="${origin.y + 4}" font-size="10" fill="#627083">虚值</text>
+        <text x="${origin.x - yDx - 32}" y="${origin.y - yDy - 4}" font-size="10" fill="#627083">覆盖率</text>
+        <text x="${origin.x - 30}" y="${origin.y - zLen - 8}" font-size="10" fill="#627083">Sharpe</text>
+        <text x="${origin.x}" y="${origin.y + 17}" text-anchor="middle" font-size="9" fill="#627083">${pct(xMin, 0)}</text>
+        <text x="${origin.x + xLen}" y="${origin.y + 17}" text-anchor="middle" font-size="9" fill="#627083">${pct(xMax, 1)}</text>
+        <text x="${origin.x - yDx - 4}" y="${origin.y - yDy + 13}" text-anchor="end" font-size="9" fill="#627083">${pct(yMax, 0)}</text>
+        <text x="${origin.x - 8}" y="${origin.y - zLen + 4}" text-anchor="end" font-size="9" fill="#627083">${fmt(zMax, 2)}</text>
+        <text x="${origin.x - 8}" y="${origin.y + 4}" text-anchor="end" font-size="9" fill="#627083">${fmt(zMin, 2)}</text>`;
+      const ordered = [...valid].sort((a, b) => project(b).depth - project(a).depth);
+      const points = ordered.map(row => {
+        const p = project(row);
+        const role = String(row.point_role || "");
+        const radius = role === "primary" ? 5.4 : role === "backup" ? 4.8 : 3.9;
+        const stroke = role === "primary" ? "#16222f" : "#ffffff";
+        const label = row.display_name || `${row.etf_code} ${labelSleeveChart(row.sleeve_name)}`;
+        const valueText = `虚值 ${pct(row.moneyness_axis)} / 覆盖 ${pct(row.coverage_axis)} / Sharpe ${fmt(row.sharpe_daily_mean, 3)}`;
+        const text = role === "primary"
+          ? `<text x="${p.x + 7}" y="${p.y - 6}" font-size="9" fill="#2d3d4d">${esc(labelSleeveChart(row.sleeve_name))}</text>`
+          : "";
+        return `
+          <g>
+            <title>${esc(label)}&#10;${esc(valueText)}</title>
+            <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${radius}" fill="${colorMap[String(row.etf_code)]}" stroke="${stroke}" stroke-width="1.1" opacity="0.9"></circle>
+            ${text}
+          </g>`;
+      }).join("");
+      const legend = etfs.map(etf => `<span><i class="dot" style="background:${colorMap[etf]}"></i>${esc(etf)}</span>`).join("");
+      container.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+          ${axis}
+          ${points}
+        </svg>
+        <div class="legend">${legend}</div>`;
+    }
+
+    function stackedWeightChart(id, records) {
+      const container = byId(id);
+      if (container) container.classList.add("with-legend");
+      const valid = (records || []).filter(row => row.frontier_status === "feasible");
+      if (!valid.length) {
+        container.innerHTML = `<div class="empty">暂无图表数据</div>`;
+        return;
+      }
+      const assets = ["510300", "510050", "510500", "159915"];
+      const assetColors = { "510300": "#2f6fbd", "510050": "#23858b", "510500": "#9b6a18", "159915": "#247a5a" };
+      const width = 760, height = 220, left = 72, right = 18, top = 18, bottom = 36;
+      const barW = (width - left - right) / valid.length * 0.7;
+      const gap = (width - left - right) / valid.length * 0.3;
+      const bars = valid.map((row, i) => {
+        let y = height - bottom;
+        const x = left + i * (barW + gap + 1);
+        const rects = assets.map(asset => {
+          const value = num(row[`weight_${asset}`]) || 0;
+          const h = value * (height - top - bottom);
+          y -= h;
+          return `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="${assetColors[asset]}" opacity="0.92"></rect>`;
+        }).join("");
+        return `${rects}<text x="${x + barW / 2}" y="${height - 14}" text-anchor="middle" font-size="9" fill="#627083">${esc(row.universe_short)}${Math.round(num(row.D_star) * 100)}</text>`;
+      }).join("");
+      const legend = assets.map(asset => `<span><i class="dot" style="background:${assetColors[asset]}"></i>${asset}</span>`).join("");
+      container.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+          <line class="axis" x1="${left}" x2="${width - right}" y1="${height - bottom}" y2="${height - bottom}"></line>
+          ${bars}
+        </svg>
+        <div class="legend">${legend}</div>`;
+    }
+
+    init();
+  </script>
+</body>
+</html>

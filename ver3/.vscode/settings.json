@@ -1,0 +1,26 @@
+{
+  "python.analysis.extraPaths": [
+    "..",
+    "../src",
+    "src"
+  ],
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.pytest_cache": true
+  },
+  "search.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.pytest_cache": true,
+    "../outputs/**/daily": true,
+    "../outputs/**/figures": true,
+    "../outputs/**/logs": true,
+    "../outputs/**/tmp": true
+  },
+  "explorer.compactFolders": false,
+  "files.trimTrailingWhitespace": true,
+  "editor.rulers": [
+    100
+  ]
+}

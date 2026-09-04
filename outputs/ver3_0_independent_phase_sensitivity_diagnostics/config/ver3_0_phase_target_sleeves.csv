@@ -1,0 +1,8 @@
+﻿etf_code,sleeve_name,role,is_buyhold,strategy_name,strategy_kind,coverage,target_moneyness,strategy_family
+510300,510300_DTE30_D40_Q70_Hold,Main large-cap positive-carry covered-call core.,False,D40_Q70,target_delta,0.7,0.4,D40
+510050,510050_DTE30_D40_Q70_Hold,Second large-cap positive-carry covered-call core.,False,D40_Q70,target_delta,0.7,0.4,D40
+159915,159915_DTE30_OTM5up_Q50_Hold,Defensive growth overlay.,False,OTM5_Q50,otm_pct,0.5,0.05,OTM5_up
+510500,510500_ETF_BuyHold,Mid-cap pure ETF growth-diversification baseline.,True,BuyHold,buy_hold,0.0,0.0,ETF_BuyHold
+510300,510300_ETF_BuyHold,Large-cap pure ETF baseline.,True,BuyHold,buy_hold,0.0,0.0,ETF_BuyHold
+510050,510050_ETF_BuyHold,Second large-cap pure ETF baseline.,True,BuyHold,buy_hold,0.0,0.0,ETF_BuyHold
+159915,159915_ETF_BuyHold,Growth pure ETF baseline.,True,BuyHold,buy_hold,0.0,0.0,ETF_BuyHold

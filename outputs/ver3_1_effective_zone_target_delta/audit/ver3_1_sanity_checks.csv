@@ -1,0 +1,9 @@
+﻿check_name,passed,detail
+core_target_delta_etfs_present,True,"[{'etf_code': '510300', 'target_delta_scope': 'core_target_delta_candidate', 'selection_policy': 'full_target_delta_surface'}, {'etf_code': '510050', 'target_delta_scope': 'core_target_delta_candidate', 'selection_policy': 'full_target_delta_surface'}, {'etf_code': '510500', 'target_delta_scope': 'buyhold_preferred', 'selection_policy': 'buyhold_after_surface_check'}, {'etf_code': '159915', 'target_delta_scope': 'core_target_delta_candidate', 'selection_policy': 'full_target_delta_surface'}, {'etf_code': '588000', 'target_delta_scope': 'short_sample_baseline', 'selection_policy': 'extension_or_baseline'}]"
+target_summary_row_count,True,expected=255; actual=255
+target_daily_no_duplicates,True,duplicated=0
+candidate_pool_nonempty,True,rows=13
+fixed_summary_nonempty,True,rows=4
+frontier_best_nonempty,True,rows=8
+dynamic_summary_nonempty,True,rows=12
+target_period_reopens_immediately,True,consecutive period end/rebalance gaps are zero trading days within each sleeve

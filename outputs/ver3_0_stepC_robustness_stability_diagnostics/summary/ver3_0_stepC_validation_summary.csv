@@ -1,0 +1,24 @@
+﻿check_name,passed,note
+project_root_exists,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini
+ver3_root_exists,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\ver3
+input_files_exist,True,所有 Step C 必需输入文件均存在
+required_candidate_portfolios_exist,True,当前 Step C 候选组合已定义
+required_sleeves_exist,True,候选组合需要的 sleeve return 均存在
+candidates_same_sample,True,四个候选组合使用同一共同样本
+no_588000_in_main_stepC,True,588000 未进入 Step C 主线
+no_new_option_parameter_sleeves,True,未引入 Q100/ATM/TP80/TouchK 等新参数 sleeve
+weights_sum_to_one,True,候选组合权重和均为 1
+nav_initial_reference_is_one,True,NAV 使用 initial_nav=1.0
+nav_positive,True,所有候选 NAV 均为正
+max_drawdown_positive_magnitude,True,回撤幅度使用正数口径
+rolling_outputs_non_empty,True,滚动与分段指标输出非空
+event_outputs_non_empty,True,事件窗口输出非空
+cost_outputs_non_empty_or_marked_unavailable,True,成本敏感性输出非空
+output_csv_rows_nonzero,True,所有 CSV 输出均包含有效行
+report_generated,True,中文 Markdown 报告已生成
+real_outputs_written_to_root_outputs,True,真实输出写入根目录 outputs
+no_large_outputs_written_to_ver3_outputs,True,ver3/outputs 只保留轻量索引
+no_outputs_written_outside_allowed_dirs,True,输出路径均在允许目录内
+no_ver2_files_modified,True,未写入冻结 ver2 目录
+frozen_metrics_not_modified,True,未写入冻结指标目录
+ver3_output_index_generated,True,ver3 轻量索引已生成

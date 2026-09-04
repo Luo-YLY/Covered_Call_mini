@@ -11,6 +11,13 @@ def _annual_factor(periods: pd.DataFrame) -> float:
     return 365 / days if days and not np.isnan(days) else 12
 
 
+def _annualized_return_from_periods(returns: pd.Series, factor: float) -> float:
+    if returns.empty:
+        return np.nan
+    cumulative = (1 + returns).prod() - 1
+    return (1 + cumulative) ** (factor / len(returns)) - 1 if cumulative > -1 else np.nan
+
+
 def summarize_performance(periods: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
     rows = []
     for (etf_code, strategy), g in periods.groupby(["etf_code", "strategy"]):
@@ -21,9 +28,13 @@ def summarize_performance(periods: pd.DataFrame) -> tuple[pd.DataFrame, dict[str
         bh = periods[(periods["etf_code"] == etf_code) & (periods["strategy"] == "S0_BuyHold")].sort_values("roll_date")
         bh_returns = pd.Series(bh["R_cc"].values[: len(returns)], index=g.index) if len(bh) >= len(returns) else pd.Series(np.nan, index=g.index)
         cumulative = nav.iloc[-1] - 1 if len(nav) else np.nan
-        ann_return = (1 + cumulative) ** (factor / len(g)) - 1 if len(g) and cumulative > -1 else np.nan
+        ann_return = _annualized_return_from_periods(returns, factor)
         ann_vol = returns.std() * np.sqrt(factor)
-        excess = returns - bh_returns if len(bh) >= len(returns) else g["excess_return"]
+        has_buyhold = len(bh) >= len(returns)
+        excess = returns - bh_returns if has_buyhold else g["excess_return"]
+        bh_basis_returns = bh_returns.dropna() if has_buyhold else g["R_etf"]
+        bh_ann_return = _annualized_return_from_periods(bh_basis_returns, factor)
+        ann_excess_return = ann_return - bh_ann_return if pd.notna(ann_return) and pd.notna(bh_ann_return) else np.nan
         mdd = max_drawdown(nav)
         rows.append(
             {
@@ -42,7 +53,7 @@ def summarize_performance(periods: pd.DataFrame) -> tuple[pd.DataFrame, dict[str
                 "excess_return_total": (1 + returns).prod() - (1 + bh["R_cc"].values[: len(returns)]).prod()
                 if len(bh) >= len(returns)
                 else g["excess_return"].sum(),
-                "excess_return_annualized": excess.mean() * factor,
+                "excess_return_annualized": ann_excess_return,
                 "information_ratio": excess.mean() / excess.std() * np.sqrt(factor) if excess.std() and excess.std() > 0 else np.nan,
                 "upside_capture_ratio": returns[bh_returns > 0].mean() / bh_returns[bh_returns > 0].mean()
                 if (bh_returns > 0).any()

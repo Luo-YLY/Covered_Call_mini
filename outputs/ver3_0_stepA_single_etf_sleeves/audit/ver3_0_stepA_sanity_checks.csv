@@ -1,0 +1,19 @@
+﻿check_name,passed,note
+uses_standardized_metrics,True,summary uses ver2 metric field names and summarize_daily_nav
+no_portfolio_weighting_in_stepA,True,single ETF rows only
+no_mean_variance_in_stepA,True,no covariance or optimizer is called
+each_etf_sleeve_independent,True,one independent sleeve path per ETF/spec
+no_forced_common_expiry_across_etfs,True,source ETF paths keep their own selected option cycles
+option_leg_net_pnl,True,period option leg equals premium minus close/payoff liability and costs
+premium_not_immediate_profit,True,"entry-day option P&L is cost/MTM based, not premium income"
+daily_panel_unique_sleeve_dates,True,daily panel has one consolidated return row per sleeve/date after same-day rolls
+buyhold_option_fields_zero,True,BuyHold option fields are zero
+deprecated_tp80_touch_absent,True,TP80 and Touch-K are excluded from the current Step A mainline
+immediate_reopen_after_period_end,True,Next option cycle rebalances on the previous period_end_date
+q100_stress_test_only,True,Q100 rows are stress tests
+no_new_dte_added,True,DTE30 only
+no_new_delta_grid_added,True,no added OTM/DTE grid
+no_arbitrage_language,True,reports avoid arbitrage language
+sleeve_return_panel_created,True,long and wide panels are populated
+classification_table_created,True,classification table is populated
+sleeve_cards_created,True,three ETF sleeve cards exist after report writing

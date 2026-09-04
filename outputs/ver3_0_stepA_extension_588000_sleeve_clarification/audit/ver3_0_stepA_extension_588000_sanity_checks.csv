@@ -1,0 +1,13 @@
+﻿check_name,passed,note
+required_sleeves_created,True,all requested 588000 sleeves except unsupported TP80 are created
+short_sample_flagged,True,588000 sample starts after main Step A sample
+uses_standardized_metric_names,True,summary follows ver2 field names
+option_leg_net_pnl_formula,True,period option leg equals premium minus payoff minus cost
+q100_diagnostic_only,True,Q100/ATM Q100 sleeves are diagnostics
+primary_is_not_q100,True,default recommendation excludes Q100
+no_tp80_or_touchk_reintroduced,True,TP80/TouchK are not generated for 588000
+correlation_diagnostics_created,True,cross-ETF correlation diagnostics are populated
+no_portfolio_weighting,True,single-ETF extension only
+panel_created,True,long and wide return panels are populated
+strategy_direction_created,True,universe strategy direction exists
+reports_avoid_forbidden_profit_claims,True,reports avoid forbidden profit wording

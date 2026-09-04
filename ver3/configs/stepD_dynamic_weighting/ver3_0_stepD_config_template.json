@@ -1,0 +1,29 @@
+{
+  "experiment_id": "ver3_0_stepD_volatility_controlled_dynamic_weighting",
+  "report_language": "zh-CN",
+  "sample_start": "2022-09-19",
+  "sample_end": "2026-05-27",
+  "lookbacks": [126, 252],
+  "rebalance_frequency": "monthly",
+  "methods": [
+    "anchored_inverse_vol",
+    "pure_inverse_vol",
+    "rolling_min_variance"
+  ],
+  "weight_bounds": {
+    "lower": 0.05,
+    "upper": 0.70
+  },
+  "rebalance_cost_bps_values": [0, 5, 10, 20],
+  "turnover_method": "target_weight_change_approximation",
+  "scope_limits": [
+    "only dynamic capital weights across fixed sleeves",
+    "no new option DTE/delta/moneyness/TP/Touch-K parameters",
+    "no dynamic q or call coverage change",
+    "no volatility-based sell-call timing",
+    "no expected-return forecast",
+    "no 588000 in the main long sample"
+  ],
+  "real_output_dir": "outputs/ver3_0_stepD_volatility_controlled_dynamic_weighting",
+  "lightweight_index": "ver3/outputs/ver3_0_stepD_output_index.md"
+}

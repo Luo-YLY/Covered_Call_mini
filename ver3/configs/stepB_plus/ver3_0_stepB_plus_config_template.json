@@ -1,0 +1,13 @@
+{
+  "experiment_id": "ver3_0_stepB_plus_mdd_constrained_sharpe_frontier",
+  "sample_start": "2022-09-19",
+  "sample_end": "2026-05-27",
+  "grid_step_default": 0.01,
+  "report_language": "zh-CN",
+  "drawdown_targets": [0.18, 0.2, 0.22, 0.25, 0.3],
+  "constraint_sets": [
+    {"name": "default", "lower_bound": 0.05, "upper_bound": 0.7},
+    {"name": "relaxed", "lower_bound": 0.0, "upper_bound": 0.8}
+  ],
+  "main_frontier_excludes": ["588000", "dynamic weights", "volatility timing", "risk parity", "minimum variance", "mean variance"]
+}

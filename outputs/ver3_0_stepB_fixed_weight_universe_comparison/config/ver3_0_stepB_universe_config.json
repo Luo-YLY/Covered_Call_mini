@@ -1,0 +1,107 @@
+{
+  "experiment_id": "ver3_0_stepB_fixed_weight_universe_comparison",
+  "report_language": "zh-CN",
+  "sample_policy": {
+    "requested_start": "2022-09-30",
+    "requested_end": "2026-05-27",
+    "common_sample": "drop rows with missing required sleeve returns after date alignment",
+    "exclude_588000_from_main_stepB": true
+  },
+  "universes": {
+    "A": {
+      "universe_name": "Main Growth-Diversified Universe",
+      "description": "510300 positive-carry core, 510500 pure ETF growth diversifier, 159915 defensive growth overlay.",
+      "pure_etf": {
+        "510300": "510300_ETF_BuyHold",
+        "510500": "510500_ETF_BuyHold",
+        "159915": "159915_ETF_BuyHold"
+      },
+      "selected": {
+        "510300": "510300_DTE30_D40_Q70_Hold",
+        "510500": "510500_ETF_BuyHold",
+        "159915": "159915_DTE30_OTM5up_Q50_Hold"
+      }
+    },
+    "B": {
+      "universe_name": "Alternative Defensive-Income Universe",
+      "description": "510300 and 510050 dual large-cap covered-call cores plus 159915 defensive growth overlay.",
+      "pure_etf": {
+        "510300": "510300_ETF_BuyHold",
+        "510050": "510050_ETF_BuyHold",
+        "159915": "159915_ETF_BuyHold"
+      },
+      "selected": {
+        "510300": "510300_DTE30_D40_Q70_Hold",
+        "510050": "510050_DTE30_D40_Q70_Hold",
+        "159915": "159915_DTE30_OTM5up_Q50_Hold"
+      }
+    }
+  },
+  "weight_schemes": {
+    "A": {
+      "50_30_20": {
+        "weights_by_etf": {
+          "510300": 0.5,
+          "510500": 0.3,
+          "159915": 0.2
+        },
+        "note": ""
+      },
+      "70_20_10": {
+        "weights_by_etf": {
+          "510300": 0.7,
+          "510500": 0.2,
+          "159915": 0.1
+        },
+        "note": ""
+      },
+      "40_40_20": {
+        "weights_by_etf": {
+          "510300": 0.4,
+          "510500": 0.4,
+          "159915": 0.2
+        },
+        "note": "A-side comparator; the dual-core economic interpretation mainly belongs to Universe B."
+      }
+    },
+    "B": {
+      "50_30_20": {
+        "weights_by_etf": {
+          "510300": 0.5,
+          "510050": 0.3,
+          "159915": 0.2
+        },
+        "note": ""
+      },
+      "70_20_10": {
+        "weights_by_etf": {
+          "510300": 0.7,
+          "510050": 0.2,
+          "159915": 0.1
+        },
+        "note": ""
+      },
+      "40_40_20": {
+        "weights_by_etf": {
+          "510300": 0.4,
+          "510050": 0.4,
+          "159915": 0.2
+        },
+        "note": "Dual large-cap covered-call core."
+      }
+    }
+  },
+  "forbidden_main_stepB_features": [
+    "dynamic weights",
+    "volatility timing",
+    "inverse volatility",
+    "minimum variance",
+    "risk parity",
+    "mean-variance optimization",
+    "MDD-constrained Sharpe frontier",
+    "Q100 default sleeves",
+    "ATM Q100 default sleeves",
+    "TP80 default sleeves",
+    "Touch-K default sleeves"
+  ]
+}

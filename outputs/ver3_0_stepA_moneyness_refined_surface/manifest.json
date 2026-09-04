@@ -1,0 +1,53 @@
+{
+  "experiment_id": "ver3_0_stepA_moneyness_refined_surface",
+  "generated_at": "2026-07-03 15:36:38",
+  "status": "complete",
+  "source_engine": "ver2_downside_protection.strategy_engine.run_ver2_backtest",
+  "execution_mode": "continuous_30d_daily_mtm",
+  "deprecated_path_not_used": "scripts/build_adhoc_moneyness_surface_refinement_5etf.py",
+  "option_source": "data/raw/options_daily.csv",
+  "sample_end": "2026-05-27",
+  "moneyness_grid": [
+    "ATM",
+    "OTM1",
+    "OTM2",
+    "OTM3",
+    "OTM4",
+    "OTM5",
+    "OTM7"
+  ],
+  "coverage_grid": [
+    "Q10",
+    "Q20",
+    "Q30",
+    "Q40",
+    "Q50",
+    "Q60",
+    "Q70",
+    "Q80",
+    "Q90",
+    "Q100"
+  ],
+  "output_files": {
+    "master_report": "outputs/ver3_0_stepA_moneyness_refined_surface/reports/ver3_0_stepA_moneyness_refined_daily_mtm_surface_report.md",
+    "surface_grid": "outputs/ver3_0_stepA_moneyness_refined_surface/summary/ver3_0_stepA_moneyness_refined_daily_mtm_surface_grid.csv",
+    "buyhold_baseline": "outputs/ver3_0_stepA_moneyness_refined_surface/summary/ver3_0_stepA_moneyness_refined_daily_mtm_buyhold_baseline.csv",
+    "daily_paths": "outputs/ver3_0_stepA_moneyness_refined_surface/daily/ver3_0_stepA_moneyness_refined_daily_mtm_daily_paths.csv",
+    "period_paths": "outputs/ver3_0_stepA_moneyness_refined_surface/period/ver3_0_stepA_moneyness_refined_daily_mtm_period_paths.csv",
+    "run_diagnostics": "outputs/ver3_0_stepA_moneyness_refined_surface/audit/ver3_0_stepA_moneyness_refined_daily_mtm_run_diagnostics.csv",
+    "sanity_checks": "outputs/ver3_0_stepA_moneyness_refined_surface/audit/ver3_0_stepA_moneyness_refined_daily_mtm_sanity_checks.csv",
+    "figures": "outputs/ver3_0_stepA_moneyness_refined_surface/figures"
+  },
+  "row_counts": {
+    "summary": 355,
+    "surface": 350,
+    "daily": 300117,
+    "period": 14770,
+    "diagnostics": 60,
+    "figures": 25
+  },
+  "sanity": {
+    "passed": 7,
+    "total": 7
+  }
+}

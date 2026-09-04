@@ -10,14 +10,16 @@ def covered_call_period_return(
     premium: float,
     coverage_ratio: float,
     transaction_cost: float,
+    option_settlement_spot: float | None = None,
 ) -> dict[str, float | int]:
     r_etf = (spot_end - spot_start) / spot_start
     if strike is None or coverage_ratio == 0:
         upside_cost = 0.0
         assignment_flag = 0
     else:
-        upside_cost = coverage_ratio * max(spot_end - strike, 0.0) / spot_start
-        assignment_flag = int(spot_end > strike)
+        payoff_spot = spot_end if option_settlement_spot is None else option_settlement_spot
+        upside_cost = coverage_ratio * max(payoff_spot - strike, 0.0) / spot_start
+        assignment_flag = int(payoff_spot > strike)
     premium_yield = coverage_ratio * premium / spot_start
     r_cc = r_etf + premium_yield - upside_cost - transaction_cost
     excess_return = r_cc - r_etf

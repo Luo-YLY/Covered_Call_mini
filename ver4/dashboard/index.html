@@ -1,0 +1,2452 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>单ETF备兑周期现金流看板</title>
+  <script src="../../outputs/ver4_0_single_etf_cycle_cashflow/dashboard/ver4_dashboard_data.js?v=early-path-20260716"></script>
+  <style>
+    :root {
+      --bg: #f5f7f8;
+      --surface: #ffffff;
+      --ink: #18212f;
+      --muted: #5e6a79;
+      --line: #d8e0e8;
+      --nav: #1f2f3b;
+      --nav-soft: #304451;
+      --blue: #1565c0;
+      --green: #167353;
+      --red: #b5413b;
+      --amber: #9a6718;
+      --shadow: 0 1px 6px rgba(18, 33, 47, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; background: var(--bg); color: var(--ink); font: 13px/1.48 "Microsoft YaHei", "Segoe UI", Arial, sans-serif; }
+    .app { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+    aside { position: sticky; top: 0; height: 100vh; overflow: auto; padding: 18px; background: var(--nav); color: #f2f6f9; }
+    main { min-width: 0; padding: 22px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 4px; font-size: 21px; font-weight: 700; }
+    h2 { margin-bottom: 10px; font-size: 15px; font-weight: 700; }
+    h3 { margin-bottom: 6px; font-size: 12px; font-weight: 600; color: var(--muted); }
+    p { color: var(--muted); }
+    .brand { padding-bottom: 16px; margin-bottom: 14px; border-bottom: 1px solid #536775; }
+    .brand-title { font-size: 17px; font-weight: 700; }
+    .brand-copy { margin-top: 6px; color: #cad6de; font-size: 12px; line-height: 1.55; }
+    label { display: block; margin: 14px 0 6px; color: #dce5eb; font-size: 12px; }
+    select { width: 100%; height: 34px; padding: 0 9px; border: 1px solid #607482; border-radius: 6px; background: #16242e; color: #fff; font: inherit; }
+    .tabs { display: grid; gap: 6px; margin-top: 17px; }
+    .tabs button { height: 34px; padding: 0 10px; border: 1px solid transparent; border-radius: 6px; background: var(--nav-soft); color: #eef4f7; text-align: left; font: inherit; cursor: pointer; }
+    .tabs button.active { border-color: #b9d9d8; background: #edf7f7; color: #174148; font-weight: 700; }
+    .side-note { margin-top: 17px; padding-top: 13px; border-top: 1px solid #536775; color: #c9d4db; font-size: 12px; line-height: 1.65; }
+    .top { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+    .tag { display: inline-flex; align-items: center; min-height: 24px; padding: 2px 7px; border: 1px solid #cbd8df; border-radius: 6px; background: #fff; color: #4d5c69; font-size: 12px; white-space: nowrap; }
+    .tag.warn { border-color: #e5c997; background: #fff9ed; color: #7a5616; }
+    .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; align-items: start; }
+    .panel { min-width: 0; padding: 14px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); box-shadow: var(--shadow); }
+    .span-3 { grid-column: span 3; } .span-4 { grid-column: span 4; } .span-5 { grid-column: span 5; } .span-6 { grid-column: span 6; } .span-7 { grid-column: span 7; } .span-8 { grid-column: span 8; } .span-12 { grid-column: span 12; } .span-row-2 { grid-row: span 2; }
+    .metric { font-size: 23px; font-weight: 700; letter-spacing: 0; }
+    .metric small { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; font-weight: 400; }
+    .metric.positive { color: var(--green); } .metric.negative { color: var(--red); }
+    .toolbar { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .toolbar h2 { margin-bottom: 0; }
+    .note { margin: 9px 0 0; padding: 8px 10px; border-left: 3px solid #6b8998; background: #f1f5f7; color: #50606c; font-size: 12px; }
+    .chart { position: relative; min-height: 250px; margin-top: 8px; }
+    .chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+    .chart [data-detail] { cursor: pointer; }
+    .chart [data-detail]:focus { outline: none; filter: brightness(0.82); }
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; color: var(--muted); font-size: 12px; }
+    .legend i { display: inline-block; width: 9px; height: 9px; margin-right: 4px; border-radius: 50%; vertical-align: 0; }
+    .chart-footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 14px; margin-top: 5px; }
+    .chart-footer .legend { margin-top: 0; }
+    .chart-stat { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 6px; }
+    table { width: 100%; min-width: 920px; border-collapse: collapse; background: #fff; }
+    th, td { padding: 8px 9px; border-bottom: 1px solid #e4eaee; text-align: right; vertical-align: top; white-space: nowrap; }
+    th { background: #f0f4f6; color: #394c5a; font-weight: 700; }
+    th:first-child, td:first-child, .left { text-align: left; }
+    tr:last-child td { border-bottom: 0; }
+    .empty { padding: 28px 12px; border: 1px dashed var(--line); border-radius: 6px; color: var(--muted); text-align: center; }
+    .muted { color: var(--muted); }
+    .period-control { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+    .period-control label { margin: 0; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .period-control select { width: 176px; min-height: 30px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 4px; background: #fff; color: var(--ink); font-family: inherit; font-size: 12px; }
+    .cycle-detail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 18px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+    .cycle-detail-item { min-width: 0; }
+    .cycle-detail-item span, .cycle-detail-item strong { display: block; }
+    .cycle-detail-item span { color: var(--muted); font-size: 11px; }
+    .cycle-detail-item strong { margin-top: 2px; color: var(--ink); font-size: 13px; font-weight: 800; }
+    .cycle-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .cycle-actions button { min-height: 30px; padding: 0 10px; border: 1px solid #8fa2ad; border-radius: 4px; background: #fff; color: #334956; font: inherit; cursor: pointer; }
+    .selection-toolbar-actions { display: flex; align-items: center; gap: 8px; }
+    .selection-toolbar-actions button { min-height: 30px; padding: 0 10px; border: 1px solid #8fa2ad; border-radius: 4px; background: #fff; color: #334956; font: inherit; cursor: pointer; }
+    .cycle-checklist { max-height: 540px; overflow: auto; border-top: 1px solid var(--line); }
+    .cycle-check { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; align-items: start; padding: 10px 2px; border-bottom: 1px solid var(--line); cursor: pointer; }
+    .cycle-check input { width: 15px; height: 15px; margin: 2px 0 0; accent-color: var(--blue); cursor: pointer; }
+    .cycle-check strong, .cycle-check span { display: block; }
+    .cycle-check strong { color: var(--ink); font-size: 13px; }
+    .cycle-check span { margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .selection-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 16px; margin: 6px 0 12px; }
+    .selection-metrics div { min-width: 0; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+    .selection-metrics span, .selection-metrics strong { display: block; }
+    .selection-metrics span { color: var(--muted); font-size: 12px; }
+    .selection-metrics strong { margin-top: 2px; font-size: 16px; }
+    .exclusion-control { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; }
+    .exclusion-control label { margin: 0 0 6px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .exclusion-control select { width: 100%; height: 92px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; background: #fff; color: var(--ink); font: inherit; }
+    .exclusion-control button { height: 32px; padding: 0 10px; border: 1px solid #8fa2ad; border-radius: 4px; background: #fff; color: #334956; font: inherit; cursor: pointer; }
+    .calendar-shell { min-width: 0; }
+    .calendar-toolbar { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; }
+    .calendar-toolbar select { width: 156px; height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: 4px; background: #fff; color: var(--ink); font: inherit; }
+    .calendar-nav { width: 32px; height: 32px; padding: 0; border: 1px solid #8fa2ad; border-radius: 4px; background: #fff; color: #334956; font: 18px/1 Arial, sans-serif; cursor: pointer; }
+    .calendar-weekdays, .calendar-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+    .calendar-weekdays { margin-bottom: 4px; }
+    .calendar-weekdays span { color: var(--muted); font-size: 11px; text-align: center; }
+    .calendar-day { position: relative; display: flex; align-items: center; justify-content: center; min-height: 31px; color: #7b8993; font-size: 12px; }
+    button.calendar-day { border: 1px solid #d8e0e8; border-radius: 4px; background: #fff; color: var(--ink); font: inherit; cursor: pointer; }
+    button.calendar-day:hover { background: #eef5f7; }
+    button.calendar-day.is-excluded { border-color: #b5413b; background: #fff0ef; color: #8d2f2a; font-weight: 700; }
+    .calendar-dot { position: absolute; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; background: var(--blue); }
+    button.calendar-day.is-excluded .calendar-dot { background: var(--red); }
+    .subchart-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .subchart-heading h3 { margin: 0; color: var(--ink); font-size: 13px; }
+    .subchart-heading.first-chart { margin-top: 8px; padding-top: 8px; }
+    .assignment-chart { min-height: 112px; margin-top: 6px; }
+    .daily-path-price-chart { min-height: 158px; margin-top: 6px; }
+    .attribution-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 10px; }
+    .attribution-grid h3 { margin: 0 0 5px; color: var(--ink); font-size: 13px; }
+    .attribution-table { margin-top: 14px; }
+    .iv-rv-chart { min-height: 126px; margin-top: 6px; }
+    .timing-controls { display: grid; gap: 12px; }
+    .timing-toggle { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; align-items: start; color: var(--ink); cursor: pointer; }
+    .timing-toggle input { width: 15px; height: 15px; margin: 2px 0 0; accent-color: var(--blue); cursor: pointer; }
+    .timing-toggle strong, .timing-toggle span { display: block; }
+    .timing-toggle strong { font-size: 13px; }
+    .timing-toggle span { margin-top: 2px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .timing-field { display: grid; grid-template-columns: 1fr 108px; gap: 8px; align-items: center; margin: 7px 0 0 26px; }
+    .timing-field label { margin: 0; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .timing-field select { width: 100%; height: 30px; padding: 0 7px; border: 1px solid var(--line); border-radius: 4px; background: #fff; color: var(--ink); font: inherit; }
+    .timing-field.is-disabled { opacity: .48; }
+    .timing-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; }
+    .timing-summary div { padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .timing-summary span, .timing-summary strong { display: block; }
+    .timing-summary span { color: var(--muted); font-size: 12px; }
+    .timing-summary strong { margin-top: 3px; color: var(--ink); font-size: 18px; }
+    .diagnostic-toggle { display: inline-flex; align-items: center; gap: 7px; margin: 0; color: var(--ink); font-size: 12px; font-weight: 700; cursor: pointer; }
+    .diagnostic-toggle input { width: 15px; height: 15px; margin: 0; accent-color: var(--blue); cursor: pointer; }
+    .decision-yes { color: var(--green); font-weight: 800; }
+    .decision-no { color: var(--red); font-weight: 800; }
+    .timing-ledger-wrap, .path-ledger-wrap { max-height: 520px; overflow: auto; }
+    .timing-ledger-wrap thead th, .path-ledger-wrap thead th { position: sticky; top: 0; z-index: 2; box-shadow: 0 1px 0 #cfd9df; }
+    @media (max-width: 920px) {
+      .app { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .span-3, .span-4, .span-5, .span-6, .span-7, .span-8, .span-12 { grid-column: span 12; }
+      .span-row-2 { grid-row: auto; }
+      main { padding: 15px; }
+      .top { flex-direction: column; }
+      .cycle-detail, .selection-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .attribution-grid { grid-template-columns: 1fr; }
+      .exclusion-control { grid-template-columns: 1fr; }
+      .exclusion-control button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div class="brand-title">单ETF备兑周期现金流</div>
+        <div class="brand-copy">固定名义本金、逐期独立结算。展示每一期收取的权利金、最终净收益与上涨让渡。</div>
+      </div>
+      <label for="etfSelect">ETF 标的</label>
+      <select id="etfSelect"></select>
+      <label for="strategySelect">备兑规则</label>
+      <select id="strategySelect"></select>
+      <nav class="tabs" aria-label="周期现金流页面">
+        <button class="active" data-tab="cash">现金收入</button>
+        <button data-tab="cycles">逐期账本</button>
+        <button data-tab="postdiag">事后诊断</button>
+        <button data-tab="tradeoff">上涨让渡</button>
+        <button data-tab="path">持有期路径</button>
+        <button data-tab="regime">市场情景</button>
+        <button data-tab="timing">择时分析</button>
+        <button data-tab="earlyclose">提前平仓</button>
+      </nav>
+      <div class="side-note">
+        <div>样本：<span id="sampleText">--</span></div>
+        <div>每期名义本金：<span id="notionalText">--</span></div>
+        <div>数据生成：<span id="generatedText">--</span></div>
+      </div>
+    </aside>
+    <main>
+      <div class="top">
+        <div>
+          <h1 id="pageTitle">现金收入</h1>
+          <p id="pageLead">开仓收到的权利金与最终期权净收益必须分开观察。</p>
+        </div>
+        <span class="tag warn">历史回测，不构成收益承诺</span>
+      </div>
+      <section id="kpis" class="grid"></section>
+      <section id="content"></section>
+    </main>
+  </div>
+  <script>
+    const DATA = window.VER4_DASHBOARD_DATA || {};
+    const state = { etf: null, strategy: null, tab: "cash", selectedCycleIndex: 0, selectedCycleIds: null, activeCycleId: null, excludedCycleIds: [], calendarMonth: null, timing: { useIvPercentile: false, ivLookback: 12, ivPercentileThreshold: 0.70, useIvRv: false, ivRvThreshold: 0 }, postdiag: { exclude924: false }, earlyclose: { rule: "delta", threshold: 0.70, selectedCycleIds: null, activeCycleId: null } };
+    const earlyCloseDailyCache = {};
+    const earlyCloseDailyRequests = {};
+    const tabs = {
+      cash: ["现金收入", "每个周期先看收取了多少权利金，再看扣除行权、平仓与交易摩擦后的净期权收益。"],
+      cycles: ["逐期账本", "每一期都以相同名义本金重置；上一期盈亏不会放大或缩小下一期。"],
+      postdiag: ["事后诊断", "用开仓 IV-RV 与持有期结束后才可得的实际波动率，检验历史上是否出现方差溢价；该页面明确使用未来信息。"],
+      tradeoff: ["上涨让渡", "横轴是 ETF 当期涨跌，纵轴是备兑相对裸持的贡献；强上涨中可能出现明确的机会成本。"],
+      path: ["持有期路径", "以开仓后最大上涨、最大下跌和实际振幅解释每期结果。它们均为事后归因标签，不参与开仓或择时决策。"],
+      regime: ["市场情景", "市场环境为事后归因标签，不参与开仓决策或参数选择。"],
+      timing: ["择时分析", "手动设置开仓 IV 分位与 IV-RV 条件，模拟满足条件时卖出、否则仅持有 ETF 的逐期结果。当前为收盘数据的探索性诊断，不代表可成交择时回测。"],
+      earlyclose: ["提前平仓", "Delta 达阈值后买回原卖出期权、后续不重开，检验减少行权是否值得付出提前平仓的成本。"]
+    };
+    const colors = { premium: "#1565c0", net: "#167353", negative: "#b5413b", relative: "#9a6718", baseline: "#677684" };
+
+    function num(value) { const n = Number(value); return Number.isFinite(n) ? n : null; }
+    function pct(value, digits = 2) { const n = num(value); return n === null ? "--" : `${(n * 100).toFixed(digits)}%`; }
+    function variancePoints(value, digits = 0) { const n = num(value); return n === null ? "--" : `${n >= 0 ? "+" : "-"}${Math.abs(n * 10000).toFixed(digits)} 方差点`; }
+    function cash(value, digits = 2) { const n = num(value); return n === null ? "--" : `${n >= 0 ? "" : "-"}${Math.abs(n).toFixed(digits)}`; }
+    function fmt(value, digits = 2) { const n = num(value); return n === null ? "--" : n.toFixed(digits); }
+    function price(value) { return fmt(value, 3); }
+    function esc(value) { return String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[char])); }
+    function rows(value) { return Array.isArray(value) ? value : []; }
+    function byId(id) { return document.getElementById(id); }
+    function currentEtf() { return rows(DATA.etfs).find(item => item.etf_code === state.etf) || rows(DATA.etfs)[0] || null; }
+    function currentSummary() { return rows(currentEtf()?.summary).find(row => row.strategy_name === state.strategy) || {}; }
+    function currentLedger() { return rows(currentEtf()?.ledger).filter(row => row.strategy_name === state.strategy).sort((a, b) => String(a.rebalance_date).localeCompare(String(b.rebalance_date))); }
+    function currentRolling() { return rows(currentEtf()?.rolling_cashflow).filter(row => row.strategy_name === state.strategy).sort((a, b) => String(a.window_end).localeCompare(String(b.window_end))); }
+    function currentRegime() { return rows(currentEtf()?.regime).filter(row => row.strategy_name === state.strategy); }
+    function labelStrategy(row) { return row.strategy_label || row.strategy_name; }
+    function kpi(title, value, note, cls = "") { return `<div class="panel span-3"><h3>${esc(title)}</h3><div class="metric ${esc(cls)}">${esc(value)}<small>${esc(note)}</small></div></div>`; }
+
+    function populateSelectors() {
+      const etfs = rows(DATA.etfs);
+      if (!etfs.length) return;
+      if (!state.etf || !etfs.some(item => item.etf_code === state.etf)) state.etf = etfs.find(item => item.etf_code === "510300")?.etf_code || etfs[0].etf_code;
+      byId("etfSelect").innerHTML = etfs.map(item => `<option value="${esc(item.etf_code)}">${esc(item.etf_code)}</option>`).join("");
+      byId("etfSelect").value = state.etf;
+      // Buy-and-hold remains the comparison anchor inside every covered-call view;
+      // it is intentionally not rendered as an option-income strategy.
+      const summary = rows(currentEtf()?.summary).filter(row => row.parameter_role !== "buyhold");
+      const ordered = [...summary].sort((a, b) => {
+        const aAtm = a.parameter_role === "static_atm_coverage" ? 0 : a.parameter_role === "static_target_delta_coverage" ? 1 : 2;
+        const bAtm = b.parameter_role === "static_atm_coverage" ? 0 : b.parameter_role === "static_target_delta_coverage" ? 1 : 2;
+        return aAtm - bAtm || (num(a.target_delta) || 9) - (num(b.target_delta) || 9);
+      });
+      if (!state.strategy || !ordered.some(row => row.strategy_name === state.strategy)) {
+        state.strategy = ordered.find(row => row.parameter_role === "static_atm_coverage")?.strategy_name || ordered[0]?.strategy_name || "";
+      }
+      byId("strategySelect").innerHTML = ordered.map(row => `<option value="${esc(row.strategy_name)}">${esc(labelStrategy(row))}</option>`).join("");
+      byId("strategySelect").value = state.strategy;
+    }
+
+    function updateSideInfo() {
+      const etf = currentEtf();
+      const manifest = etf?.manifest || {};
+      const sample = manifest.etf || {};
+      byId("sampleText").textContent = sample.sample_start && sample.sample_end ? `${sample.sample_start} 至 ${sample.sample_end}` : "--";
+      byId("notionalText").textContent = num(manifest.fixed_notional) === null ? "--" : fmt(manifest.fixed_notional, 0);
+      byId("generatedText").textContent = DATA.generated_at || "--";
+    }
+
+    function renderKpis() {
+      const summary = currentSummary();
+      const net = num(summary.net_option_pnl_cash_total) || 0;
+      byId("kpis").innerHTML = [
+        kpi("净期权收益", cash(summary.net_option_pnl_cash_total), "全样本、固定名义本金累计", net >= 0 ? "positive" : "negative"),
+        kpi("单期净收益中位数", pct(summary.net_option_yield_median), "扣除行权/平仓与成本后", (num(summary.net_option_yield_median) || 0) >= 0 ? "positive" : "negative"),
+        kpi("期权腿为正比例", pct(summary.positive_net_option_cycle_rate), `${fmt(summary.cycle_count, 0)} 个周期`, ""),
+        kpi("12期现金收入中位数", pct(summary.rolling_net_option_yield_median), "非复利滚动12期", (num(summary.rolling_net_option_yield_median) || 0) >= 0 ? "positive" : "negative")
+      ].join("");
+    }
+
+    function render() {
+      const [title, lead] = tabs[state.tab];
+      byId("pageTitle").textContent = title;
+      byId("pageLead").textContent = lead;
+      renderKpis();
+      if (state.tab === "cash") renderCash();
+      if (state.tab === "cycles") renderCycles();
+      if (state.tab === "postdiag") renderPostDiagnosis();
+      if (state.tab === "tradeoff") renderTradeoff();
+      if (state.tab === "path") renderPath();
+      if (state.tab === "regime") renderRegime();
+      if (state.tab === "timing") renderTiming();
+      if (state.tab === "earlyclose") renderEarlyClose();
+    }
+
+    function renderCash() {
+      const ledger = currentLedger();
+      const rolling = currentRolling();
+      byId("content").innerHTML = `
+        <div class="grid">
+          <div class="panel span-8"><div class="toolbar"><h2>每期权利金与净期权收益</h2><span class="tag">单位：每 100 名义本金</span></div><div id="cashBars" class="chart"></div><div class="note">蓝色为开仓收到的总权利金；绿色或红色为该期最终净期权收益。两者差额来自行权/平仓损失和交易摩擦。</div></div>
+          <div class="panel span-4"><div class="toolbar"><h2>滚动12期净期权收入</h2><span class="tag">非复利</span></div><div id="rollingLine" class="chart"></div><div class="note">这是一段连续 12 个交易周期的期权净收益，不是对未来收益的保证。</div></div>
+          <div class="panel span-6"><div class="toolbar"><h2>权利金与最终净期权收益</h2><span class="tag">每个点 = 一个周期</span></div><div id="premiumScatter" class="chart"></div><div class="note">横轴为开仓时收到的权利金，纵轴为结算后的净期权收益；用于识别“收权利金”与“真正留下的收益”之间的差距。</div></div>
+          <div class="panel span-6"><div class="toolbar"><h2>单期净期权收益分布</h2><span class="tag">频数分布</span></div><div id="netOptionHistogram" class="chart"></div><div class="note">横轴为单期净期权收益率，纵轴为历史周期数。重点观察中间分布与左尾亏损，不以均值替代具体周期。</div></div>
+          <div class="panel span-12"><h2>现金收入汇总</h2>${summaryTable(currentSummary())}</div>
+        </div>`;
+      groupedBars("cashBars", ledger);
+      lineChart("rollingLine", rolling, "window_end", "net_option_yield_non_compound", { zero: true, value: pct });
+      premiumScatter("premiumScatter", ledger);
+      netOptionHistogram("netOptionHistogram", ledger);
+    }
+
+    function renderCash() {
+      const ledger = currentLedger();
+      const rolling = currentRolling();
+      byId("content").innerHTML = `
+        <div class="grid">
+          <div class="panel span-8">
+            <div class="toolbar"><h2>每期权利金收益与上涨截断</h2><span class="tag">单位：收益率</span></div>
+            <div id="cashBars" class="chart"></div>
+            <div class="period-control"><label for="cycleSelect">周期明细</label><select id="cycleSelect"></select></div>
+            <div id="selectedCycleDetail" class="cycle-detail"></div>
+            <div class="note">蓝柱为开仓时收取的权利金收益；金色向下柱为发生行权时让渡的上涨收益。两项均按每期固定名义本金计算。</div>
+          </div>
+          <div class="panel span-4"><div class="toolbar"><h2>滚动 12 期净期权收益</h2><span class="tag">非复利</span></div><div id="rollingLine" class="chart"></div><div class="note">连续 12 个交易周期的期权净收益，用于观察收入在不同阶段的连续性。</div></div>
+          <div class="panel span-6"><div class="toolbar"><h2>每期权利金与行权截断成本</h2><span class="tag">绿色 = 权利金，红色 = 截断成本</span></div><div id="premiumScatter" class="chart"></div><div class="note">绿色点表示开仓收到的总权利金，不扣交易摩擦；红色点仅在发生行权时显示，表示未被权利金抵消的原始截断成本。</div></div>
+          <div class="panel span-6"><div class="toolbar"><h2>单期净期权收益分布</h2><span class="tag">频数分布</span></div><div id="netOptionHistogram" class="chart"></div><div class="note">展示每个独立周期的收益分布和左尾风险，不以复利净值掩盖单期结果。</div></div>
+          <div class="panel span-12"><h2>现金收入汇总</h2>${summaryTable(currentSummary())}</div>
+        </div>`;
+      setupCycleSelector(ledger);
+      groupedBars("cashBars", ledger);
+      renderSelectedCycleDetail(ledger);
+      lineChart("rollingLine", rolling, "window_end", "net_option_yield_non_compound", { zero: true, value: pct });
+      premiumScatter("premiumScatter", ledger);
+      netOptionHistogram("netOptionHistogram", ledger);
+    }
+
+    function renderCycles(preservePosition = false) {
+      const ledger = currentLedger();
+      syncSelectedCycles(ledger);
+      const selected = selectedCycleLedger(ledger);
+      const pageScrollTop = preservePosition ? window.scrollY : 0;
+      const checklistScrollTop = preservePosition ? (byId("cycleChecklist")?.scrollTop || 0) : 0;
+      byId("content").innerHTML = `
+        <div class="grid">
+          <div class="panel span-4 span-row-2">
+            <div class="toolbar"><h2>选择交易周期</h2><span class="tag">${selected.length} 期已选</span></div>
+            <div class="cycle-actions"><button type="button" id="selectAllCycles">全选</button><button type="button" id="clearSelectedCycles">清空</button></div>
+            <div class="note">勾选一个或多个开仓周期；所有金额均按固定名义本金逐期结算，可直接相加，不代表复利净值。</div>
+            <div id="cycleChecklist" class="cycle-checklist"></div>
+          </div>
+          <div class="panel span-8">
+            <div class="toolbar"><h2>所选周期收益汇总</h2><span class="tag">固定名义本金累计</span></div>
+            <div id="selectedCycleSummary"></div>
+            <div class="note">完整策略收益 = ETF 当期收益 + 最终净期权收益。若开仓时卖出实值 Call，总权利金包含开仓内在价值；该部分不是可额外留存的时间价值，行权/平仓扣减与交易成本已体现在净期权收益中。</div>
+          </div>
+          <div class="panel span-8"><div class="toolbar"><h2>整体ETF与策略收益</h2><span class="tag">全样本逐期对照</span></div><div id="overallStrategyReturnTimeline" class="chart"></div><div class="note">灰柱为ETF当期收益，深色柱为备兑策略当期净收益；该图展示全样本，用于与左侧勾选的局部周期结果对照。</div></div>
+          <div class="panel span-12"><div class="toolbar"><h2>所选周期收益构成</h2><span class="tag">每个分组 = 一个交易周期</span></div><div id="selectedCyclesChart" class="chart"></div><div class="note">灰柱为ETF当期收益，蓝柱为扣交易摩擦但未扣上涨截断的权利金净收入，绿柱为最终净期权收益，深色柱为完整策略当期收益。</div></div>
+          <div class="panel span-12"><div class="toolbar"><h2>所选周期明细</h2><span class="tag">${esc(labelStrategy(currentSummary()))}</span></div><div id="selectedCyclesTable"></div></div>
+        </div>`;
+      renderCycleChecklist(ledger);
+      renderSelectedCyclesAnalysis(selected);
+      strategyReturnTimeline("overallStrategyReturnTimeline", ledger, state.selectedCycleIds);
+      if (preservePosition) requestAnimationFrame(() => {
+        window.scrollTo({ top: pageScrollTop });
+        const checklist = byId("cycleChecklist");
+        if (checklist) checklist.scrollTop = checklistScrollTop;
+      });
+    }
+
+    function postDiagnosisRecords(records) {
+      return state.postdiag.exclude924 ? records.filter(row => String(row.rebalance_date || "").slice(0, 10) !== "2024-09-25") : records;
+    }
+
+    function postDiagnosisStatistics(records) {
+      const valid = records.filter(row => num(row.entry_iv_rv20_spread) !== null && num(row.ex_post_variance_risk_premium) !== null);
+      const vrpNetSample = valid.filter(row => num(row.net_option_yield) !== null);
+      return {
+        count: valid.length,
+        total: records.length,
+        positiveRate: valid.length ? valid.filter(row => num(row.ex_post_variance_risk_premium) > 0).length / valid.length : null,
+        medianVrp: median(valid.map(row => row.ex_post_variance_risk_premium)),
+        medianIvRv: median(valid.map(row => row.entry_iv_rv20_spread)),
+        vrpNetCount: vrpNetSample.length,
+        vrpNetPearson: pearson(vrpNetSample.map(row => num(row.ex_post_variance_risk_premium)), vrpNetSample.map(row => num(row.net_option_yield))),
+        vrpNetSpearman: spearman(vrpNetSample, row => row.ex_post_variance_risk_premium, row => row.net_option_yield),
+      };
+    }
+
+    function postDiagnosisKpis(records) {
+      const stats = postDiagnosisStatistics(records);
+      return [
+        kpi("可用事后观测", `${stats.count} / ${stats.total}`, "同时具备开仓 IV-RV 与持有期实现波动率的周期"),
+        kpi("事后 VRP 为正比例", pct(stats.positiveRate), "开仓隐含方差高于随后实现方差的历史比例", num(stats.positiveRate) >= 0.5 ? "positive" : "negative"),
+        kpi("VRP 与净期权收益 Pearson", fmt(stats.vrpNetPearson, 2), `${stats.vrpNetCount} 个完整观测；线性相关`, num(stats.vrpNetPearson) >= 0 ? "positive" : "negative"),
+        kpi("VRP 与净期权收益 Spearman", fmt(stats.vrpNetSpearman, 2), "排序相关；更不易受极端周期影响", num(stats.vrpNetSpearman) >= 0 ? "positive" : "negative"),
+      ].join("");
+    }
+
+    function renderPostDiagnosis() {
+      const allRecords = currentLedger();
+      const records = postDiagnosisRecords(allRecords);
+      const stats = postDiagnosisStatistics(records);
+      byId("content").innerHTML = `
+        <div class="grid">
+          <div class="panel span-12"><div class="toolbar"><h2>开仓 IV-RV 与事后 VRP</h2><div><label class="diagnostic-toggle"><input id="postdiagExclude924" type="checkbox"${state.postdiag.exclude924 ? " checked" : ""}>排除 2024-09-25 开仓期</label><span class="tag warn">使用未来信息</span></div></div><div id="postVrpScatter" class="chart"></div><div class="note">横轴为开仓 IV-RV（开仓 IV 减去开仓前20日 RV）；纵轴为事后 VRP = 开仓 IV² − 持有期实现波动率²。勾选项仅剔除覆盖“9.24 行情”后的首个开仓周期，用于敏感性观察，不是策略规则。持有期实现波动率只有在本期结束后才知道，因此本页只用于历史归因。</div></div>
+          <div class="panel span-12"><div class="toolbar"><h2>事后 VRP 与最终净期权收益</h2><span class="tag">Pearson ${fmt(stats.vrpNetPearson, 2)} / Spearman ${fmt(stats.vrpNetSpearman, 2)}</span></div><div id="postVrpOptionScatter" class="chart"></div><div class="note">每个点为一个交易周期，深色虚线为全样本线性拟合。该关系用于解释“实际发生的方差溢价”是否转化为净期权收益；由于 VRP 含有未来实现波动率，不能视为可直接交易的预测结果。</div></div>
+          <div class="panel span-12"><div class="toolbar"><h2>逐期事后诊断账本</h2><span class="tag">开仓信息与事后结果并列</span></div><div id="postDiagnosisTable"></div></div>
+        </div>`;
+      postDiagnosisVrpScatter("postVrpScatter", records);
+      postDiagnosisOptionScatter("postVrpOptionScatter", records);
+      renderPostDiagnosisTable(records);
+      byId("postdiagExclude924").addEventListener("change", event => { state.postdiag.exclude924 = event.target.checked; render(); });
+    }
+
+    function renderPostDiagnosisTable(records) {
+      const target = byId("postDiagnosisTable");
+      const valid = records.filter(row => num(row.entry_iv_rv20_spread) !== null && num(row.ex_post_variance_risk_premium) !== null);
+      if (!valid.length) { target.innerHTML = `<div class="empty">暂无可用于事后方差诊断的完整周期。</div>`; return; }
+      target.innerHTML = `<div class="table-wrap timing-ledger-wrap"><table><thead><tr><th class="left">开仓日</th><th class="left">到期日</th><th>开仓 IV</th><th>开仓前20日 RV</th><th>开仓 IV-RV</th><th>持有期实现 RV</th><th>事后 VRP</th><th>ETF 当期收益</th><th>最终净期权收益</th><th>行权</th></tr></thead><tbody>${valid.map(row => `<tr><td class="left">${esc(row.rebalance_date)}</td><td class="left">${esc(row.period_end_date)}</td><td>${pct(row.entry_iv)}</td><td>${pct(row.entry_rv20)}</td><td>${pct(row.entry_iv_rv20_spread)}</td><td>${pct(row.holding_realized_vol)}</td><td>${variancePoints(row.ex_post_variance_risk_premium)}</td><td>${pct(row.etf_period_return)}</td><td>${pct(row.net_option_yield)}</td><td>${row.assignment_flag ? "是" : "否"}</td></tr>`).join("")}</tbody></table></div>`;
+    }
+
+    function renderTradeoff() {
+      const ledger = currentLedger();
+      byId("content").innerHTML = `
+        <div class="grid">
+          <div class="panel span-8"><div class="toolbar"><h2>ETF涨跌与相对裸持贡献</h2><span class="tag">每个点 = 一个期权周期</span></div><div id="tradeoffScatter" class="chart"></div><div class="note">纵轴为备兑相对裸持的增减收益。强上涨中落在零线下方，代表为获得权利金而让渡的上涨空间。</div></div>
+          <div class="panel span-4"><h2>上涨让渡摘要</h2>${tradeoffSummary(currentSummary())}</div>
+          <div class="panel span-12"><h2>最明显的上涨让渡周期</h2>${topUpsideTable(ledger)}</div>
+        </div>`;
+      scatterChart("tradeoffScatter", ledger);
+    }
+
+    function validPathRecords(records) {
+      return records.filter(row =>
+        num(row.holding_max_upside_return) !== null
+        && num(row.holding_max_drawdown_return) !== null
+        && num(row.holding_range_return) !== null
+      );
+    }
+
+    function median(values) {
+      const valid = values.filter(value => num(value) !== null).map(Number).sort((a, b) => a - b);
+      if (!valid.length) return null;
+      const middle = Math.floor(valid.length / 2);
+      return valid.length % 2 ? valid[middle] : (valid[middle - 1] + valid[middle]) / 2;
+    }
+
+    function pearson(xValues, yValues) {
+      if (xValues.length < 3 || xValues.length !== yValues.length) return null;
+      const xMean = xValues.reduce((total, value) => total + value, 0) / xValues.length;
+      const yMean = yValues.reduce((total, value) => total + value, 0) / yValues.length;
+      let numerator = 0, xSquare = 0, ySquare = 0;
+      xValues.forEach((value, index) => {
+        const x = value - xMean, y = yValues[index] - yMean;
+        numerator += x * y; xSquare += x * x; ySquare += y * y;
+      });
+      return xSquare > 0 && ySquare > 0 ? numerator / Math.sqrt(xSquare * ySquare) : null;
+    }
+
+    function rank(values) {
+      const positions = values.map((value, index) => ({ value, index })).sort((a, b) => a.value - b.value);
+      const ranks = Array(values.length);
+      let start = 0;
+      while (start < positions.length) {
+        let end = start;
+        while (end + 1 < positions.length && positions[end + 1].value === positions[start].value) end += 1;
+        const averageRank = (start + end + 2) / 2;
+        for (let index = start; index <= end; index += 1) ranks[positions[index].index] = averageRank;
+        start = end + 1;
+      }
+      return ranks;
+    }
+
+    function spearman(records, xAccessor, yAccessor) {
+      const pairs = records.map(row => ({ x: num(xAccessor(row)), y: num(yAccessor(row)) })).filter(item => item.x !== null && item.y !== null);
+      return pearson(rank(pairs.map(item => item.x)), rank(pairs.map(item => item.y)));
+    }
+
+    function pathDetail(row) {
+      return `开仓日：${row.rebalance_date}\n到期日：${row.period_end_date}\n最大上涨：${pct(row.holding_max_upside_return)}\n最大下跌：${pct(row.holding_max_drawdown_return)}\n实际振幅：${pct(row.holding_range_return)}\nETF 当期收益：${pct(row.etf_period_return)}\n权利金净收入：${pct(netPremiumYield(row))}\n最终净期权收益：${pct(row.net_option_yield)}\n策略当期净收益：${pct(strategyNetRate(row))}\n行权：${row.assignment_flag ? "是" : "否"}`;
+    }
+
+    function renderPath() {
+      const records = validPathRecords(currentLedger());
+      byId("content").innerHTML = `
+        <div class="grid">
+          <div class="panel span-8"><div class="toolbar"><h2>最大上涨与最终净期权收益</h2><span class="tag">事后路径归因</span></div><div id="pathUpsideScatter" class="chart"></div><div class="note">横轴为开仓后持有期内出现过的最大上涨，纵轴为最终净期权收益。向上路径越强，越容易发生行权及上涨截断；这不是开仓时可见的信号。</div></div>
+          <div class="panel span-4"><div class="toolbar"><h2>路径摘要</h2><span class="tag">${records.length} 个周期</span></div><div id="pathSummary"></div><div class="note">最大上涨、最大下跌与实际振幅均以开仓 ETF 收盘价为基准，从下一交易日开始计算，以避免纳入开仓日前的盘中高低点。</div></div>
+          <div class="panel span-6"><div class="toolbar"><h2>实际振幅与权利金净收入</h2><span class="tag">定价检验</span></div><div id="pathRangePremiumScatter" class="chart"></div><div class="note">纵轴仅扣除交易摩擦，尚未扣上涨截断。若点云没有清晰向上关系，说明事后振幅本身不能解释开仓时的权利金高低。</div></div>
+          <div class="panel span-6"><div class="toolbar"><h2>最大下跌与完整策略当期收益</h2><span class="tag">下行缓冲</span></div><div id="pathDownsideScatter" class="chart"></div><div class="note">下跌周期中期权腿通常保留权利金，但完整策略仍包含 ETF 底仓的跌幅；应理解为收益缓冲，而不是脱离底仓的“纯收益”。</div></div>
+          <div class="panel span-12"><div class="toolbar"><h2>逐期路径账本</h2><span class="tag">悬停图点可查看明细</span></div><div id="pathTable"></div></div>
+        </div>`;
+      renderPathSummary(records);
+      pathScatter("pathUpsideScatter", records, {
+        x: row => row.holding_max_upside_return, y: row => row.net_option_yield,
+        xLabel: "持有期最大上涨", yLabel: "最终净期权收益", aria: "最大上涨与最终净期权收益的关系"
+      });
+      pathScatter("pathRangePremiumScatter", records, {
+        x: row => row.holding_range_return, y: row => netPremiumYield(row),
+        xLabel: "持有期实际振幅", yLabel: "权利金净收入", aria: "实际振幅与权利金净收入的关系"
+      });
+      pathScatter("pathDownsideScatter", records, {
+        x: row => row.holding_max_drawdown_return, y: row => strategyNetRate(row),
+        xLabel: "持有期最大下跌", yLabel: "完整策略当期收益", aria: "最大下跌与完整策略当期收益的关系", strategyColor: true
+      });
+      renderPathTable(records);
+    }
+
+    function renderPathSummary(records) {
+      const statistics = [
+        ["实际振幅中位数", pct(median(records.map(row => row.holding_range_return)))],
+        ["最大上涨中位数", pct(median(records.map(row => row.holding_max_upside_return)))],
+        ["最大下跌中位数", pct(median(records.map(row => row.holding_max_drawdown_return)))],
+        ["权利金净收入 vs 实际振幅", fmt(spearman(records, row => row.holding_range_return, row => netPremiumYield(row)), 2)],
+        ["最终净期权收益 vs 最大上涨", fmt(spearman(records, row => row.holding_max_upside_return, row => row.net_option_yield), 2)],
+        ["发生行权", `${records.filter(row => row.assignment_flag).length} / ${records.length}`]
+      ];
+      byId("pathSummary").innerHTML = `<div class="timing-summary">${statistics.map(([label, value]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div>`;
+    }
+
+    function pathKpis(records) {
+      const maximumUpsideCorrelation = spearman(records, row => row.holding_max_upside_return, row => row.net_option_yield);
+      return [
+        kpi("实际振幅中位数", pct(median(records.map(row => row.holding_range_return))), "开仓后至到期日的高低区间 / 开仓收盘", ""),
+        kpi("最大上涨中位数", pct(median(records.map(row => row.holding_max_upside_return))), "持有期内最高价相对开仓收盘", ""),
+        kpi("最大下跌中位数", pct(median(records.map(row => row.holding_max_drawdown_return))), "持有期内最低价相对开仓收盘", ""),
+        kpi("最大上涨与净期权收益", fmt(maximumUpsideCorrelation, 2), "Spearman 相关系数；负值代表上涨路径侵蚀期权结果", (maximumUpsideCorrelation || 0) < 0 ? "negative" : "positive")
+      ].join("");
+    }
+
+    function pathScatter(id, records, options) {
+      const el = byId(id);
+      const series = records.map(row => ({ row, x: num(options.x(row)), y: num(options.y(row)) })).filter(item => item.x !== null && item.y !== null);
+      if (!el || !series.length) { if (el) el.innerHTML = `<div class="empty">暂无完整的持有期路径数据。</div>`; return; }
+      const width = 700, height = 280, left = 52, right = 16, top = 16, bottom = 43;
+      const xValues = series.map(item => item.x), yValues = series.map(item => item.y);
+      const xMin = Math.min(0, ...xValues), xMax = Math.max(0, ...xValues), yMin = Math.min(0, ...yValues), yMax = Math.max(0, ...yValues);
+      const sx = value => scale(value, xMin, xMax, left, width - right), sy = value => scale(value, yMin, yMax, height - bottom, top);
+      const dots = series.map(item => {
+        const outcome = options.strategyColor ? item.y : num(item.row.net_option_yield);
+        const fill = outcome >= 0 ? colors.net : colors.negative;
+        const detail = pathDetail(item.row);
+        const mark = chartMark(detail);
+        return item.row.assignment_flag
+          ? `<rect x="${sx(item.x) - 3.6}" y="${sy(item.y) - 3.6}" width="7.2" height="7.2" fill="${fill}" ${mark}>${svgTitle(detail)}</rect>`
+          : `<circle cx="${sx(item.x)}" cy="${sy(item.y)}" r="3.8" fill="${fill}" ${mark}>${svgTitle(detail)}</circle>`;
+      }).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(options.aria)}"><line x1="${sx(0)}" x2="${sx(0)}" y1="${top}" y2="${height - bottom}" stroke="#9eabb5"/><line x1="${left}" x2="${width - right}" y1="${sy(0)}" y2="${sy(0)}" stroke="#9eabb5"/>${dots}<text x="${left}" y="${height - 13}" font-size="10" fill="#5e6a79">${pct(xMin)}</text><text x="${width - right}" y="${height - 13}" text-anchor="end" font-size="10" fill="#5e6a79">${pct(xMax)}</text><text x="${left + (width - left - right) / 2}" y="${height - 4}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(options.xLabel)}</text><text x="4" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(yMax)}</text><text x="4" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(yMin)}</text></svg><div class="legend"><span><i style="background:${colors.net}"></i>${options.strategyColor ? "策略当期收益为正" : "最终净期权收益为正"}</span><span><i style="background:${colors.negative}"></i>${options.strategyColor ? "策略当期收益为负" : "最终净期权收益为负"}</span><span>方形 = 行权，圆形 = 未行权</span></div>`;
+    }
+
+    function renderPathTable(records) {
+      if (!records.length) { byId("pathTable").innerHTML = `<div class="empty">暂无完整的持有期路径数据。</div>`; return; }
+      byId("pathTable").innerHTML = `<div class="table-wrap path-ledger-wrap"><table><thead><tr><th class="left">开仓日</th><th class="left">到期日</th><th>最大上涨</th><th>最大下跌</th><th>实际振幅</th><th>ETF 当期收益</th><th>权利金净收入</th><th>最终净期权收益</th><th>完整策略当期收益</th><th>行权</th></tr></thead><tbody>${records.map(row => `<tr><td class="left">${esc(row.rebalance_date)}</td><td class="left">${esc(row.period_end_date)}</td><td>${pct(row.holding_max_upside_return)}</td><td>${pct(row.holding_max_drawdown_return)}</td><td>${pct(row.holding_range_return)}</td><td>${pct(row.etf_period_return)}</td><td>${pct(netPremiumYield(row))}</td><td>${pct(row.net_option_yield)}</td><td>${pct(strategyNetRate(row))}</td><td>${row.assignment_flag ? "是" : "否"}</td></tr>`).join("")}</tbody></table></div>`;
+    }
+
+    function renderRegime() {
+      const regime = currentRegime();
+      byId("content").innerHTML = `<div class="grid"><div class="panel span-7"><div class="toolbar"><h2>不同市场环境下的期权腿结果</h2><span class="tag">事后归因</span></div><div id="regimeBars" class="chart"></div><div class="note">环境标签依据 ETF 当期收益划分：下跌 ≤ -5%，震荡 -5% 至 5%，上涨 5% 至 10%，强上涨 ≥ 10%。</div></div><div class="panel span-5"><h2>情景明细</h2>${regimeTable(regime)}</div></div>`;
+      regimeBars("regimeBars", regime);
+    }
+
+    function percentileRank(history, value) {
+      if (!history.length || num(value) === null) return null;
+      return history.filter(item => item <= value).length / history.length;
+    }
+
+    function timingScenario(records) {
+      const settings = state.timing;
+      const lookback = Math.max(1, Number(settings.ivLookback) || 12);
+      const history = [];
+      const enriched = records.map((row, index) => {
+        const entryIv = num(row.entry_iv);
+        const ivRv = num(row.entry_iv_rv20_spread);
+        const past = history.slice(-lookback);
+        const ivPercentile = past.length >= lookback ? percentileRank(past, entryIv) : null;
+        const ivPass = !settings.useIvPercentile || (ivPercentile !== null && ivPercentile >= Number(settings.ivPercentileThreshold));
+        const ivRvPass = !settings.useIvRv || (ivRv !== null && ivRv >= Number(settings.ivRvThreshold));
+        const optionAvailable = Boolean(row.option_selected_flag ?? row.option_code);
+        const sell = optionAvailable && ivPass && ivRvPass;
+        const reasons = [];
+        if (!optionAvailable) reasons.push("当期无可用合约");
+        if (settings.useIvPercentile && ivPercentile === null) reasons.push("历史IV不足");
+        else if (settings.useIvPercentile && !ivPass) reasons.push("IV分位未达标");
+        if (settings.useIvRv && ivRv === null) reasons.push("IV-RV缺失");
+        else if (settings.useIvRv && !ivRvPass) reasons.push("IV-RV未达标");
+        if (entryIv !== null) history.push(entryIv);
+        const etfReturn = num(row.etf_period_return) || 0;
+        const optionReturn = num(row.net_option_yield) || 0;
+        return {
+          row, index, ivPercentile, sell, reason: sell ? "满足当前条件" : reasons.join("；") || "不卖出",
+          etfReturn, optionReturn,
+          alwaysStrategyReturn: num(strategyNetRate(row)) ?? etfReturn + optionReturn,
+          timingStrategyReturn: etfReturn + (sell ? optionReturn : 0)
+        };
+      });
+      const sum = (field) => enriched.reduce((total, item) => total + (num(item[field]) || 0), 0);
+      const active = enriched.filter(item => item.sell);
+      return {
+        rows: enriched,
+        cycleCount: enriched.length,
+        activeCount: active.length,
+        optionReturnTotal: sum("optionReturn"),
+        timingOptionReturnTotal: active.reduce((total, item) => total + item.optionReturn, 0),
+        etfReturnTotal: sum("etfReturn"),
+        alwaysStrategyReturnTotal: sum("alwaysStrategyReturn"),
+        timingStrategyReturnTotal: sum("timingStrategyReturn"),
+        missingSignalCount: enriched.filter(item => !item.sell && /缺失|不足/.test(item.reason)).length
+      };
+    }
+
+    function timingKpis(scenario) {
+      const difference = scenario.timingStrategyReturnTotal - scenario.alwaysStrategyReturnTotal;
+      const timingOptionCash = scenario.timingOptionReturnTotal * (num(currentEtf()?.manifest?.fixed_notional) || 100);
+      const timingStrategyCash = scenario.timingStrategyReturnTotal * (num(currentEtf()?.manifest?.fixed_notional) || 100);
+      return [
+        kpi("实际卖出期数", `${scenario.activeCount} / ${scenario.cycleCount}`, "满足当前开关条件的周期", ""),
+        kpi("择时后净期权收益", cash(timingOptionCash), "固定名义本金逐期相加；未卖出周期为 0", timingOptionCash >= 0 ? "positive" : "negative"),
+        kpi("择时后完整策略结果", cash(timingStrategyCash), "ETF 当期收益 + 仅在卖出期计入的净期权收益", timingStrategyCash >= 0 ? "positive" : "negative"),
+        kpi("相对始终卖出差额", pct(difference), "逐期简单相加；正值代表本情景更优", difference >= 0 ? "positive" : "negative")
+      ].join("");
+    }
+
+    function renderTiming() {
+      const scenario = timingScenario(currentLedger());
+      const settings = state.timing;
+      byId("content").innerHTML = `
+        <div class="grid">
+          <div class="panel span-4">
+            <div class="toolbar"><h2>择时条件</h2><span class="tag">可手动开关</span></div>
+            <div class="timing-controls">
+              <div>
+                <label class="timing-toggle"><input id="timingUseIvPercentile" type="checkbox"${settings.useIvPercentile ? " checked" : ""}><span><strong>开仓 IV 历史分位</strong><span>仅在当前 IV 位于过去开仓 IV 的较高位置时卖出。</span></span></label>
+                <div class="timing-field${settings.useIvPercentile ? "" : " is-disabled"}"><label for="timingIvPercentileThreshold">最低分位</label><select id="timingIvPercentileThreshold"${settings.useIvPercentile ? "" : " disabled"}><option value="0.5">50%</option><option value="0.6">60%</option><option value="0.7">70%</option><option value="0.8">80%</option></select></div>
+                <div class="timing-field${settings.useIvPercentile ? "" : " is-disabled"}"><label for="timingIvLookback">历史窗口</label><select id="timingIvLookback"${settings.useIvPercentile ? "" : " disabled"}><option value="12">过去12期</option><option value="24">过去24期</option></select></div>
+              </div>
+              <div>
+                <label class="timing-toggle"><input id="timingUseIvRv" type="checkbox"${settings.useIvRv ? " checked" : ""}><span><strong>开仓 IV-RV</strong><span>仅在开仓 IV 相对过去20日实现波动率有足够溢价时卖出。</span></span></label>
+                <div class="timing-field${settings.useIvRv ? "" : " is-disabled"}"><label for="timingIvRvThreshold">最低 IV-RV</label><select id="timingIvRvThreshold"${settings.useIvRv ? "" : " disabled"}><option value="-0.05">-5%</option><option value="0">0%</option><option value="0.03">3%</option><option value="0.05">5%</option></select></div>
+              </div>
+            </div>
+            <div class="note">两个开关同时开启时须同时满足。IV 分位只用更早的开仓 IV 计算；历史不足或信号缺失时，本期按“不卖出、仅持有 ETF”处理。</div>
+          </div>
+          <div class="panel span-8">
+            <div class="toolbar"><h2>当前情景汇总</h2><span class="tag">固定名义本金逐期相加</span></div>
+            <div id="timingSummary"></div>
+            <div class="note">“始终卖出”指当前左侧所选备兑规则每期都执行；“择时后”仅在条件满足的周期计入该期最终净期权收益。该对照仍是历史收盘数据诊断，不等同于可实盘复现的择时回测。</div>
+          </div>
+          <div class="panel span-12"><div class="toolbar"><h2>ETF、始终卖出与择时策略的当期收益</h2><span class="tag">同一开仓日时间轴</span></div><div id="timingStrategyTimeline" class="chart"></div><div class="note">灰柱为仅持有 ETF，深色柱为每期始终执行当前备兑规则，蓝柱为按当前手动条件决定是否卖出的情景。所有柱均为独立单期收益率，不是复利曲线。</div></div>
+          <div class="panel span-12"><div class="toolbar"><h2>开仓 IV-RV 时序</h2><span class="tag">开仓日可得信号</span></div><div id="timingIvRvStrip" class="chart iv-rv-chart"></div><div class="note">该图仅展示开仓时的 IV-RV，用于与上方的卖出决策和下方的最终净期权收益交叉观察；不使用到期前 IV。</div></div>
+          <div class="panel span-6"><div class="toolbar"><h2>IV-RV 与最终净期权收益</h2><span class="tag">颜色 = 当前决策</span></div><div id="timingSignalScatter" class="chart"></div><div class="note">纵轴是“若卖出该期合约”最终留下的净期权收益。蓝点为当前条件下实际卖出的周期，灰点为被跳过的周期。</div></div>
+          <div class="panel span-6"><div class="toolbar"><h2>当前情景的收益构成</h2><span class="tag">逐期简单相加</span></div><div id="timingSummaryChart" class="chart"></div><div class="note">用于比较仅持有 ETF、始终卖出和当前择时三种路径的期权腿贡献与完整策略结果，不将各期收益复利化。</div></div>
+          <div class="panel span-12"><div class="toolbar"><h2>逐期决策账本</h2><span class="tag">信号与结果并列查看</span></div><div id="timingTable"></div></div>
+        </div>`;
+      byId("timingIvPercentileThreshold").value = String(settings.ivPercentileThreshold);
+      byId("timingIvLookback").value = String(settings.ivLookback);
+      byId("timingIvRvThreshold").value = String(settings.ivRvThreshold);
+      renderTimingSummary(scenario);
+      timingStrategyTimeline("timingStrategyTimeline", scenario.rows);
+      timingIvRvStrip("timingIvRvStrip", scenario.rows);
+      timingSignalScatter("timingSignalScatter", scenario.rows);
+      timingSummaryChart("timingSummaryChart", scenario);
+      renderTimingTable(scenario.rows);
+      bindTimingControls();
+    }
+
+    function renderTimingSummary(scenario) {
+      const difference = scenario.timingStrategyReturnTotal - scenario.alwaysStrategyReturnTotal;
+      const summary = [
+        ["实际卖出期数", `${scenario.activeCount} / ${scenario.cycleCount}`],
+        ["仅持有 ETF 的逐期合计", pct(scenario.etfReturnTotal)],
+        ["始终卖出完整策略", pct(scenario.alwaysStrategyReturnTotal)],
+        ["择时后完整策略", pct(scenario.timingStrategyReturnTotal)],
+        ["相对始终卖出差额", pct(difference)],
+        ["因信号缺失/历史不足跳过", `${scenario.missingSignalCount} 期`]
+      ];
+      byId("timingSummary").innerHTML = `<div class="timing-summary">${summary.map(([label, value]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div>`;
+    }
+
+    function bindTimingControls() {
+      const controls = [
+        ["timingUseIvPercentile", "useIvPercentile", "checked"], ["timingIvPercentileThreshold", "ivPercentileThreshold", "value"],
+        ["timingIvLookback", "ivLookback", "value"], ["timingUseIvRv", "useIvRv", "checked"], ["timingIvRvThreshold", "ivRvThreshold", "value"]
+      ];
+      controls.forEach(([id, key, field]) => {
+        const control = byId(id);
+        if (!control) return;
+        control.addEventListener("change", event => {
+          const value = field === "checked" ? event.target.checked : Number(event.target.value);
+          state.timing[key] = value;
+          render();
+        });
+      });
+    }
+
+    function renderTimingTable(series) {
+      if (!series.length) { byId("timingTable").innerHTML = `<div class="empty">暂无可分析周期。</div>`; return; }
+      byId("timingTable").innerHTML = `<div class="table-wrap timing-ledger-wrap"><table><thead><tr><th class="left">开仓日</th><th>开仓 IV</th><th>历史 IV 分位</th><th>开仓 IV-RV</th><th>当前是否卖出</th><th class="left">判断</th><th>ETF 当期收益</th><th>若卖出：净期权收益</th><th>始终卖出策略</th><th>择时后策略</th></tr></thead><tbody>${series.map(item => `<tr><td class="left">${esc(item.row.rebalance_date)}</td><td>${pct(item.row.entry_iv)}</td><td>${pct(item.ivPercentile, 0)}</td><td>${pct(item.row.entry_iv_rv20_spread)}</td><td class="${item.sell ? "decision-yes" : "decision-no"}">${item.sell ? "卖出" : "不卖"}</td><td class="left">${esc(item.reason)}</td><td>${pct(item.etfReturn)}</td><td>${pct(item.optionReturn)}</td><td>${pct(item.alwaysStrategyReturn)}</td><td>${pct(item.timingStrategyReturn)}</td></tr>`).join("")}</tbody></table></div>`;
+    }
+
+    function timingStrategyTimeline(id, series) {
+      const el = byId(id);
+      if (!el || !series.length) return;
+      const width = 900, height = 300, left = 46, right = 14, top = 15, bottom = 45;
+      const values = series.flatMap(item => [item.etfReturn, item.alwaysStrategyReturn, item.timingStrategyReturn]);
+      const { min, max } = chartDomain(values);
+      const sy = value => scale(value, min, max, height - bottom, top);
+      const zero = sy(0), band = (width - left - right) / series.length;
+      const bar = Math.max(2.5, Math.min(9, band * .18));
+      const timingEnabled = state.timing.useIvPercentile || state.timing.useIvRv;
+      const skippedBands = timingEnabled ? series.map((item, index) => item.sell ? "" : `<rect x="${left + index * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="#d9e0e5" opacity="0.72" pointer-events="none"></rect>`).join("") : "";
+      const rect = (x, value, fill, detail) => `<rect x="${x - bar / 2}" y="${Math.min(zero, sy(value))}" width="${bar}" height="${Math.max(1, Math.abs(sy(value) - zero))}" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</rect>`;
+      const bars = series.map((item, index) => {
+        const center = left + index * band + band / 2;
+        const detail = `开仓日：${item.row.rebalance_date}\n当前决策：${item.sell ? "卖出" : "不卖出"}\n判断：${item.reason}\nETF 当期收益：${pct(item.etfReturn)}\n始终卖出策略：${pct(item.alwaysStrategyReturn)}\n择时后策略：${pct(item.timingStrategyReturn)}`;
+        return `${rect(center - bar * 1.25, item.etfReturn, colors.baseline, detail)}${rect(center, item.alwaysStrategyReturn, "#18212f", detail)}${rect(center + bar * 1.25, item.timingStrategyReturn, colors.premium, detail)}`;
+      }).join("");
+      const ticks = [0, Math.floor(series.length / 2), series.length - 1].filter((value, index, list) => list.indexOf(value) === index).map(index => `<text x="${left + index * band + band / 2}" y="${height - 13}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(String(series[index].row.rebalance_date).slice(0, 7))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="ETF、始终卖出与择时策略的单期收益对照"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${skippedBands}${bars}<text x="4" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="4" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(min)}</text>${ticks}</svg><div class="legend"><span><i style="background:${colors.baseline}"></i>仅持有 ETF</span><span><i style="background:#18212f"></i>始终卖出</span><span><i style="background:${colors.premium}"></i>当前择时情景</span>${timingEnabled ? `<span><i style="background:#d9e0e5"></i>阴影：该期不卖出</span>` : ""}</div>`;
+    }
+
+    function timingIvRvStrip(id, series) {
+      const el = byId(id);
+      if (!el || !series.length) return;
+      const values = series.map(item => num(item.row.entry_iv_rv20_spread)).filter(value => value !== null);
+      if (!values.length) { el.innerHTML = `<div class="empty">暂无开仓 IV-RV 数据。</div>`; return; }
+      const width = 900, height = 130, left = 46, right = 14, top = 12, bottom = 30;
+      const { min, max } = chartDomain(values, 0.005);
+      const sy = value => scale(value, min, max, height - bottom, top);
+      const zero = sy(0), band = (width - left - right) / series.length;
+      const bar = Math.max(2.5, Math.min(12, band * 0.52));
+      const timingEnabled = state.timing.useIvPercentile || state.timing.useIvRv;
+      const skippedBands = timingEnabled ? series.map((item, index) => item.sell ? "" : `<rect x="${left + index * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="#d9e0e5" opacity="0.72" pointer-events="none"></rect>`).join("") : "";
+      const bars = series.map((item, index) => {
+        const value = num(item.row.entry_iv_rv20_spread);
+        if (value === null) return "";
+        const x = left + index * band + band / 2;
+        const y = Math.min(zero, sy(value));
+        const detail = `开仓日：${item.row.rebalance_date}\nIV-RV：${pct(value)}\n当前决策：${item.sell ? "卖出" : "不卖出"}\n判断：${item.reason}\n最终净期权收益：${pct(item.optionReturn)}`;
+        return `<rect x="${x - bar / 2}" y="${y}" width="${bar}" height="${Math.max(1, Math.abs(sy(value) - zero))}" fill="${value >= 0 ? colors.premium : colors.relative}" ${chartMark(detail)}>${svgTitle(detail)}</rect>`;
+      }).join("");
+      const ticks = [0, Math.floor(series.length / 2), series.length - 1].filter((value, index, list) => list.indexOf(value) === index).map(index => `<text x="${left + index * band + band / 2}" y="${height - 9}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(String(series[index].row.rebalance_date).slice(0, 7))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="与择时收益图逐期对齐的开仓IV-RV时序"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${skippedBands}${bars}<text x="5" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="5" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(min)}</text>${ticks}</svg><div class="legend"><span><i style="background:${colors.premium}"></i>IV 高于过去20日 RV</span><span><i style="background:${colors.relative}"></i>IV 低于过去20日 RV</span>${timingEnabled ? `<span><i style="background:#d9e0e5"></i>阴影：该期不卖出</span>` : ""}</div>`;
+    }
+
+    function timingSignalScatter(id, series) {
+      const el = byId(id);
+      const valid = series.filter(item => num(item.row.entry_iv_rv20_spread) !== null && num(item.optionReturn) !== null);
+      if (!el || !valid.length) { if (el) el.innerHTML = `<div class="empty">暂无可用的 IV-RV 与收益观测。</div>`; return; }
+      const width = 660, height = 270, left = 47, right = 15, top = 16, bottom = 42;
+      const xValues = valid.map(item => num(item.row.entry_iv_rv20_spread));
+      const yValues = valid.map(item => item.optionReturn);
+      const pearsonR = pearson(xValues, yValues);
+      const spearmanRho = spearman(valid, item => num(item.row.entry_iv_rv20_spread), item => item.optionReturn);
+      const xMin = Math.min(-.02, ...xValues), xMax = Math.max(.02, ...xValues), yMin = Math.min(-.02, ...yValues), yMax = Math.max(.02, ...yValues);
+      const sx = value => scale(value, xMin, xMax, left, width - right), sy = value => scale(value, yMin, yMax, height - bottom, top);
+      const dots = valid.map(item => {
+        const detail = `开仓日：${item.row.rebalance_date}\n当前决策：${item.sell ? "卖出" : "不卖出"}\nIV 分位：${pct(item.ivPercentile, 0)}\nIV-RV：${pct(item.row.entry_iv_rv20_spread)}\n最终净期权收益：${pct(item.optionReturn)}\n判断：${item.reason}`;
+        const fill = item.sell ? colors.premium : "#9eabb5";
+        return item.sell ? `<circle cx="${sx(num(item.row.entry_iv_rv20_spread))}" cy="${sy(item.optionReturn)}" r="4" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</circle>` : `<rect x="${sx(num(item.row.entry_iv_rv20_spread)) - 3.5}" y="${sy(item.optionReturn) - 3.5}" width="7" height="7" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</rect>`;
+      }).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="IV-RV 与最终净期权收益的择时决策散点图"><line x1="${sx(0)}" x2="${sx(0)}" y1="${top}" y2="${height - bottom}" stroke="#9eabb5"/><line x1="${left}" x2="${width - right}" y1="${sy(0)}" y2="${sy(0)}" stroke="#9eabb5"/>${dots}<text x="${left}" y="${height - 13}" font-size="10" fill="#5e6a79">${pct(xMin)}</text><text x="${width - right}" y="${height - 13}" text-anchor="end" font-size="10" fill="#5e6a79">${pct(xMax)}</text><text x="${left + (width - left - right) / 2}" y="${height - 4}" text-anchor="middle" font-size="10" fill="#5e6a79">开仓 IV-RV</text><text x="4" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(yMax)}</text><text x="4" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(yMin)}</text></svg><div class="chart-footer"><div class="legend"><span><i style="background:${colors.premium}"></i>当前卖出</span><span><i style="background:#9eabb5"></i>当前跳过</span></div><div class="chart-stat">Pearson ${fmt(pearsonR, 2)} | Spearman ${fmt(spearmanRho, 2)} | n=${valid.length}</div></div>`;
+    }
+
+    function postDiagnosisVrpScatter(id, records) {
+      const el = byId(id);
+      const valid = records.filter(row => num(row.entry_iv_rv20_spread) !== null && num(row.ex_post_variance_risk_premium) !== null);
+      if (!el || !valid.length) { if (el) el.innerHTML = `<div class="empty">暂无可用的 IV-RV 与事后 VRP 观测。</div>`; return; }
+      const width = 900, height = 300, left = 52, right = 18, top = 16, bottom = 42;
+      const xValues = valid.map(row => num(row.entry_iv_rv20_spread));
+      const yValues = valid.map(row => num(row.ex_post_variance_risk_premium));
+      const { min: xMin, max: xMax } = chartDomain(xValues, 0.02);
+      const { min: yMin, max: yMax } = chartDomain(yValues, 0.0025);
+      const sx = value => scale(value, xMin, xMax, left, width - right), sy = value => scale(value, yMin, yMax, height - bottom, top);
+      const dots = valid.map(row => {
+        const vrp = num(row.ex_post_variance_risk_premium);
+        const detail = `开仓日：${row.rebalance_date}\n开仓 IV：${pct(row.entry_iv)}\n开仓前20日 RV：${pct(row.entry_rv20)}\n开仓 IV-RV：${pct(row.entry_iv_rv20_spread)}\n持有期实现 RV：${pct(row.holding_realized_vol)}（未来信息）\n事后 VRP（IV² - 实现方差）：${variancePoints(vrp)}\n最终净期权收益：${pct(row.net_option_yield)}`;
+        return `<circle cx="${sx(num(row.entry_iv_rv20_spread))}" cy="${sy(vrp)}" r="4" fill="${vrp >= 0 ? colors.net : colors.negative}" ${chartMark(detail)}>${svgTitle(detail)}</circle>`;
+      }).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="开仓 IV-RV 与事后方差风险溢价散点图"><line x1="${sx(0)}" x2="${sx(0)}" y1="${top}" y2="${height - bottom}" stroke="#9eabb5"/><line x1="${left}" x2="${width - right}" y1="${sy(0)}" y2="${sy(0)}" stroke="#9eabb5"/>${dots}<text x="${left}" y="${height - 13}" font-size="10" fill="#5e6a79">${pct(xMin)}</text><text x="${width - right}" y="${height - 13}" text-anchor="end" font-size="10" fill="#5e6a79">${pct(xMax)}</text><text x="${left + (width - left - right) / 2}" y="${height - 4}" text-anchor="middle" font-size="10" fill="#5e6a79">开仓 IV-RV</text><text x="4" y="${top + 4}" font-size="10" fill="#5e6a79">${variancePoints(yMax)}</text><text x="4" y="${height - bottom}" font-size="10" fill="#5e6a79">${variancePoints(yMin)}</text></svg><div class="legend"><span><i style="background:${colors.net}"></i>事后 VRP 为正</span><span><i style="background:${colors.negative}"></i>事后 VRP 为负</span></div>`;
+    }
+
+    function postDiagnosisOptionScatter(id, records) {
+      const el = byId(id);
+      const valid = records.filter(row => num(row.ex_post_variance_risk_premium) !== null && num(row.net_option_yield) !== null);
+      if (!el || !valid.length) { if (el) el.innerHTML = `<div class="empty">暂无可用的事后 VRP 与净期权收益观测。</div>`; return; }
+      const width = 900, height = 300, left = 52, right = 18, top = 16, bottom = 42;
+      const xValues = valid.map(row => num(row.ex_post_variance_risk_premium));
+      const yValues = valid.map(row => num(row.net_option_yield));
+      const { min: xMin, max: xMax } = chartDomain(xValues, 0.0025);
+      const { min: yMin, max: yMax } = chartDomain(yValues, 0.004);
+      const sx = value => scale(value, xMin, xMax, left, width - right), sy = value => scale(value, yMin, yMax, height - bottom, top);
+      const xMean = xValues.reduce((sum, value) => sum + value, 0) / xValues.length;
+      const yMean = yValues.reduce((sum, value) => sum + value, 0) / yValues.length;
+      const denominator = xValues.reduce((sum, value) => sum + (value - xMean) ** 2, 0);
+      const slope = denominator > 0 ? xValues.reduce((sum, value, index) => sum + (value - xMean) * (yValues[index] - yMean), 0) / denominator : null;
+      const intercept = slope === null ? null : yMean - slope * xMean;
+      const trend = slope === null ? "" : `<line x1="${sx(xMin)}" y1="${sy(intercept + slope * xMin)}" x2="${sx(xMax)}" y2="${sy(intercept + slope * xMax)}" stroke="#18212f" stroke-width="2" stroke-dasharray="5 4" pointer-events="none"/>`;
+      const dots = valid.map(row => {
+        const x = sx(num(row.ex_post_variance_risk_premium)), y = sy(num(row.net_option_yield));
+        const detail = `开仓日：${row.rebalance_date}\n事后 VRP（IV² - 实现方差）：${variancePoints(row.ex_post_variance_risk_premium)}\n最终净期权收益：${pct(row.net_option_yield)}\n权利金净收入：${pct(netPremiumYield(row))}\n行权/平仓扣减：${pct(-(num(row.exercise_or_close_cost_yield) || 0))}\n行权：${row.assignment_flag ? "是" : "否"}`;
+        const fill = num(row.net_option_yield) >= 0 ? colors.net : colors.negative;
+        return row.assignment_flag ? `<rect x="${x - 3.5}" y="${y - 3.5}" width="7" height="7" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</rect>` : `<circle cx="${x}" cy="${y}" r="3.8" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</circle>`;
+      }).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="事后 VRP 与最终净期权收益散点图"><line x1="${sx(0)}" x2="${sx(0)}" y1="${top}" y2="${height - bottom}" stroke="#9eabb5"/><line x1="${left}" x2="${width - right}" y1="${sy(0)}" y2="${sy(0)}" stroke="#9eabb5"/>${trend}${dots}<text x="${left}" y="${height - 13}" font-size="10" fill="#5e6a79">${variancePoints(xMin)}</text><text x="${width - right}" y="${height - 13}" text-anchor="end" font-size="10" fill="#5e6a79">${variancePoints(xMax)}</text><text x="${left + (width - left - right) / 2}" y="${height - 4}" text-anchor="middle" font-size="10" fill="#5e6a79">事后 VRP（方差点）</text><text x="4" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(yMax)}</text><text x="4" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(yMin)}</text></svg><div class="legend"><span><i style="background:${colors.net}"></i>净期权收益为正</span><span><i style="background:${colors.negative}"></i>净期权收益为负</span><span>方形 = 行权，圆形 = 未行权，虚线 = 线性拟合</span></div>`;
+    }
+
+    function timingSummaryChart(id, scenario) {
+      const el = byId(id);
+      if (!el) return;
+      const categories = [
+        ["仅持有 ETF", scenario.etfReturnTotal, colors.baseline],
+        ["始终卖出", scenario.alwaysStrategyReturnTotal, "#18212f"],
+        ["当前择时", scenario.timingStrategyReturnTotal, colors.premium]
+      ];
+      const width = 620, height = 270, left = 48, right = 14, top = 16, bottom = 48;
+      const values = categories.map(item => item[1]);
+      const { min, max } = chartDomain(values, .01);
+      const sy = value => scale(value, min, max, height - bottom, top), zero = sy(0), band = (width - left - right) / categories.length;
+      const bars = categories.map(([label, value, fill], index) => {
+        const x = left + index * band + band * .2, y = Math.min(zero, sy(value));
+        const detail = `${label}\n逐期简单相加：${pct(value)}`;
+        return `<rect x="${x}" y="${y}" width="${band * .6}" height="${Math.max(1, Math.abs(sy(value) - zero))}" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</rect><text x="${x + band * .3}" y="${height - 15}" text-anchor="middle" font-size="10" fill="#5e6a79">${label}</text>`;
+      }).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="不同择时情景下的逐期收益简单合计"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${bars}<text x="4" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="4" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(min)}</text></svg>`;
+    }
+
+    function summaryTable(summary) {
+      return `<div class="table-wrap"><table><tbody>
+        <tr><th class="left">收取权利金总额</th><td>${cash(summary.gross_premium_cash_total)}</td><th class="left">净期权收益总额</th><td>${cash(summary.net_option_pnl_cash_total)}</td></tr>
+        <tr><th class="left">期权净收益P10</th><td>${pct(summary.net_option_yield_p10)}</td><th class="left">期权净收益P90</th><td>${pct(summary.net_option_yield_p90)}</td></tr>
+        <tr><th class="left">行权比例</th><td>${pct(summary.assignment_rate)}</td><th class="left">出现上涨让渡的周期</th><td>${pct(summary.upside_cap_cycle_rate)}</td></tr>
+      </tbody></table></div>`;
+    }
+
+    function tradeoffSummary(summary) {
+      return `<div class="table-wrap"><table><tbody>
+        <tr><th class="left">相对裸持累计差额</th><td>${cash(summary.relative_to_buyhold_pnl_cash_total)}</td></tr>
+        <tr><th class="left">单期平均上涨让渡</th><td>${pct(summary.upside_cap_return_mean)}</td></tr>
+        <tr><th class="left">上涨让渡P90</th><td>${pct(summary.upside_cap_return_p90)}</td></tr>
+        <tr><th class="left">出现上涨让渡的周期</th><td>${pct(summary.upside_cap_cycle_rate)}</td></tr>
+      </tbody></table></div>`;
+    }
+
+    function ledgerTable(records) {
+      if (!records.length) return `<div class="empty">暂无逐期账本。</div>`;
+      return `<div class="table-wrap"><table><thead><tr><th class="left">开仓日</th><th class="left">到期日</th><th>ETF当期收益</th><th>收取权利金</th><th>行权/平仓损失</th><th>交易成本</th><th>净期权收益</th><th>备兑收益</th><th>相对裸持</th><th>是否行权</th></tr></thead><tbody>${records.map(row => `<tr><td class="left">${esc(row.rebalance_date)}</td><td class="left">${esc(row.period_end_date)}</td><td>${pct(row.etf_period_return)}</td><td>${cash(row.gross_premium_cash)}</td><td>${cash(row.exercise_or_close_cost_cash)}</td><td>${cash(row.transaction_cost_cash)}</td><td>${cash(row.net_option_pnl_cash)}</td><td>${pct(row.covered_call_period_return)}</td><td>${pct(row.relative_to_buyhold_return)}</td><td>${row.assignment_flag ? "是" : "否"}</td></tr>`).join("")}</tbody></table></div>`;
+    }
+
+    function ledgerTable(records) {
+      if (!records.length) return `<div class="empty">暂无逐期账本。</div>`;
+      const preSettlementIv = row => `${pct(row.pre_settlement_iv)}${row.pre_settlement_iv_date ? ` (${esc(String(row.pre_settlement_iv_date).slice(0, 10))})` : ""}`;
+      return `<div class="table-wrap"><table><thead><tr>
+        <th class="left">开仓日</th><th class="left">到期日</th><th>收取权利金</th><th>净期权收益</th>
+        <th>剔除上涨截断后净收益</th><th>上涨截断</th><th>ETF 当期收益</th><th>开仓 IV</th>
+        <th>开仓前20日 RV</th><th>开仓 IV - RV</th><th>到期前最近有效 IV</th><th>持有期实现 RV</th><th>事后 VRP</th><th>行权</th>
+      </tr></thead><tbody>${records.map(row => `<tr>
+        <td class="left">${esc(row.rebalance_date)}</td><td class="left">${esc(row.period_end_date)}</td><td>${pct(row.gross_premium_yield)}</td>
+        <td>${pct(row.net_option_yield)}</td><td>${pct(row.net_option_yield_ex_upside_cap)}</td><td>${pct(row.upside_cap_return)}</td>
+        <td>${pct(row.etf_period_return)}</td><td>${pct(row.entry_iv)}</td><td>${pct(row.entry_rv20)}</td>
+        <td>${pct(row.entry_iv_rv20_spread)}</td><td>${preSettlementIv(row)}</td><td>${pct(row.holding_realized_vol)}</td><td>${variancePoints(row.ex_post_variance_risk_premium)}</td>
+        <td>${row.assignment_flag ? "是" : "否"}</td>
+      </tr>`).join("")}</tbody></table></div>`;
+    }
+
+    function topUpsideTable(records) {
+      const top = [...records].sort((a, b) => (num(b.upside_cap_pnl_cash) || 0) - (num(a.upside_cap_pnl_cash) || 0)).slice(0, 8);
+      return `<div class="table-wrap"><table><thead><tr><th class="left">开仓日</th><th class="left">到期日</th><th>ETF当期收益</th><th>净期权收益</th><th>上涨让渡</th><th>是否行权</th></tr></thead><tbody>${top.map(row => `<tr><td class="left">${esc(row.rebalance_date)}</td><td class="left">${esc(row.period_end_date)}</td><td>${pct(row.etf_period_return)}</td><td>${pct(row.net_option_yield)}</td><td>${cash(row.upside_cap_pnl_cash)}</td><td>${row.assignment_flag ? "是" : "否"}</td></tr>`).join("")}</tbody></table></div>`;
+    }
+
+    function regimeTable(records) {
+      if (!records.length) return `<div class="empty">暂无情景归因。</div>`;
+      const order = { "下跌周期": 0, "震荡周期": 1, "上涨周期": 2, "强上涨周期": 3 };
+      const sorted = [...records].sort((a, b) => order[a.market_regime] - order[b.market_regime]);
+      return `<div class="table-wrap"><table><thead><tr><th class="left">市场环境</th><th>周期数</th><th>净期权收益均值</th><th>跑输裸持比例</th></tr></thead><tbody>${sorted.map(row => `<tr><td class="left">${esc(row.market_regime)}</td><td>${fmt(row.cycle_count, 0)}</td><td>${pct(row.net_option_yield_mean)}</td><td>${pct(row.underperform_buyhold_cycle_rate)}</td></tr>`).join("")}</tbody></table></div>`;
+    }
+
+    function scale(value, domainMin, domainMax, rangeMin, rangeMax) { return rangeMin + (value - domainMin) / (domainMax - domainMin || 1) * (rangeMax - rangeMin); }
+    function chartMark(detail) { const value = esc(detail).replace(/\n/g, "&#10;"); return `data-detail="${value}" tabindex="0" role="img" aria-label="${value}"`; }
+    function cycleDetail(row, prefix = "交易周期") {
+      return [
+        prefix,
+        `开仓日：${row.rebalance_date || "--"}`,
+        `到期日：${row.period_end_date || "--"}`,
+        `收取权利金：${cash(row.gross_premium_cash)}`,
+        `行权/平仓损失：${cash(row.exercise_or_close_cost_cash)}`,
+        `交易成本：${cash(row.transaction_cost_cash)}`,
+        `净期权收益：${cash(row.net_option_pnl_cash)}（${pct(row.net_option_yield)}）`,
+        `ETF 当期收益：${pct(row.etf_period_return)}`,
+        `相对裸持：${pct(row.relative_to_buyhold_return)}`,
+        `行权状态：${row.assignment_flag ? "行权" : "未行权"}`
+      ].join("\n");
+    }
+    function svgTitle(detail) { return `<title>${esc(detail)}</title>`; }
+    function legacyGroupedBars(id, records) {
+      const el = byId(id); const valid = records.filter(row => num(row.gross_premium_cash) !== null && num(row.net_option_pnl_cash) !== null);
+      if (!valid.length) { el.innerHTML = `<div class="empty">暂无现金流数据。</div>`; return; }
+      const width = 860, height = 280, left = 44, right = 12, top = 14, bottom = 46;
+      const vals = valid.flatMap(row => [num(row.gross_premium_cash), num(row.net_option_pnl_cash)]); const max = Math.max(0, ...vals); const min = Math.min(0, ...vals); const sy = value => scale(value, min, max, height - bottom, top); const zero = sy(0); const band = (width - left - right) / valid.length; const bar = Math.max(2, Math.min(9, band * 0.28));
+      const bars = valid.map((row, index) => { const x = left + index * band + band / 2; const premium = num(row.gross_premium_cash); const net = num(row.net_option_pnl_cash); const rect = (value, dx, fill, label) => { const y = Math.min(zero, sy(value)); const detail = cycleDetail(row, label); return `<rect x="${x + dx - bar / 2}" y="${y}" width="${bar}" height="${Math.max(1, Math.abs(sy(value) - zero))}" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</rect>`; }; return `${rect(premium, -bar * 0.65, colors.premium, "收取权利金")}${rect(net, bar * 0.65, net >= 0 ? colors.net : colors.negative, "最终净期权收益")}`; }).join("");
+      const ticks = [0, Math.floor(valid.length / 2), valid.length - 1].filter((value, index, arr) => arr.indexOf(value) === index).map(index => `<text x="${left + index * band + band / 2}" y="${height - 13}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(String(valid[index].rebalance_date).slice(0, 7))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="每期总权利金与净期权收益"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${bars}<text x="5" y="${top + 4}" font-size="10" fill="#5e6a79">${cash(max)}</text><text x="5" y="${height - bottom}" font-size="10" fill="#5e6a79">${cash(min)}</text>${ticks}</svg><div class="legend"><span><i style="background:${colors.premium}"></i>收取权利金</span><span><i style="background:${colors.net}"></i>最终净期权收益</span></div>`;
+    }
+
+    function selectedCycleIndex(records) {
+      const index = Number(state.selectedCycleIndex);
+      if (!Number.isInteger(index) || index < 0 || index >= records.length) return 0;
+      return index;
+    }
+
+    function setupCycleSelector(records) {
+      const select = byId("cycleSelect");
+      if (!select) return;
+      if (!records.length) {
+        select.innerHTML = `<option>暂无交易周期</option>`;
+        select.disabled = true;
+        return;
+      }
+      const selected = selectedCycleIndex(records);
+      state.selectedCycleIndex = selected;
+      select.disabled = false;
+      select.innerHTML = records.map((row, index) => `<option value="${index}">${esc(row.rebalance_date || "--")} 至 ${esc(row.period_end_date || "--")}</option>`).join("");
+      select.value = String(selected);
+      select.addEventListener("change", event => selectCycle(records, Number(event.target.value)));
+    }
+
+    function renderSelectedCycleDetail(records) {
+      const detail = byId("selectedCycleDetail");
+      if (!detail) return;
+      if (!records.length) {
+        detail.innerHTML = `<div class="muted">暂无交易周期。</div>`;
+        return;
+      }
+      const row = records[selectedCycleIndex(records)];
+      const rateAndCash = (rate, amount) => `${pct(rate)} / ${cash(amount)}`;
+      const datedPct = (value, date) => `${pct(value)}${date ? ` (${String(date).slice(0, 10)})` : ""}`;
+      const items = [
+        ["开仓 / 到期", `${row.rebalance_date || "--"} / ${row.period_end_date || "--"}`],
+        ["收取权利金", rateAndCash(row.gross_premium_yield, row.gross_premium_cash)],
+        ["上涨截断", rateAndCash(row.upside_cap_return, row.upside_cap_pnl_cash)],
+        ["净期权收益", rateAndCash(row.net_option_yield, row.net_option_pnl_cash)],
+        ["剔除上涨截断后净收益", rateAndCash(row.net_option_yield_ex_upside_cap, row.net_option_pnl_cash_ex_upside_cap)],
+        ["ETF 当期收益", pct(row.etf_period_return)],
+        ["行权状态", row.assignment_flag ? "发生行权" : "未行权"],
+        ["开仓 IV", pct(row.entry_iv)],
+        ["开仓前 20 日 RV", pct(row.entry_rv20)],
+        ["开仓 IV - RV", pct(row.entry_iv_rv20_spread)],
+        ["到期前最近有效 IV", datedPct(row.pre_settlement_iv, row.pre_settlement_iv_date)],
+        ["持有期实现 RV", pct(row.holding_realized_vol)]
+      ];
+      detail.innerHTML = items.map(([label, value]) => `<div class="cycle-detail-item"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("");
+      const select = byId("cycleSelect");
+      if (select) select.value = String(selectedCycleIndex(records));
+    }
+
+    function selectCycle(records, index) {
+      if (!records.length) return;
+      const next = Math.max(0, Math.min(records.length - 1, Number.isFinite(index) ? Math.trunc(index) : 0));
+      if (state.selectedCycleIndex === next) return;
+      state.selectedCycleIndex = next;
+      renderSelectedCycleDetail(records);
+      groupedBars("cashBars", records);
+    }
+
+    function bindCycleBarEvents(el, records) {
+      el.querySelectorAll(".period-hit").forEach(hit => {
+        const index = Number(hit.dataset.cycleIndex);
+        const choose = () => selectCycle(records, index);
+        if (el.id === "overallStrategyReturnTimeline") {
+          hit.addEventListener("click", () => toggleLedgerCycleSelection(records, index));
+          return;
+        }
+        hit.addEventListener("pointerenter", choose);
+        hit.addEventListener("click", choose);
+      });
+    }
+
+    function cycleDetail(row, prefix = "交易周期") {
+      return [
+        prefix,
+        `开仓日：${row.rebalance_date || "--"}`,
+        `到期日：${row.period_end_date || "--"}`,
+        `收取权利金：${cash(row.gross_premium_cash)}（${pct(row.gross_premium_yield)}）`,
+        `上涨截断：${cash(row.upside_cap_pnl_cash)}（${pct(row.upside_cap_return)}）`,
+        `净期权收益：${cash(row.net_option_pnl_cash)}（${pct(row.net_option_yield)}）`,
+        `剔除上涨截断后净收益：${cash(row.net_option_pnl_cash_ex_upside_cap)}（${pct(row.net_option_yield_ex_upside_cap)}）`,
+        `开仓 IV / 开仓前20日 RV：${pct(row.entry_iv)} / ${pct(row.entry_rv20)}`,
+        `开仓 IV - RV：${pct(row.entry_iv_rv20_spread)}`,
+        `到期前最近有效 IV：${pct(row.pre_settlement_iv)}（${row.pre_settlement_iv_date || "--"}）`,
+        `持有期实现 RV：${pct(row.holding_realized_vol)}`,
+        `ETF 当期收益：${pct(row.etf_period_return)}`,
+        `行权状态：${row.assignment_flag ? "行权" : "未行权"}`
+      ].join("\n");
+    }
+
+    function groupedBars(id, records) {
+      const el = byId(id);
+      const series = records.map((row, index) => ({ row, index })).filter(item => num(item.row.gross_premium_yield) !== null);
+      if (!series.length) { el.innerHTML = `<div class="empty">暂无现金流数据。</div>`; return; }
+      const width = 860, height = 280, left = 44, right = 12, top = 14, bottom = 46;
+      const values = series.flatMap(({ row }) => [num(row.gross_premium_yield) || 0, -(num(row.upside_cap_return) || 0)]);
+      const max = Math.max(0, ...values), min = Math.min(0, ...values);
+      const sy = value => scale(value, min, max, height - bottom, top);
+      const zero = sy(0), band = (width - left - right) / series.length, bar = Math.max(3, Math.min(12, band * 0.30));
+      const selected = selectedCycleIndex(records);
+      const selectedItem = series.find(item => item.index === selected);
+      const selectedBand = selectedItem ? `<rect x="${left + series.indexOf(selectedItem) * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="#dcecf5" pointer-events="none"></rect>` : "";
+      const bars = series.map(({ row, index: sourceIndex }, index) => {
+        const x = left + index * band + band / 2;
+        const premium = num(row.gross_premium_yield) || 0;
+        const cap = -(num(row.upside_cap_return) || 0);
+        const detail = `${cycleDetail(row, "每期权利金收益与上涨截断")}\n上涨截断：${cash(row.upside_cap_pnl_cash)}（${pct(row.upside_cap_return)}）`;
+        const rect = (value, dx, fill) => {
+          const y = Math.min(zero, sy(value));
+          return `<rect x="${x + dx - bar / 2}" y="${y}" width="${bar}" height="${Math.max(1, Math.abs(sy(value) - zero))}" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</rect>`;
+        };
+        return `${rect(premium, -bar * 0.65, colors.premium)}${rect(cap, bar * 0.65, colors.relative)}`;
+      }).join("");
+      const zones = series.map(({ index: sourceIndex }, index) => `<rect class="period-hit" data-cycle-index="${sourceIndex}" x="${left + index * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="transparent" style="cursor:pointer"></rect>`).join("");
+      const ticks = [0, Math.floor(series.length / 2), series.length - 1].filter((value, index, arr) => arr.indexOf(value) === index).map(index => `<text x="${left + index * band + band / 2}" y="${height - 13}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(String(series[index].row.rebalance_date).slice(0, 7))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="每期权利金收益与上涨截断"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${selectedBand}${bars}${zones}<text x="5" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="5" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(min)}</text>${ticks}</svg><div class="legend"><span><i style="background:${colors.premium}"></i>收取权利金收益</span><span><i style="background:${colors.relative}"></i>上涨截断</span><span>明细同时显示收益率 / 每 100 名义本金金额</span></div>`;
+      bindCycleBarEvents(el, records);
+    }
+
+    function lineChart(id, records, xField, yField, options = {}) {
+      const el = byId(id); const valid = records.filter(row => num(row[yField]) !== null && row[xField]); if (!valid.length) { el.innerHTML = `<div class="empty">不足12期滚动窗口。</div>`; return; }
+      const width = 460, height = 280, left = 38, right = 10, top = 14, bottom = 44; const values = valid.map(row => num(row[yField])); let min = Math.min(...values), max = Math.max(...values); if (options.zero) { min = Math.min(min, 0); max = Math.max(max, 0); } const padding = (max - min || 0.01) * 0.1; min -= padding; max += padding; const sx = index => scale(index, 0, valid.length - 1, left, width - right); const sy = value => scale(value, min, max, height - bottom, top); const path = valid.map((row, index) => `${index ? "L" : "M"}${sx(index)},${sy(num(row[yField]))}`).join(" "); const zero = sy(0); const end = valid[valid.length - 1]; const points = valid.map((row, index) => { const detail = `${String(row[xField])}\n滚动12期净期权收益：${pct(row[yField])}`; return `<circle cx="${sx(index)}" cy="${sy(num(row[yField]))}" r="6" fill="transparent" ${chartMark(detail)}>${svgTitle(detail)}</circle>`; }).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="滚动12期净期权收益"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/><path d="${path}" fill="none" stroke="${colors.net}" stroke-width="2"/>${points}<circle cx="${sx(valid.length - 1)}" cy="${sy(num(end[yField]))}" r="3" fill="${colors.net}"/><text x="2" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="2" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(min)}</text><text x="${left}" y="${height - 13}" font-size="10" fill="#5e6a79">${esc(String(valid[0][xField]).slice(0, 7))}</text><text x="${width - right}" y="${height - 13}" text-anchor="end" font-size="10" fill="#5e6a79">${esc(String(end[xField]).slice(0, 7))}</text></svg>`;
+    }
+
+    function premiumScatter(id, records) {
+      const el = byId(id); const valid = records.filter(row => num(row.gross_premium_cash) !== null && num(row.net_option_pnl_cash) !== null); if (!valid.length) { el.innerHTML = `<div class="empty">暂无现金流数据。</div>`; return; }
+      const width = 660, height = 270, left = 46, right = 14, top = 16, bottom = 42; const xVals = valid.map(row => num(row.gross_premium_cash)); const yVals = valid.map(row => num(row.net_option_pnl_cash)); const xMin = Math.min(0, ...xVals), xMax = Math.max(0, ...xVals); const yMin = Math.min(0, ...yVals), yMax = Math.max(0, ...yVals); const sx = value => scale(value, xMin, xMax, left, width - right); const sy = value => scale(value, yMin, yMax, height - bottom, top);
+      const dots = valid.map(row => { const x = sx(num(row.gross_premium_cash)), y = sy(num(row.net_option_pnl_cash)), assigned = Boolean(row.assignment_flag); const fill = num(row.net_option_pnl_cash) >= 0 ? colors.net : colors.negative; const detail = cycleDetail(row, "权利金与净收益散点"); const mark = chartMark(detail); return assigned ? `<rect x="${x - 3.5}" y="${y - 3.5}" width="7" height="7" fill="${fill}" ${mark}>${svgTitle(detail)}</rect>` : `<circle cx="${x}" cy="${y}" r="3.8" fill="${fill}" ${mark}>${svgTitle(detail)}</circle>`; }).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="收取权利金与最终净期权收益的逐期散点图"><line x1="${sx(0)}" x2="${sx(0)}" y1="${top}" y2="${height - bottom}" stroke="#9eabb5"/><line x1="${left}" x2="${width - right}" y1="${sy(0)}" y2="${sy(0)}" stroke="#9eabb5"/>${dots}<text x="${left}" y="${height - 13}" font-size="10" fill="#5e6a79">${cash(xMin)}</text><text x="${width - right}" y="${height - 13}" text-anchor="end" font-size="10" fill="#5e6a79">${cash(xMax)}</text><text x="${left + (width - left - right) / 2}" y="${height - 4}" text-anchor="middle" font-size="10" fill="#5e6a79">收取权利金</text><text x="4" y="${top + 4}" font-size="10" fill="#5e6a79">${cash(yMax)}</text><text x="4" y="${height - bottom}" font-size="10" fill="#5e6a79">${cash(yMin)}</text></svg><div class="legend"><span><i style="background:${colors.net}"></i>净期权收益为正</span><span><i style="background:${colors.negative}"></i>净期权收益为负</span><span>方形 = 行权，圆形 = 未行权</span></div>`;
+    }
+
+    function netOptionHistogram(id, records) {
+      const el = byId(id); const valid = records.filter(row => num(row.net_option_yield) !== null); if (!valid.length) { el.innerHTML = `<div class="empty">暂无收益分布数据。</div>`; return; }
+      const values = valid.map(row => num(row.net_option_yield)); let min = Math.min(...values), max = Math.max(...values); if (min === max) { min -= 0.01; max += 0.01; } const binCount = Math.min(9, Math.max(6, Math.ceil(Math.sqrt(values.length)))); const step = (max - min) / binCount; const bins = Array.from({ length: binCount }, (_, index) => ({ start: min + index * step, end: min + (index + 1) * step, count: 0 }));
+      values.forEach(value => { const index = Math.min(binCount - 1, Math.floor((value - min) / step)); bins[index].count += 1; });
+      const width = 660, height = 270, left = 44, right = 12, top = 14, bottom = 42; const maxCount = Math.max(...bins.map(bin => bin.count), 1); const sy = value => scale(value, 0, maxCount, height - bottom, top); const band = (width - left - right) / binCount; const zeroX = 0 >= min && 0 <= max ? scale(0, min, max, left, width - right) : null;
+      const bars = bins.map((bin, index) => { const x = left + index * band + band * 0.12; const y = sy(bin.count); const center = (bin.start + bin.end) / 2; const fill = center >= 0 ? colors.net : colors.negative; const detail = `单期净期权收益分布\n区间：${pct(bin.start)} 至 ${pct(bin.end)}\n周期数：${bin.count}\n样本占比：${pct(bin.count / valid.length)}`; return `<rect x="${x}" y="${y}" width="${band * 0.76}" height="${Math.max(1, height - bottom - y)}" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</rect>`; }).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="单期净期权收益率的频数分布"><line x1="${left}" x2="${width - right}" y1="${height - bottom}" y2="${height - bottom}" stroke="#9eabb5"/>${zeroX === null ? "" : `<line x1="${zeroX}" x2="${zeroX}" y1="${top}" y2="${height - bottom}" stroke="#9eabb5"/>`}${bars}<text x="4" y="${top + 4}" font-size="10" fill="#5e6a79">${maxCount}</text><text x="${left}" y="${height - 13}" font-size="10" fill="#5e6a79">${pct(min)}</text><text x="${width - right}" y="${height - 13}" text-anchor="end" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="${left + (width - left - right) / 2}" y="${height - 4}" text-anchor="middle" font-size="10" fill="#5e6a79">单期净期权收益率</text></svg><div class="legend"><span><i style="background:${colors.net}"></i>正收益区间</span><span><i style="background:${colors.negative}"></i>负收益区间</span></div>`;
+    }
+
+    function scatterChart(id, records) {
+      const el = byId(id); const valid = records.filter(row => num(row.etf_period_return) !== null && num(row.relative_to_buyhold_return) !== null); if (!valid.length) { el.innerHTML = `<div class="empty">暂无交易周期。</div>`; return; }
+      const width = 860, height = 290, left = 50, right = 15, top = 16, bottom = 42; const xVals = valid.map(row => num(row.etf_period_return)); const yVals = valid.map(row => num(row.relative_to_buyhold_return)); const xMin = Math.min(-0.02, ...xVals), xMax = Math.max(0.02, ...xVals), yMin = Math.min(-0.02, ...yVals), yMax = Math.max(0.02, ...yVals); const sx = value => scale(value, xMin, xMax, left, width - right); const sy = value => scale(value, yMin, yMax, height - bottom, top); const dots = valid.map(row => { const x = sx(num(row.etf_period_return)), y = sy(num(row.relative_to_buyhold_return)), assigned = Boolean(row.assignment_flag); const fill = num(row.relative_to_buyhold_return) >= 0 ? colors.net : colors.negative; const detail = cycleDetail(row, "ETF 涨跌与相对裸持贡献"); const mark = chartMark(detail); return assigned ? `<rect x="${x - 3.5}" y="${y - 3.5}" width="7" height="7" fill="${fill}" ${mark}>${svgTitle(detail)}</rect>` : `<circle cx="${x}" cy="${y}" r="3.8" fill="${fill}" ${mark}>${svgTitle(detail)}</circle>`; }).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="ETF当期收益与备兑相对裸持贡献"><line x1="${sx(0)}" x2="${sx(0)}" y1="${top}" y2="${height - bottom}" stroke="#9eabb5"/><line x1="${left}" x2="${width - right}" y1="${sy(0)}" y2="${sy(0)}" stroke="#9eabb5"/>${dots}<text x="${left}" y="${height - 13}" font-size="10" fill="#5e6a79">${pct(xMin)}</text><text x="${width - right}" y="${height - 13}" text-anchor="end" font-size="10" fill="#5e6a79">${pct(xMax)}</text><text x="${left + (width - left - right) / 2}" y="${height - 4}" text-anchor="middle" font-size="10" fill="#5e6a79">ETF 当期收益</text><text x="5" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(yMax)}</text><text x="5" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(yMin)}</text></svg><div class="legend"><span><i style="background:${colors.net}"></i>相对裸持增加收益</span><span><i style="background:${colors.negative}"></i>相对裸持减少收益</span><span>方形 = 行权，圆形 = 未行权</span></div>`;
+    }
+
+    function regimeBars(id, records) {
+      const el = byId(id); const order = ["下跌周期", "震荡周期", "上涨周期", "强上涨周期"]; const valid = order.map(name => records.find(row => row.market_regime === name)).filter(Boolean); if (!valid.length) { el.innerHTML = `<div class="empty">暂无情景归因。</div>`; return; }
+      const width = 680, height = 260, left = 54, right = 18, top = 14, bottom = 50; const values = valid.map(row => num(row.net_option_yield_mean)); const min = Math.min(0, ...values), max = Math.max(0, ...values); const sy = value => scale(value, min, max, height - bottom, top); const zero = sy(0); const band = (width - left - right) / valid.length; const bars = valid.map((row, index) => { const value = num(row.net_option_yield_mean); const x = left + index * band + band * 0.22; const y = Math.min(zero, sy(value)); const detail = `市场情景：${row.market_regime}\n周期数：${fmt(row.cycle_count, 0)}\n平均净期权收益：${pct(row.net_option_yield_mean)}\n跑输裸持比例：${pct(row.underperform_buyhold_cycle_rate)}`; return `<rect x="${x}" y="${y}" width="${band * 0.56}" height="${Math.max(1, Math.abs(sy(value) - zero))}" fill="${value >= 0 ? colors.net : colors.negative}" ${chartMark(detail)}>${svgTitle(detail)}</rect><text x="${x + band * 0.28}" y="${height - 15}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(row.market_regime.replace("周期", ""))}</text>`; }).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="不同市场环境下的平均净期权收益"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${bars}<text x="4" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="4" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(min)}</text></svg>`;
+    }
+
+    // The client-facing total is the ETF result plus the fully settled option leg.
+    function strategyNetRate(row) {
+      return row.strategy_net_return ?? row.covered_call_period_return;
+    }
+
+    function strategyNetCash(row) {
+      return row.strategy_net_pnl_cash ?? row.covered_call_pnl_cash;
+    }
+
+    function openingIntrinsicYield(row) {
+      const spot = num(row.underlying_price_at_entry), strike = num(row.strike);
+      if (spot === null || spot <= 0 || strike === null) return 0;
+      return Math.max(spot - strike, 0) / spot;
+    }
+
+    function openingIntrinsicCash(row) {
+      return openingIntrinsicYield(row) * (num(row.fixed_notional) || 100);
+    }
+
+    function optionTimeValueYield(row) {
+      return (num(row.gross_premium_yield) || 0) - openingIntrinsicYield(row);
+    }
+
+    function optionTimeValueCash(row) {
+      return (num(row.gross_premium_cash) || 0) - openingIntrinsicCash(row);
+    }
+
+    function lossRateAndCash(rate, amount) {
+      return `${pct(-(num(rate) || 0))} / ${cash(amount)}`;
+    }
+
+    function ledgerTable(records) {
+      if (!records.length) return `<div class="empty">暂无逐期账本。</div>`;
+      return `<div class="table-wrap"><table><thead><tr>
+        <th class="left">开仓日</th><th class="left">到期/行权日</th><th class="left">卖出合约</th><th>行权价</th><th>开仓 ETF 收盘</th><th>到期/行权日 ETF 收盘</th>
+        <th>ETF 当期收益</th><th>总权利金</th><th>开仓内在价值</th><th>时间价值收入</th>
+        <th>行权/平仓扣减</th><th>交易成本</th><th>净期权收益</th><th>策略当期净收益</th><th>相对裸持收益差</th><th>开仓 IV</th>
+        <th>开仓前20日 RV</th><th>开仓 IV - RV</th><th>到期前最近有效 IV</th><th>持有期实现 RV</th><th>事后 VRP</th><th>行权</th>
+      </tr></thead><tbody>${records.map(row => `<tr>
+        <td class="left">${esc(row.rebalance_date)}</td><td class="left">${esc(row.expiry_date || row.period_end_date)}</td><td class="left">${esc(row.option_code || "--")}</td><td>${price(row.strike)}</td><td>${price(row.underlying_price_at_entry)}</td><td>${price(row.underlying_price_at_expiry ?? row.underlying_price_at_period_end)}</td>
+        <td>${pct(row.etf_period_return)}</td><td>${pct(row.gross_premium_yield)}</td><td>${pct(openingIntrinsicYield(row))}</td><td>${pct(optionTimeValueYield(row))}</td>
+        <td>${pct(-(num(row.exercise_or_close_cost_yield) || 0))}</td><td>${pct(-(num(row.transaction_cost_yield) || 0))}</td><td>${pct(row.net_option_yield)}</td>
+        <td>${pct(strategyNetRate(row))}</td><td>${pct(row.relative_to_buyhold_return)}</td><td>${pct(row.entry_iv)}</td><td>${pct(row.entry_rv20)}</td>
+        <td>${pct(row.entry_iv_rv20_spread)}</td><td>${pct(row.pre_settlement_iv)}${row.pre_settlement_iv_date ? ` (${esc(String(row.pre_settlement_iv_date).slice(0, 10))})` : ""}</td><td>${pct(row.holding_realized_vol)}</td><td>${variancePoints(row.ex_post_variance_risk_premium)}</td>
+        <td>${row.assignment_flag ? "是" : "否"}</td>
+      </tr>`).join("")}</tbody></table></div>`;
+    }
+
+    function renderSelectedCycleDetail(records) {
+      const detail = byId("selectedCycleDetail");
+      if (!detail) return;
+      if (!records.length) {
+        detail.innerHTML = `<div class="muted">暂无交易周期。</div>`;
+        return;
+      }
+      const row = records[selectedCycleIndex(records)];
+      const rateAndCash = (rate, amount) => `${pct(rate)} / ${cash(amount)}`;
+      const datedPct = (value, date) => `${pct(value)}${date ? ` (${String(date).slice(0, 10)})` : ""}`;
+      const items = [
+        ["开仓 / 到期", `${row.rebalance_date || "--"} / ${row.period_end_date || "--"}`],
+        ["ETF 当期收益", rateAndCash(row.etf_period_return, row.etf_pnl_cash)],
+        ["总权利金（含内在价值）", rateAndCash(row.gross_premium_yield, row.gross_premium_cash)],
+        ["开仓内在价值（实值部分）", rateAndCash(openingIntrinsicYield(row), openingIntrinsicCash(row))],
+        ["开仓时间价值", rateAndCash(optionTimeValueYield(row), optionTimeValueCash(row))],
+        ["行权/平仓扣减", lossRateAndCash(row.exercise_or_close_cost_yield, row.exercise_or_close_cost_cash)],
+        ["交易成本", lossRateAndCash(row.transaction_cost_yield, row.transaction_cost_cash)],
+        ["净期权收益", rateAndCash(row.net_option_yield, row.net_option_pnl_cash)],
+        ["策略当期净收益", rateAndCash(strategyNetRate(row), strategyNetCash(row))],
+        ["相对裸持收益差", rateAndCash(row.relative_to_buyhold_return, row.relative_to_buyhold_pnl_cash)],
+        ["行权状态", row.assignment_flag ? "发生行权" : "未行权"],
+        ["开仓 IV", pct(row.entry_iv)],
+        ["开仓前 20 日 RV", pct(row.entry_rv20)],
+        ["开仓 IV - RV", pct(row.entry_iv_rv20_spread)],
+        ["到期前最近有效 IV", datedPct(row.pre_settlement_iv, row.pre_settlement_iv_date)],
+        ["持有期实现 RV", pct(row.holding_realized_vol)],
+        ["事后 VRP（IV² - 实现方差）", variancePoints(row.ex_post_variance_risk_premium)]
+      ];
+      detail.innerHTML = items.map(([label, value]) => `<div class="cycle-detail-item"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("");
+      const select = byId("cycleSelect");
+      if (select) select.value = String(selectedCycleIndex(records));
+    }
+
+    function cycleDetail(row, prefix = "交易周期") {
+      return [
+        prefix,
+        `开仓日：${row.rebalance_date || "--"}`,
+        `到期日：${row.period_end_date || "--"}`,
+        `ETF 当期收益：${cash(row.etf_pnl_cash)}（${pct(row.etf_period_return)}）`,
+        `总权利金（含内在价值）：${cash(row.gross_premium_cash)}（${pct(row.gross_premium_yield)}）`,
+        `开仓内在价值：${cash(openingIntrinsicCash(row))}（${pct(openingIntrinsicYield(row))}）`,
+        `开仓时间价值：${cash(optionTimeValueCash(row))}（${pct(optionTimeValueYield(row))}）`,
+        `行权/平仓扣减：${cash(row.exercise_or_close_cost_cash)}（${pct(-(num(row.exercise_or_close_cost_yield) || 0))}）`,
+        `交易成本：${cash(row.transaction_cost_cash)}（${pct(-(num(row.transaction_cost_yield) || 0))}）`,
+        `净期权收益：${cash(row.net_option_pnl_cash)}（${pct(row.net_option_yield)}）`,
+        `策略当期净收益：${cash(strategyNetCash(row))}（${pct(strategyNetRate(row))}）`,
+        `相对裸持收益差：${cash(row.relative_to_buyhold_pnl_cash)}（${pct(row.relative_to_buyhold_return)}）`,
+        `开仓 IV / 开仓前20日 RV：${pct(row.entry_iv)} / ${pct(row.entry_rv20)}`,
+        `开仓 IV - RV：${pct(row.entry_iv_rv20_spread)}`,
+        `到期前最近有效 IV：${pct(row.pre_settlement_iv)}（${row.pre_settlement_iv_date || "--"}）`,
+        `持有期实现 RV：${pct(row.holding_realized_vol)}`,
+        `事后 VRP（IV² - 实现方差，仅事后诊断）：${variancePoints(row.ex_post_variance_risk_premium)}`,
+        `行权状态：${row.assignment_flag ? "行权" : "未行权"}`
+      ].join("\n");
+    }
+
+    function groupedBars(id, records) {
+      const el = byId(id);
+      const series = records.map((row, index) => ({ row, index })).filter(item => num(item.row.gross_premium_yield) !== null);
+      if (!series.length) { el.innerHTML = `<div class="empty">暂无现金流数据。</div>`; return; }
+      const width = 860, height = 280, left = 44, right = 12, top = 14, bottom = 46;
+      const values = series.flatMap(({ row }) => [num(row.gross_premium_yield) || 0, -(num(row.exercise_or_close_cost_yield) || 0)]);
+      const max = Math.max(0, ...values), min = Math.min(0, ...values);
+      const sy = value => scale(value, min, max, height - bottom, top);
+      const zero = sy(0), band = (width - left - right) / series.length, bar = Math.max(3, Math.min(12, band * 0.30));
+      const selected = selectedCycleIndex(records);
+      const selectedItem = series.find(item => item.index === selected);
+      const selectedBand = selectedItem ? `<rect x="${left + series.indexOf(selectedItem) * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="#dcecf5" pointer-events="none"></rect>` : "";
+      const bars = series.map(({ row, index: sourceIndex }, index) => {
+        const x = left + index * band + band / 2;
+        const premium = num(row.gross_premium_yield) || 0;
+        const deduction = -(num(row.exercise_or_close_cost_yield) || 0);
+        const detail = cycleDetail(row, "每期权利金与上涨截断");
+        const rect = (value, dx, fill) => {
+          const y = Math.min(zero, sy(value));
+          return `<rect x="${x + dx - bar / 2}" y="${y}" width="${bar}" height="${Math.max(1, Math.abs(sy(value) - zero))}" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</rect>`;
+        };
+        return `${rect(premium, -bar * 0.65, colors.premium)}${rect(deduction, bar * 0.65, colors.relative)}`;
+      }).join("");
+      const zones = series.map(({ index: sourceIndex }, index) => `<rect class="period-hit" data-cycle-index="${sourceIndex}" x="${left + index * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="transparent" style="cursor:pointer"></rect>`).join("");
+      const ticks = [0, Math.floor(series.length / 2), series.length - 1].filter((value, index, arr) => arr.indexOf(value) === index).map(index => `<text x="${left + index * band + band / 2}" y="${height - 13}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(String(series[index].row.rebalance_date).slice(0, 7))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="每期权利金与上涨截断/平仓扣减"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${selectedBand}${bars}${zones}<text x="5" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="5" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(min)}</text>${ticks}</svg><div class="legend"><span><i style="background:${colors.premium}"></i>收取权利金</span><span><i style="background:${colors.relative}"></i>上涨截断/平仓扣减</span><span>明细同时显示收益率 / 每 100 名义本金金额</span></div>`;
+      bindCycleBarEvents(el, records);
+    }
+
+    function groupedBars(id, records) {
+      const el = byId(id);
+      const series = records.map((row, index) => ({ row, index })).filter(item => num(item.row.gross_premium_yield) !== null);
+      if (!series.length) { el.innerHTML = `<div class="empty">暂无现金流数据。</div>`; return; }
+
+      const width = 860, height = 280, left = 44, right = 52, top = 14, bottom = 46;
+      const values = series.flatMap(({ row }) => [num(row.gross_premium_yield) || 0, -(num(row.exercise_or_close_cost_yield) || 0)]);
+      const max = Math.max(0, ...values), min = Math.min(0, ...values);
+      const sy = value => scale(value, min, max, height - bottom, top);
+      const zero = sy(0), band = (width - left - right) / series.length, bar = Math.max(3, Math.min(12, band * 0.30));
+
+      const ivRvValues = series.map(item => num(item.row.entry_iv_rv20_spread)).filter(value => value !== null);
+      const hasIvRv = ivRvValues.length > 0;
+      let ivRvMin = hasIvRv ? Math.min(0, ...ivRvValues) : 0;
+      let ivRvMax = hasIvRv ? Math.max(0, ...ivRvValues) : 0.01;
+      const ivRvPad = Math.max((ivRvMax - ivRvMin) * 0.12, 0.005);
+      ivRvMin -= ivRvPad;
+      ivRvMax += ivRvPad;
+      const syIvRv = value => scale(value, ivRvMin, ivRvMax, height - bottom, top);
+
+      const selected = selectedCycleIndex(records);
+      const selectedItem = series.find(item => item.index === selected);
+      const selectedBand = selectedItem ? `<rect x="${left + series.indexOf(selectedItem) * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="#dcecf5" pointer-events="none"></rect>` : "";
+      const bars = series.map(({ row }, index) => {
+        const x = left + index * band + band / 2;
+        const premium = num(row.gross_premium_yield) || 0;
+        const deduction = -(num(row.exercise_or_close_cost_yield) || 0);
+        const detail = cycleDetail(row, "每期权利金、上涨截断与开仓 IV-RV");
+        const rect = (value, dx, fill) => {
+          const y = Math.min(zero, sy(value));
+          return `<rect x="${x + dx - bar / 2}" y="${y}" width="${bar}" height="${Math.max(1, Math.abs(sy(value) - zero))}" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</rect>`;
+        };
+        return `${rect(premium, -bar * 0.65, colors.premium)}${rect(deduction, bar * 0.65, colors.relative)}`;
+      }).join("");
+
+      let ivRvStarted = false;
+      const ivRvPath = series.map(({ row }, index) => {
+        const value = num(row.entry_iv_rv20_spread);
+        if (value === null) { ivRvStarted = false; return ""; }
+        const x = left + index * band + band / 2;
+        const command = ivRvStarted ? "L" : "M";
+        ivRvStarted = true;
+        return `${command}${x},${syIvRv(value)}`;
+      }).join(" ");
+      const ivRvMarks = hasIvRv ? series.map(({ row }, index) => {
+        const value = num(row.entry_iv_rv20_spread);
+        if (value === null) return "";
+        const x = left + index * band + band / 2;
+        return `<circle cx="${x}" cy="${syIvRv(value)}" r="2.5" fill="${colors.baseline}" pointer-events="none"></circle>`;
+      }).join("") : "";
+      const ivRvLine = hasIvRv ? `<path d="${ivRvPath}" fill="none" stroke="${colors.baseline}" stroke-width="2" pointer-events="none"></path>${ivRvMarks}` : "";
+
+      const zones = series.map(({ index: sourceIndex }, index) => `<rect class="period-hit" data-cycle-index="${sourceIndex}" x="${left + index * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="transparent" style="cursor:pointer"></rect>`).join("");
+      const ticks = [0, Math.floor(series.length / 2), series.length - 1].filter((value, index, arr) => arr.indexOf(value) === index).map(index => `<text x="${left + index * band + band / 2}" y="${height - 13}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(String(series[index].row.rebalance_date).slice(0, 7))}</text>`).join("");
+      const ivRvAxis = hasIvRv ? `<text x="${width - 3}" y="${top + 4}" text-anchor="end" font-size="10" fill="#5e6a79">${pct(ivRvMax)}</text><text x="${width - 3}" y="${height - bottom}" text-anchor="end" font-size="10" fill="#5e6a79">${pct(ivRvMin)}</text>` : "";
+      const signalLegend = hasIvRv ? `<span><i style="background:${colors.baseline}"></i>开仓日 IV - 开仓前20日 RV（右轴）</span><span>RV 已滞后一日；IV 取开仓日快照，择时前需与实际下单时点对齐。</span>` : "";
+
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="每期权利金、上涨截断/平仓扣减与开仓 IV-RV"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${selectedBand}${bars}${ivRvLine}${zones}<text x="5" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="5" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(min)}</text>${ivRvAxis}${ticks}</svg><div class="legend"><span><i style="background:${colors.premium}"></i>收取权利金</span><span><i style="background:${colors.relative}"></i>上涨截断/平仓扣减</span>${signalLegend}</div>`;
+      bindCycleBarEvents(el, records);
+    }
+
+    function cycleKey(row, index) {
+      return row.cycle_id || [row.strategy_name || "", row.rebalance_date || "", row.period_end_date || "", index].join("__");
+    }
+
+    function syncSelectedCycles(records) {
+      const known = new Set(records.map((row, index) => cycleKey(row, index)));
+      if (!Array.isArray(state.selectedCycleIds)) {
+        const lastIndex = records.length - 1;
+        state.selectedCycleIds = lastIndex >= 0 ? [cycleKey(records[lastIndex], lastIndex)] : [];
+        state.activeCycleId = state.selectedCycleIds[0] || null;
+        return;
+      }
+      state.selectedCycleIds = state.selectedCycleIds.filter(key => known.has(key));
+      if (!state.activeCycleId || !state.selectedCycleIds.includes(state.activeCycleId)) {
+        state.activeCycleId = state.selectedCycleIds[state.selectedCycleIds.length - 1] || null;
+      }
+    }
+
+    function selectedCycleLedger(records) {
+      const selected = new Set(state.selectedCycleIds || []);
+      return records.filter((row, index) => selected.has(cycleKey(row, index)));
+    }
+
+    function activeSelectedCycle(records) {
+      const active = state.activeCycleId;
+      return records.find((row, index) => cycleKey(row, index) === active) || null;
+    }
+
+    function toggleLedgerCycleSelection(records, index) {
+      const row = records[index];
+      if (!row) return;
+      const key = cycleKey(row, index);
+      const next = new Set(state.selectedCycleIds || []);
+      if (next.has(key)) {
+        next.delete(key);
+        if (state.activeCycleId === key) state.activeCycleId = [...next].at(-1) || null;
+      } else {
+        next.add(key);
+        state.activeCycleId = key;
+      }
+      state.selectedCycleIds = [...next];
+      renderKpis();
+      renderCycles(true);
+    }
+
+    function renderCycleChecklist(records) {
+      const root = byId("cycleChecklist");
+      if (!root) return;
+      const selected = new Set(state.selectedCycleIds || []);
+      root.innerHTML = records.length ? records.map((row, index) => {
+        const key = cycleKey(row, index);
+        const checked = selected.has(key);
+        const strategy = strategyNetRate(row);
+        return `<label class="cycle-check"><input type="checkbox" data-cycle-select="${esc(key)}"${checked ? " checked" : ""}><span><strong>${esc(row.rebalance_date || "--")} 至 ${esc(row.period_end_date || "--")}</strong><span>ETF ${pct(row.etf_period_return)} | 净期权 ${pct(row.net_option_yield)} | 策略 ${pct(strategy)}${row.assignment_flag ? " | 已行权" : ""}</span></span></label>`;
+      }).join("") : `<div class="empty">暂无交易周期。</div>`;
+
+      root.querySelectorAll("[data-cycle-select]").forEach(input => input.addEventListener("change", event => {
+        const next = new Set(state.selectedCycleIds || []);
+        if (event.target.checked) {
+          next.add(event.target.dataset.cycleSelect);
+          state.activeCycleId = event.target.dataset.cycleSelect;
+        } else {
+          next.delete(event.target.dataset.cycleSelect);
+          if (state.activeCycleId === event.target.dataset.cycleSelect) state.activeCycleId = [...next].at(-1) || null;
+        }
+        state.selectedCycleIds = [...next];
+        renderKpis();
+        renderCycles(true);
+      }));
+      const selectAll = byId("selectAllCycles");
+      if (selectAll) selectAll.addEventListener("click", () => {
+        state.selectedCycleIds = records.map((row, index) => cycleKey(row, index));
+        state.activeCycleId = state.selectedCycleIds[state.selectedCycleIds.length - 1] || null;
+        renderKpis();
+        renderCycles(true);
+      });
+      const clear = byId("clearSelectedCycles");
+      if (clear) clear.addEventListener("click", () => {
+        state.selectedCycleIds = [];
+        state.activeCycleId = null;
+        renderKpis();
+        renderCycles(true);
+      });
+    }
+
+    function selectedCycleStatistics(records) {
+      const total = field => records.reduce((sum, row) => sum + (num(row[field]) || 0), 0);
+      const strategyTotal = records.reduce((sum, row) => sum + (strategyNetCash(row) || 0), 0);
+      const relativeTotal = total("relative_to_buyhold_pnl_cash");
+      const assigned = records.filter(row => Boolean(row.assignment_flag)).length;
+      const positiveStrategy = records.filter(row => (strategyNetRate(row) || 0) > 0).length;
+      return {
+        count: records.length,
+        etfCash: total("etf_pnl_cash"),
+        grossPremiumCash: total("gross_premium_cash"),
+        openingIntrinsicCash: records.reduce((sum, row) => sum + openingIntrinsicCash(row), 0),
+        optionTimeValueCash: records.reduce((sum, row) => sum + optionTimeValueCash(row), 0),
+        transactionCostCash: total("transaction_cost_cash"),
+        exerciseOrCloseCostCash: total("exercise_or_close_cost_cash"),
+        netOptionCash: total("net_option_pnl_cash"),
+        strategyCash: strategyTotal,
+        relativeCash: relativeTotal,
+        assigned,
+        positiveStrategy
+      };
+    }
+
+    function selectedCyclesSummary(records) {
+      if (!records.length) return `<div class="empty">请从左侧选择至少一个交易周期，右侧将展示这些周期的收益构成与汇总。</div>`;
+      const stats = selectedCycleStatistics(records);
+      const metrics = [
+        ["已选周期", `${fmt(stats.count, 0)} 期`],
+        ["ETF 当期收益累计", cash(stats.etfCash)],
+        ["净期权收益累计", cash(stats.netOptionCash)],
+        ["策略当期收益累计", cash(stats.strategyCash)],
+        ["相对裸持累计差额", cash(stats.relativeCash)],
+        ["发生行权 / 策略为正", `${fmt(stats.assigned, 0)} / ${fmt(stats.positiveStrategy, 0)}`]
+      ];
+      const components = [
+        ["ETF 当期收益", cash(stats.etfCash)],
+        ["总权利金（含内在价值）", cash(stats.grossPremiumCash)],
+        ["开仓内在价值", cash(stats.openingIntrinsicCash)],
+        ["开仓时间价值", cash(stats.optionTimeValueCash)],
+        ["行权/平仓扣减", cash(stats.exerciseOrCloseCostCash)],
+        ["交易成本", cash(stats.transactionCostCash)],
+        ["最终净期权收益", cash(stats.netOptionCash)],
+        ["完整策略当期收益", cash(stats.strategyCash)]
+      ];
+      return `<div class="selection-metrics">${metrics.map(([label, value]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div><div class="table-wrap"><table><thead><tr>${components.map(([label]) => `<th>${esc(label)}</th>`).join("")}</tr></thead><tbody><tr>${components.map(([, value]) => `<td>${esc(value)}</td>`).join("")}</tr></tbody></table></div>`;
+    }
+
+    function selectedCyclesChart(records) {
+      const el = byId("selectedCyclesChart");
+      if (!el) return;
+      if (!records.length) {
+        el.innerHTML = `<div class="empty">选择交易周期后显示收益构成。</div>`;
+        return;
+      }
+      const width = 980, height = 300, left = 46, right = 16, top = 16, bottom = 46;
+      const values = records.flatMap(row => [num(row.etf_period_return) || 0, netPremiumYield(row), num(row.net_option_yield) || 0, strategyNetRate(row) || 0]);
+      const { min, max } = chartDomain(values);
+      const sy = value => scale(value, min, max, height - bottom, top);
+      const zero = sy(0), band = (width - left - right) / records.length, bar = Math.max(3, Math.min(13, band * 0.20));
+      const rect = (x, value, fill, detail) => {
+        const y = Math.min(zero, sy(value));
+        return `<rect x="${x - bar / 2}" y="${y}" width="${bar}" height="${Math.max(1, Math.abs(sy(value) - zero))}" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</rect>`;
+      };
+      const marks = records.map((row, index) => {
+        const center = left + index * band + band / 2;
+        const detail = cycleDetail(row, "所选交易周期收益构成");
+        return `${rect(center - bar * 1.8, num(row.etf_period_return) || 0, colors.baseline, detail)}${rect(center - bar * 0.6, netPremiumYield(row), colors.premium, detail)}${rect(center + bar * 0.6, num(row.net_option_yield) || 0, colors.net, detail)}${rect(center + bar * 1.8, strategyNetRate(row) || 0, "#18212f", detail)}`;
+      }).join("");
+      const tickIndices = [0, Math.floor((records.length - 1) / 2), records.length - 1].filter((value, index, items) => items.indexOf(value) === index);
+      const ticks = tickIndices.map(index => `<text x="${left + index * band + band / 2}" y="${height - 13}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(String(records[index].rebalance_date).slice(0, 10))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="所选交易周期的ETF收益、权利金净收入、净期权收益和完整策略收益"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${marks}<text x="5" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="5" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(min)}</text>${ticks}</svg><div class="legend"><span><i style="background:${colors.baseline}"></i>ETF 当期收益</span><span><i style="background:${colors.premium}"></i>权利金净收入（扣摩擦，不含截断）</span><span><i style="background:${colors.net}"></i>最终净期权收益</span><span><i style="background:#18212f"></i>完整策略当期收益</span></div>`;
+    }
+
+    function renderSelectedCyclesAnalysis(records) {
+      const summary = byId("selectedCycleSummary");
+      const table = byId("selectedCyclesTable");
+      if (summary) summary.innerHTML = selectedCyclesSummary(records);
+      selectedCyclesChart(records);
+      if (table) table.innerHTML = ledgerTable(records);
+    }
+
+    function includedCycleLedger(records) {
+      const excluded = new Set(state.excludedCycleIds || []);
+      return records.filter((row, index) => !excluded.has(cycleKey(row, index)));
+    }
+
+    function median(values) {
+      const valid = values.map(num).filter(value => value !== null).sort((a, b) => a - b);
+      if (!valid.length) return null;
+      const middle = Math.floor(valid.length / 2);
+      return valid.length % 2 ? valid[middle] : (valid[middle - 1] + valid[middle]) / 2;
+    }
+
+    function cycleStatistics(records) {
+      const total = field => records.reduce((sum, row) => sum + (num(row[field]) || 0), 0);
+      const strategyCash = row => num(row.strategy_net_pnl_cash ?? row.covered_call_pnl_cash) || 0;
+      const selected = records.filter(row => (num(row.selected_option_flag) || 0) === 1);
+      const netOption = records.map(row => num(row.net_option_yield)).filter(value => value !== null);
+      return {
+        cycle_count: records.length,
+        gross_premium_cash_total: total("gross_premium_cash"),
+        transaction_cost_cash_total: total("transaction_cost_cash"),
+        premium_income_cash_total: total("gross_premium_cash") + total("transaction_cost_cash"),
+        exercise_or_close_cost_cash_total: total("exercise_or_close_cost_cash"),
+        etf_pnl_cash_total: total("etf_pnl_cash"),
+        net_option_pnl_cash_total: total("net_option_pnl_cash"),
+        strategy_net_pnl_cash_total: records.reduce((sum, row) => sum + strategyCash(row), 0),
+        net_option_yield_median: median(netOption),
+        positive_net_option_cycle_rate: netOption.length ? netOption.filter(value => value > 0).length / netOption.length : null,
+        selected_option_cycle_count: selected.length,
+        assignment_count: selected.filter(row => Boolean(row.assignment_flag)).length,
+        assignment_rate: selected.length ? selected.filter(row => Boolean(row.assignment_flag)).length / selected.length : null
+      };
+    }
+
+    function exclusionSummaryTable(allRecords, includedRecords) {
+      const full = cycleStatistics(allRecords);
+      const kept = cycleStatistics(includedRecords);
+      const removed = Math.max(full.cycle_count - kept.cycle_count, 0);
+      const rows = [
+        ["保留 / 剔除周期", `${fmt(full.cycle_count, 0)} / 0`, `${fmt(kept.cycle_count, 0)} / ${fmt(removed, 0)}`],
+        ["收取权利金累计", cash(full.gross_premium_cash_total), cash(kept.gross_premium_cash_total)],
+        ["净期权收益累计", cash(full.net_option_pnl_cash_total), cash(kept.net_option_pnl_cash_total)],
+        ["策略当期净收益累计", cash(full.strategy_net_pnl_cash_total), cash(kept.strategy_net_pnl_cash_total)],
+        ["单期净期权收益中位数", pct(full.net_option_yield_median), pct(kept.net_option_yield_median)],
+        ["期权腿为正比例", pct(full.positive_net_option_cycle_rate), pct(kept.positive_net_option_cycle_rate)],
+        ["行权比例", pct(full.assignment_rate), pct(kept.assignment_rate)]
+      ];
+      return `<div class="table-wrap"><table><thead><tr><th class="left">统计口径</th><th>全样本</th><th>剔除后</th></tr></thead><tbody>${rows.map(row => `<tr><td class="left">${esc(row[0])}</td><td>${esc(row[1])}</td><td>${esc(row[2])}</td></tr>`).join("")}</tbody></table></div>`;
+    }
+
+    function renderExclusionControls(records) {
+      const select = byId("excludedCycleSelect");
+      const summary = byId("exclusionSummary");
+      if (!select || !summary) return;
+      const knownKeys = new Set(records.map((row, index) => cycleKey(row, index)));
+      state.excludedCycleIds = (state.excludedCycleIds || []).filter(key => knownKeys.has(key));
+      const selected = new Set(state.excludedCycleIds);
+      select.innerHTML = records.map((row, index) => {
+        const key = cycleKey(row, index);
+        const label = `${row.rebalance_date || "--"} / ${row.period_end_date || "--"} | 策略净收益 ${pct(strategyNetRate(row))}`;
+        return `<option value="${esc(key)}"${selected.has(key) ? " selected" : ""}>${esc(label)}</option>`;
+      }).join("");
+      select.addEventListener("change", event => {
+        state.excludedCycleIds = Array.from(event.target.selectedOptions).map(option => option.value);
+        state.selectedCycleIndex = 0;
+        render();
+      });
+      const clear = byId("clearExcludedCycles");
+      if (clear) clear.addEventListener("click", () => {
+        state.excludedCycleIds = [];
+        state.selectedCycleIndex = 0;
+        render();
+      });
+      summary.innerHTML = exclusionSummaryTable(records, includedCycleLedger(records));
+    }
+
+    function earlyClosePayload() {
+      return state.earlyclose.rule === "tp80" ? (DATA.tp80_buyback || {}) : (DATA.delta_buyback || {});
+    }
+
+    function earlyCloseParameter(row) {
+      return num(row.early_close_parameter ?? row.delta_buyback_threshold);
+    }
+
+    function earlyCloseLabel(row) {
+      return row.early_close_label || row.delta_buyback_label || "--";
+    }
+
+    function earlyCloseRecords() {
+      const threshold = Number(state.earlyclose.threshold);
+      return rows(earlyClosePayload().ledger).filter(row =>
+        String(row.etf_code || "").padStart(6, "0") === String(state.etf || "").padStart(6, "0")
+        && row.strategy_name === state.strategy
+        && Math.abs((earlyCloseParameter(row) ?? -1) - threshold) < 1e-8
+      ).sort((a, b) => String(a.rebalance_date).localeCompare(String(b.rebalance_date)));
+    }
+
+    function earlyCloseSummaries() {
+      return rows(earlyClosePayload().summary).filter(row =>
+        String(row.etf_code || "").padStart(6, "0") === String(state.etf || "").padStart(6, "0")
+        && row.strategy_name === state.strategy
+      ).sort((a, b) => (earlyCloseParameter(a) || 0) - (earlyCloseParameter(b) || 0));
+    }
+
+    function earlyCloseSummary() {
+      const threshold = Number(state.earlyclose.threshold);
+      return earlyCloseSummaries().find(row => Math.abs((earlyCloseParameter(row) ?? -1) - threshold) < 1e-8) || {};
+    }
+
+    function earlyCloseTriggerMetricLabel() {
+      return state.earlyclose.rule === "tp80" ? "权利金捕获" : "触发 Delta";
+    }
+
+    function earlyCloseTriggerMetric(row) {
+      return state.earlyclose.rule === "tp80" ? pct(row.buyback_premium_capture) : pct(row.buyback_abs_delta);
+    }
+
+    function earlyCloseTriggerDetail(row) {
+      return state.earlyclose.rule === "tp80"
+        ? `TP80：已捕获权利金 ${pct(row.buyback_premium_capture)}`
+        : `Delta ${pct(row.buyback_abs_delta)}`;
+    }
+
+    function earlyCloseAssumptionText() {
+      const trigger = state.earlyclose.rule === "tp80"
+        ? "触发条件：开仓后的首个交易日，若期权收盘价不高于开仓价格的 20%，且剩余到期日不少于 5 天，则买回。"
+        : "触发条件：开仓后的首个交易日，若认购期权绝对 Delta 达到所选阈值，且剩余到期日不少于 5 天，则买回。";
+      return `${trigger} 执行方式：以触发日的期权收盘价作为回购成交代理，不含盘中路径与实际买卖价信息。买回后：不再卖出新期权，ETF 持有至原交易周期结束。交易摩擦：保留开仓成本；回购额外计入期权滑点 5bp 与缺失买卖价时假设价差的一半。`;
+    }
+
+    function parseCsvRecords(text) {
+      const table = [], row = [];
+      let cell = "", quoted = false;
+      const pushCell = () => { row.push(cell); cell = ""; };
+      const pushRow = () => { pushCell(); if (row.length > 1 || row[0] !== "") table.push(row.splice(0)); };
+      for (let index = 0; index < text.length; index += 1) {
+        const char = text[index];
+        if (char === '"') {
+          if (quoted && text[index + 1] === '"') { cell += '"'; index += 1; }
+          else quoted = !quoted;
+        } else if (char === "," && !quoted) pushCell();
+        else if ((char === "\n" || char === "\r") && !quoted) {
+          if (char === "\r" && text[index + 1] === "\n") index += 1;
+          pushRow();
+        } else cell += char;
+      }
+      if (cell.length || row.length) pushRow();
+      const [header = [], ...body] = table;
+      return body.map(values => Object.fromEntries(header.map((key, index) => [key, values[index] ?? ""])));
+    }
+
+    function earlyCloseDailyUrl() {
+      return state.earlyclose.rule === "tp80"
+        ? "../../outputs/ver4_2_tp80_buyback/ver4_2_tp80_buyback_cycle_daily_mtm.csv?v=early-path-20260716"
+        : "../../outputs/ver4_1_delta_buyback/ver4_1_delta_buyback_cycle_daily_mtm.csv?v=early-path-20260716";
+    }
+
+    function ensureEarlyCloseDailyData() {
+      const rule = state.earlyclose.rule;
+      if (earlyCloseDailyCache[rule]) return Promise.resolve(earlyCloseDailyCache[rule]);
+      if (earlyCloseDailyRequests[rule]) return earlyCloseDailyRequests[rule];
+      earlyCloseDailyRequests[rule] = fetch(earlyCloseDailyUrl())
+        .then(response => {
+          if (!response.ok) throw new Error(`日频路径文件读取失败：${response.status}`);
+          return response.text();
+        })
+        .then(text => {
+          earlyCloseDailyCache[rule] = parseCsvRecords(text);
+          return earlyCloseDailyCache[rule];
+        })
+        .finally(() => { delete earlyCloseDailyRequests[rule]; });
+      return earlyCloseDailyRequests[rule];
+    }
+
+    function earlyCloseDailyRecords(cycleId) {
+      const parameter = Number(state.earlyclose.threshold);
+      return rows(earlyCloseDailyCache[state.earlyclose.rule]).filter(row =>
+        String(row.etf_code || "").padStart(6, "0") === String(state.etf || "").padStart(6, "0")
+        && row.strategy_name === state.strategy
+        && row.cycle_id === cycleId
+        && Math.abs((num(row.early_close_parameter) ?? -1) - parameter) < 1e-8
+      ).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    }
+
+    function syncEarlyCloseCycles(records) {
+      const available = records.map(row => row.cycle_id).filter(Boolean);
+      const known = new Set(available);
+      if (!Array.isArray(state.earlyclose.selectedCycleIds)) {
+        const preferred = records.filter(row => truthyFlag(row.buyback_triggered)).at(-1)?.cycle_id || available.at(-1) || null;
+        state.earlyclose.selectedCycleIds = preferred ? [preferred] : [];
+        state.earlyclose.activeCycleId = preferred;
+        return;
+      }
+      state.earlyclose.selectedCycleIds = state.earlyclose.selectedCycleIds.filter(id => known.has(id));
+      if (!state.earlyclose.activeCycleId || !state.earlyclose.selectedCycleIds.includes(state.earlyclose.activeCycleId)) {
+        state.earlyclose.activeCycleId = state.earlyclose.selectedCycleIds.at(-1) || null;
+      }
+    }
+
+    function selectedEarlyCloseCycles(records) {
+      const selected = new Set(state.earlyclose.selectedCycleIds || []);
+      return records.filter(row => selected.has(row.cycle_id));
+    }
+
+    function renderEarlyCloseChecklist(records) {
+      const root = byId("earlyCloseCycleChecklist");
+      if (!root) return;
+      const selected = new Set(state.earlyclose.selectedCycleIds || []);
+      root.innerHTML = records.map(row => {
+        const checked = selected.has(row.cycle_id);
+        const change = num(row.delta_buyback_strategy_change) || 0;
+        return `<label class="cycle-check"><input type="checkbox" data-earlyclose-cycle="${esc(row.cycle_id)}"${checked ? " checked" : ""}><span><strong>${esc(row.rebalance_date)} 至 ${esc(row.period_end_date)}</strong><span>ETF ${pct(row.etf_period_return)} | 基线 ${pct(row.baseline_covered_call_period_return)} | 买回后 ${pct(row.covered_call_period_return)}${truthyFlag(row.buyback_triggered) ? ` | 已触发 ${change >= 0 ? "改善" : "下降"}` : ""}</span></span></label>`;
+      }).join("") || `<div class="empty">暂无可诊断周期。</div>`;
+      root.querySelectorAll("[data-earlyclose-cycle]").forEach(input => input.addEventListener("change", event => {
+        const next = new Set(state.earlyclose.selectedCycleIds || []);
+        const id = event.target.dataset.earlycloseCycle;
+        if (event.target.checked) { next.add(id); state.earlyclose.activeCycleId = id; }
+        else { next.delete(id); if (state.earlyclose.activeCycleId === id) state.earlyclose.activeCycleId = [...next].at(-1) || null; }
+        state.earlyclose.selectedCycleIds = [...next];
+        renderEarlyClosePathDiagnostics(records);
+      }));
+    }
+
+    function earlyClosePathTimeline(series, width, left, right) {
+      const timestamps = series.map(row => Date.parse(`${row.date}T00:00:00`));
+      const first = timestamps[0], last = timestamps.at(-1);
+      const sx = index => first === last ? left + (width - left - right) / 2 : scale(timestamps[index], first, last, left, width - right);
+      const triggerIndex = series.findIndex(row => truthyFlag(row.buyback_trigger_day));
+      const tickIndices = [0, Math.round((series.length - 1) / 3), Math.round((series.length - 1) * 2 / 3), series.length - 1, triggerIndex]
+        .filter(index => index >= 0)
+        .filter((index, position, items) => items.indexOf(index) === position)
+        .sort((a, b) => a - b);
+      const calendarDays = Math.round((last - first) / 86400000) + 1;
+      return { sx, triggerIndex, tickIndices, calendarDays };
+    }
+
+    function earlyCloseDailyPathChart(id, series) {
+      const el = byId(id);
+      if (!el) return;
+      if (!series.length) { el.innerHTML = `<div class="empty">日频路径数据加载后将在此展示。</div>`; return; }
+      const width = 940, height = 300, left = 56, right = 18, top = 18, bottom = 46;
+      const fields = ["underlying_return_since_entry", "baseline_period_mtm_return", "early_close_period_mtm_return"];
+      const values = series.flatMap(row => fields.map(field => num(row[field]) || 0));
+      const domain = chartDomain(values);
+      const { sx, triggerIndex, tickIndices, calendarDays } = earlyClosePathTimeline(series, width, left, right);
+      const sy = value => scale(value, domain.min, domain.max, height - bottom, top);
+      const zero = sy(0);
+      const yTicks = Array.from({ length: 5 }, (_, index) => domain.min + (domain.max - domain.min) * index / 4);
+      const grid = yTicks.map(value => `<line x1="${left}" x2="${width - right}" y1="${sy(value)}" y2="${sy(value)}" stroke="#e2e8ec" stroke-width="1"/><text x="${left - 7}" y="${sy(value) + 4}" text-anchor="end" font-size="11" fill="#40515f">${pct(value)}</text>`).join("");
+      const path = (field, color, label) => {
+        const d = series.map((row, index) => `${index ? "L" : "M"}${sx(index)},${sy(num(row[field]) || 0)}`).join(" ");
+        const points = series.map((row, index) => `<circle cx="${sx(index)}" cy="${sy(num(row[field]) || 0)}" r="1.8" fill="${color}"><title>${label}｜${row.date}｜${pct(num(row[field]))}</title></circle>`).join("");
+        return `<path d="${d}" fill="none" stroke="${color}" stroke-width="2.3"/>${points}`;
+      };
+      const trigger = triggerIndex >= 0 ? `<line x1="${sx(triggerIndex)}" x2="${sx(triggerIndex)}" y1="${top}" y2="${height - bottom}" stroke="${colors.relative}" stroke-width="1.5" stroke-dasharray="4 3"/><text x="${sx(triggerIndex) + 4}" y="${top + 13}" font-size="11" fill="${colors.relative}">买回</text>` : "";
+      const ticks = tickIndices.map(index => `<text x="${sx(index)}" y="${height - 13}" text-anchor="middle" font-size="11" fill="#40515f">${esc(String(series[index].date).slice(5, 10))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="ETF、原备兑与提前买回策略的单周期日频盯市路径">${grid}<line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#607482" stroke-width="1.35"/>${trigger}${path("underlying_return_since_entry", "#9ba8b1", "ETF")}${path("baseline_period_mtm_return", colors.baseline, "原备兑")}${path("early_close_period_mtm_return", "#18212f", "提前买回")}${ticks}</svg><div class="legend"><span><i style="background:#9ba8b1"></i>ETF 盯市收益</span><span><i style="background:${colors.baseline}"></i>原备兑 MTM</span><span><i style="background:#18212f"></i>提前买回后 MTM</span><span>持有：${calendarDays} 个自然日 / ${series.length} 个交易日</span>${triggerIndex >= 0 ? `<span><i style="background:${colors.relative}"></i>买回日</span>` : ""}</div>`;
+    }
+
+    function earlyCloseOptionPriceChart(id, series) {
+      const el = byId(id);
+      if (!el) return;
+      const priceSeries = series.filter(row => (num(row.option_mark_price) || 0) > 0);
+      if (!priceSeries.length) { el.innerHTML = `<div class="empty">该周期没有可用的期权日末标记价格。</div>`; return; }
+      const width = 940, height = 180, left = 56, right = 18, top = 18, bottom = 42;
+      const values = priceSeries.map(row => num(row.option_mark_price));
+      const rawMin = Math.min(...values), rawMax = Math.max(...values);
+      const padding = Math.max((rawMax - rawMin) * 0.15, rawMax * 0.04, 0.0005);
+      const min = Math.max(0, rawMin - padding), max = rawMax + padding;
+      const { sx, triggerIndex, tickIndices } = earlyClosePathTimeline(series, width, left, right);
+      const sy = value => scale(value, min, max, height - bottom, top);
+      const entryPrice = num(priceSeries[0].option_mark_price);
+      const yTicks = Array.from({ length: 4 }, (_, index) => min + (max - min) * index / 3);
+      const grid = yTicks.map(value => `<line x1="${left}" x2="${width - right}" y1="${sy(value)}" y2="${sy(value)}" stroke="#e2e8ec" stroke-width="1"/><text x="${left - 7}" y="${sy(value) + 4}" text-anchor="end" font-size="11" fill="#40515f">${price(value)}</text>`).join("");
+      const path = series.map((row, index) => `${index ? "L" : "M"}${sx(index)},${sy(num(row.option_mark_price) || entryPrice)}`).join(" ");
+      const points = series.map((row, index) => `<circle cx="${sx(index)}" cy="${sy(num(row.option_mark_price) || entryPrice)}" r="2" fill="${colors.relative}"><title>期权日末标记价｜${row.date}｜${price(num(row.option_mark_price))}</title></circle>`).join("");
+      const trigger = triggerIndex >= 0 ? `<line x1="${sx(triggerIndex)}" x2="${sx(triggerIndex)}" y1="${top}" y2="${height - bottom}" stroke="${colors.relative}" stroke-width="1.5" stroke-dasharray="4 3"/><text x="${sx(triggerIndex) + 4}" y="${top + 13}" font-size="11" fill="${colors.relative}">买回</text>` : "";
+      const entry = `<line x1="${left}" x2="${width - right}" y1="${sy(entryPrice)}" y2="${sy(entryPrice)}" stroke="#607482" stroke-width="1" stroke-dasharray="3 3"/><text x="${width - right}" y="${sy(entryPrice) - 5}" text-anchor="end" font-size="11" fill="#40515f">开仓价 ${price(entryPrice)}</text>`;
+      const ticks = tickIndices.map(index => `<text x="${sx(index)}" y="${height - 12}" text-anchor="middle" font-size="11" fill="#40515f">${esc(String(series[index].date).slice(5, 10))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="卖出Call的日末标记价格曲线">${grid}${entry}${trigger}<path d="${path}" fill="none" stroke="${colors.relative}" stroke-width="2.2"/>${points}${ticks}</svg><div class="legend"><span><i style="background:${colors.relative}"></i>卖出 Call 的日末标记价格（元/份）</span><span>虚线：开仓期权价格</span>${triggerIndex >= 0 ? `<span><i style="background:${colors.relative}"></i>买回日后仅保留市场价格参考</span>` : ""}</div>`;
+    }
+
+    function renderEarlyCloseDailyDetail(active, series) {
+      const root = byId("earlyCloseDailyDetail");
+      if (!root) return;
+      if (!active || !series.length) { root.innerHTML = `<div class="empty">选择周期并等待日频路径加载。</div>`; return; }
+      const first = series[0], last = series.at(-1);
+      const trigger = series.find(row => truthyFlag(row.buyback_trigger_day));
+      const postTriggerEtf = trigger && num(trigger.underlying_price) ? (num(last.underlying_price) / num(trigger.underlying_price) - 1) : null;
+      const values = [
+        ["开仓 ETF", price(first.underlying_price)],
+        ["周期末 ETF", price(last.underlying_price)],
+        ["买回日 / 触发", trigger ? `${trigger.date} / ${earlyCloseTriggerDetail(active)}` : "本期未触发"],
+        ["买回后 ETF 涨跌", pct(postTriggerEtf)],
+        ["原备兑周期末 MTM", pct(last.baseline_period_mtm_return)],
+        ["买回后周期末 MTM", pct(last.early_close_period_mtm_return)],
+      ];
+      root.innerHTML = `<div class="selection-metrics">${values.map(([label, value]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join("")}</div>`;
+    }
+
+    function renderEarlyClosePathDiagnostics(records) {
+      syncEarlyCloseCycles(records);
+      renderDeltaTriggerAttribution(records);
+      const selected = selectedEarlyCloseCycles(records);
+      const active = records.find(row => row.cycle_id === state.earlyclose.activeCycleId) || null;
+      const tag = byId("earlyCloseSelectedCount");
+      if (tag) tag.textContent = `${selected.length} 期已选`;
+      renderEarlyCloseChecklist(records);
+      const chart = byId("earlyCloseDailyPath");
+      const detail = byId("earlyCloseDailyDetail");
+      if (!active) {
+        if (chart) chart.innerHTML = `<div class="empty">请从左侧勾选至少一个交易周期。</div>`;
+        const optionPriceChart = byId("earlyCloseOptionPrice");
+        if (optionPriceChart) optionPriceChart.innerHTML = `<div class="empty">请选择周期后查看卖出 Call 的价格路径。</div>`;
+        if (detail) detail.innerHTML = `<div class="empty">暂无选中周期。</div>`;
+        return;
+      }
+      if (!earlyCloseDailyCache[state.earlyclose.rule]) {
+        if (chart) chart.innerHTML = `<div class="empty">正在读取所选规则的日频盯市路径…</div>`;
+        if (detail) detail.innerHTML = `<div class="empty">路径加载后展示买回前后诊断。</div>`;
+        ensureEarlyCloseDailyData().then(() => {
+          if (state.tab === "earlyclose") renderEarlyClosePathDiagnostics(records);
+        }).catch(error => {
+          if (chart) chart.innerHTML = `<div class="empty">${esc(error.message || "日频路径读取失败")}</div>`;
+        });
+        return;
+      }
+      const series = earlyCloseDailyRecords(active.cycle_id);
+      earlyCloseDailyPathChart("earlyCloseDailyPath", series);
+      earlyCloseOptionPriceChart("earlyCloseOptionPrice", series);
+      renderEarlyCloseDailyDetail(active, series);
+    }
+
+    function deltaTriggerPathItems(records) {
+      if (state.earlyclose.rule !== "delta" || !earlyCloseDailyCache.delta) return [];
+      return records.filter(row => truthyFlag(row.buyback_triggered)).map(row => {
+        const series = earlyCloseDailyRecords(row.cycle_id);
+        const triggerIndex = series.findIndex(item => truthyFlag(item.buyback_trigger_day));
+        if (triggerIndex < 0 || !series.length) return null;
+        const trigger = series[triggerIndex], tail = series.slice(triggerIndex);
+        const triggerPrice = num(trigger.underlying_price), endPrice = num(tail.at(-1)?.underlying_price);
+        if (triggerPrice === null || triggerPrice <= 0 || endPrice === null) return null;
+        const tailPrices = tail.map(item => num(item.underlying_price)).filter(value => value !== null && value > 0);
+        if (!tailPrices.length) return null;
+        const postReturn = endPrice / triggerPrice - 1;
+        const postMaxReturn = Math.max(...tailPrices) / triggerPrice - 1;
+        const postMinReturn = Math.min(...tailPrices) / triggerPrice - 1;
+        const category = postReturn > 0
+          ? "周期末仍高于买回日"
+          : postMaxReturn > 0
+            ? "期间继续上涨后回落"
+            : "买回后未再上涨";
+        return {
+          row, trigger, postReturn, postMaxReturn, postMinReturn, category,
+          strategyChange: num(row.delta_buyback_strategy_change) || 0,
+          wouldAssign: truthyFlag(row.baseline_assignment_flag),
+          observationDays: tail.length,
+        };
+      }).filter(Boolean);
+    }
+
+    function deltaTriggerDetail(item) {
+      const row = item.row;
+      return [
+        "Delta 触发后的路径归因",
+        `开仓 / 周期末：${row.rebalance_date} / ${row.period_end_date}`,
+        `买回日 / Delta：${row.buyback_date} / ${pct(row.buyback_abs_delta)}`,
+        `买回后 ETF 期末涨跌：${pct(item.postReturn)}`,
+        `买回后最大继续上涨：${pct(item.postMaxReturn)}`,
+        `买回后最大回落：${pct(item.postMinReturn)}`,
+        `买回后观测交易日：${item.observationDays}`,
+        `提前买回相对原备兑变化：${pct(item.strategyChange)}`,
+        `原备兑会行权：${item.wouldAssign ? "是" : "否"}`,
+        `路径标签：${item.category}`,
+      ].join("\n");
+    }
+
+    function deltaTriggerPathScatter(id, items, field, xLabel, aria) {
+      const el = byId(id);
+      if (!el) return;
+      if (!items.length) { el.innerHTML = `<div class="empty">当前 Delta 阈值下没有可归因的实际触发周期。</div>`; return; }
+      const width = 700, height = 284, left = 55, right = 16, top = 16, bottom = 44;
+      const xValues = items.map(item => item[field]), yValues = items.map(item => item.strategyChange);
+      const xDomain = chartDomain(xValues), yDomain = chartDomain(yValues);
+      const sx = value => scale(value, xDomain.min, xDomain.max, left, width - right);
+      const sy = value => scale(value, yDomain.min, yDomain.max, height - bottom, top);
+      const xTicks = Array.from({ length: 5 }, (_, index) => xDomain.min + (xDomain.max - xDomain.min) * index / 4);
+      const yTicks = Array.from({ length: 5 }, (_, index) => yDomain.min + (yDomain.max - yDomain.min) * index / 4);
+      const grid = xTicks.map(value => `<line x1="${sx(value)}" x2="${sx(value)}" y1="${top}" y2="${height - bottom}" stroke="#edf1f3"/>`).join("")
+        + yTicks.map(value => `<line x1="${left}" x2="${width - right}" y1="${sy(value)}" y2="${sy(value)}" stroke="#e2e8ec"/><text x="${left - 7}" y="${sy(value) + 4}" text-anchor="end" font-size="11" fill="#40515f">${pct(value)}</text>`).join("");
+      const dots = items.map(item => {
+        const fill = item.strategyChange >= 0 ? colors.net : colors.negative;
+        const detail = deltaTriggerDetail(item);
+        const mark = chartMark(detail);
+        return item.wouldAssign
+          ? `<rect x="${sx(item[field]) - 4}" y="${sy(item.strategyChange) - 4}" width="8" height="8" fill="${fill}" ${mark}>${svgTitle(detail)}</rect>`
+          : `<circle cx="${sx(item[field])}" cy="${sy(item.strategyChange)}" r="4" fill="${fill}" ${mark}>${svgTitle(detail)}</circle>`;
+      }).join("");
+      const xLabels = [xTicks[0], xTicks.at(-1)].map((value, index) => `<text x="${index ? width - right : left}" y="${height - 13}" text-anchor="${index ? "end" : "start"}" font-size="11" fill="#40515f">${pct(value)}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(aria)}">${grid}<line x1="${sx(0)}" x2="${sx(0)}" y1="${top}" y2="${height - bottom}" stroke="#607482" stroke-width="1.35"/><line x1="${left}" x2="${width - right}" y1="${sy(0)}" y2="${sy(0)}" stroke="#607482" stroke-width="1.35"/>${dots}${xLabels}<text x="${left + (width - left - right) / 2}" y="${height - 3}" text-anchor="middle" font-size="11" fill="#40515f">${esc(xLabel)}</text></svg><div class="legend"><span><i style="background:${colors.net}"></i>买回后相对原备兑改善</span><span><i style="background:${colors.negative}"></i>买回后相对原备兑下降</span><span>方形 = 原备兑最终会行权</span></div>`;
+    }
+
+    function deltaTriggerAttributionTable(items) {
+      const root = byId("deltaTriggerAttributionTable");
+      if (!root) return;
+      const categories = ["周期末仍高于买回日", "期间继续上涨后回落", "买回后未再上涨"];
+      const rowsHtml = categories.map(category => {
+        const group = items.filter(item => item.category === category);
+        if (!group.length) return `<tr><td class="left">${category}</td><td>0</td><td>--</td><td>--</td><td>--</td><td>--</td></tr>`;
+        const average = field => group.reduce((sum, item) => sum + item[field], 0) / group.length;
+        return `<tr><td class="left">${category}</td><td>${group.length}</td><td>${pct(average("postReturn"))}</td><td>${pct(average("postMaxReturn"))}</td><td>${pct(average("strategyChange"))}</td><td>${group.filter(item => item.wouldAssign).length} / ${group.length}</td></tr>`;
+      }).join("");
+      root.innerHTML = `<div class="table-wrap"><table><thead><tr><th class="left">买回后路径</th><th>触发期数</th><th>买回后 ETF 至周期末</th><th>买回后最大继续上涨</th><th>平均策略变化</th><th>原备兑会行权</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+    }
+
+    function renderDeltaTriggerAttribution(records) {
+      const kpis = byId("deltaTriggerAttributionKpis");
+      const endChart = byId("deltaTriggerEndScatter"), maxChart = byId("deltaTriggerMaxScatter");
+      if (!kpis || !endChart || !maxChart) return;
+      if (state.earlyclose.rule !== "delta") {
+        kpis.innerHTML = `<div class="empty">该归因模块仅针对 Delta 买回。切换至 Delta 买回后，可观察高 Delta 触发后的实际 ETF 路径。</div>`;
+        endChart.innerHTML = ""; maxChart.innerHTML = "";
+        const table = byId("deltaTriggerAttributionTable"); if (table) table.innerHTML = "";
+        return;
+      }
+      if (!earlyCloseDailyCache.delta) {
+        kpis.innerHTML = `<div class="empty">正在读取 Delta 触发后的日频路径，用于归因分析…</div>`;
+        endChart.innerHTML = ""; maxChart.innerHTML = "";
+        ensureEarlyCloseDailyData().then(() => {
+          if (state.tab === "earlyclose" && state.earlyclose.rule === "delta") renderDeltaTriggerAttribution(earlyCloseRecords());
+        });
+        return;
+      }
+      const items = deltaTriggerPathItems(records);
+      if (!items.length) {
+        kpis.innerHTML = `<div class="empty">当前 Delta 阈值下没有可归因的实际触发周期。</div>`;
+        endChart.innerHTML = ""; maxChart.innerHTML = "";
+        deltaTriggerAttributionTable([]);
+        return;
+      }
+      const average = field => items.reduce((sum, item) => sum + item[field], 0) / items.length;
+      const positiveChanges = items.filter(item => item.strategyChange > 0).length;
+      kpis.innerHTML = `<div class="selection-metrics"><div><span>实际 Delta 触发</span><strong>${items.length} / ${records.length}</strong></div><div><span>买回后周期末仍上涨</span><strong>${pct(items.filter(item => item.postReturn > 0).length / items.length)}</strong></div><div><span>买回后最大继续上涨中位数</span><strong>${pct(median(items.map(item => item.postMaxReturn)))}</strong></div><div><span>买回相对原备兑变化中位数</span><strong>${pct(median(items.map(item => item.strategyChange)))}</strong></div><div><span>买回后策略改善</span><strong>${positiveChanges} / ${items.length}</strong></div><div><span>原备兑原本会行权</span><strong>${items.filter(item => item.wouldAssign).length} / ${items.length}</strong></div></div>`;
+      deltaTriggerPathScatter("deltaTriggerEndScatter", items, "postReturn", "买回后 ETF 至周期末收益", "Delta 买回后 ETF 期末涨跌与策略变化");
+      deltaTriggerPathScatter("deltaTriggerMaxScatter", items, "postMaxReturn", "买回后 ETF 最大继续上涨", "Delta 买回后最大继续上涨与策略变化");
+      deltaTriggerAttributionTable(items);
+    }
+
+    function truthyFlag(value) {
+      return value === true || value === 1 || value === "1" || value === "true" || value === "True";
+    }
+
+    function earlyCloseKpis() {
+      const summary = earlyCloseSummary();
+      if (!Object.keys(summary).length) return `<div class="panel span-12"><div class="empty">暂未找到该 ETF 与策略的提前平仓回放结果。</div></div>`;
+      const change = num(summary.net_option_yield_change_sum) || 0;
+      return [
+        kpi("触发买回", `${fmt(summary.buyback_count, 0)} / ${fmt(summary.selected_cycle_count, 0)}`, `${earlyCloseLabel(summary)}；首次满足条件即回购`, ""),
+        kpi("行权次数：基线 / 买回后", `${fmt(summary.baseline_assignment_count, 0)} / ${fmt(summary.residual_assignment_count, 0)}`, "提前平仓后不再开新仓", ""),
+        kpi("期权腿累计变化", pct(change), `基线 ${pct(summary.baseline_net_option_yield_sum)}；买回后 ${pct(summary.delta_buyback_net_option_yield_sum)}`, change >= 0 ? "positive" : "negative"),
+        kpi("完整策略累计变化", pct(summary.strategy_return_change_sum), "ETF 底仓收益不变；变化全部来自期权腿", (num(summary.strategy_return_change_sum) || 0) >= 0 ? "positive" : "negative")
+      ].join("");
+    }
+
+    function earlyCloseTimeline(id, records) {
+      const el = byId(id);
+      if (!el) return;
+      if (!records.length) { el.innerHTML = `<div class="empty">暂无可比较的逐期数据。</div>`; return; }
+      const width = 980, height = 290, left = 46, right = 16, top = 18, bottom = 46;
+      const values = records.flatMap(row => [num(row.baseline_net_option_yield) || 0, num(row.net_option_yield) || 0]);
+      const domain = chartDomain(values);
+      const sy = value => scale(value, domain.min, domain.max, height - bottom, top);
+      const zero = sy(0), band = (width - left - right) / records.length, bar = Math.max(3, Math.min(13, band * 0.27));
+      const selectedCycleIds = new Set(state.earlyclose.selectedCycleIds || []);
+      const triggerBands = records.map((row, index) => {
+        if (!truthyFlag(row.buyback_triggered)) return "";
+        const improved = (num(row.delta_buyback_strategy_change) || 0) >= 0;
+        const fill = improved ? "#dff1e7" : "#f8e3e1";
+        const verdict = improved ? "本期提前平仓后完整策略收益提升" : "本期提前平仓后完整策略收益下降";
+        return `<rect x="${left + index * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="${fill}" pointer-events="none"><title>${verdict}</title></rect>`;
+      }).join("");
+      const selectedBands = records.map((row, index) => {
+        if (!selectedCycleIds.has(row.cycle_id)) return "";
+        return `<rect x="${left + index * band + 1}" y="${top + 1}" width="${Math.max(1, band - 2)}" height="${height - top - bottom - 2}" fill="none" stroke="${colors.premium}" stroke-width="1.6" pointer-events="none"><title>已选诊断周期</title></rect>`;
+      }).join("");
+      const bars = records.map((row, index) => {
+        const x = left + index * band + band / 2;
+        const base = num(row.baseline_net_option_yield) || 0;
+        const overlay = num(row.net_option_yield) || 0;
+        const detail = `${row.rebalance_date} 至 ${row.period_end_date}\n基线净期权收益：${pct(base)}\n买回后：${pct(overlay)}\n${truthyFlag(row.buyback_triggered) ? `触发：${row.buyback_date}，${earlyCloseTriggerDetail(row)}` : "本期未触发买回"}`;
+        const rect = (offset, value, fill) => {
+          const y = Math.min(zero, sy(value));
+          return `<rect x="${x + offset - bar / 2}" y="${y}" width="${bar}" height="${Math.max(1, Math.abs(sy(value) - zero))}" fill="${fill}">${svgTitle(detail)}</rect>`;
+        };
+        const trigger = truthyFlag(row.buyback_triggered) ? `<circle cx="${x}" cy="${top + 7}" r="3.4" fill="${colors.relative}"><title>本期触发提前买回</title></circle>` : "";
+        const isSelected = selectedCycleIds.has(row.cycle_id);
+        const action = isSelected ? "取消选择" : "选择诊断周期";
+        return `<g data-earlyclose-timeline-cycle="${esc(row.cycle_id)}" role="button" tabindex="0" aria-pressed="${isSelected}" aria-label="${action}：${esc(detail).replace(/\n/g, "，")}" style="cursor:pointer">${rect(-bar * 0.58, base, "#9ba8b1")}${rect(bar * 0.58, overlay, "#18212f")}${trigger}</g>`;
+      }).join("");
+      const ticks = [0, Math.floor(records.length / 2), records.length - 1].filter((value, index, all) => all.indexOf(value) === index).map(index => `<text x="${left + index * band + band / 2}" y="${height - 13}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(String(records[index].rebalance_date).slice(0, 7))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="基线与提前买回后的逐期净期权收益对比">${triggerBands}<line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${bars}${selectedBands}<text x="5" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(domain.max)}</text><text x="5" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(domain.min)}</text>${ticks}</svg><div class="legend"><span><i style="background:#9ba8b1"></i>原备兑净期权收益</span><span><i style="background:#18212f"></i>提前买回后净期权收益</span><span><i style="background:${colors.relative}"></i>本期触发买回</span><span><i style="background:#dff1e7"></i>触发后完整策略提升</span><span><i style="background:#f8e3e1"></i>触发后完整策略下降</span><span><i style="background:${colors.premium}"></i>已选诊断周期</span></div>`;
+      el.querySelectorAll("[data-earlyclose-timeline-cycle]").forEach(mark => {
+        const selectCycle = () => {
+          const cycleId = mark.dataset.earlycloseTimelineCycle;
+          const selected = new Set(state.earlyclose.selectedCycleIds || []);
+          if (selected.has(cycleId)) {
+            selected.delete(cycleId);
+            if (state.earlyclose.activeCycleId === cycleId) state.earlyclose.activeCycleId = [...selected].at(-1) || null;
+          } else {
+            selected.add(cycleId);
+            state.earlyclose.activeCycleId = cycleId;
+          }
+          state.earlyclose.selectedCycleIds = [...selected];
+          earlyCloseTimeline(id, records);
+          renderEarlyClosePathDiagnostics(records);
+        };
+        mark.addEventListener("click", selectCycle);
+        mark.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectCycle(); }
+        });
+      });
+    }
+
+    function earlyCloseSummaryTable(records) {
+      if (!records.length) return `<div class="empty">暂无阈值回放结果。</div>`;
+      return `<div class="table-wrap"><table><thead><tr><th class="left">买回规则</th><th>触发次数</th><th>行权：基线 / 买回后</th><th>基线净期权收益</th><th>买回后净期权收益</th><th>期权腿变化</th><th>完整策略变化</th></tr></thead><tbody>${records.map(row => `<tr><td class="left">${esc(earlyCloseLabel(row))}</td><td>${fmt(row.buyback_count, 0)} / ${fmt(row.selected_cycle_count, 0)}</td><td>${fmt(row.baseline_assignment_count, 0)} / ${fmt(row.residual_assignment_count, 0)}</td><td>${pct(row.baseline_net_option_yield_sum)}</td><td>${pct(row.delta_buyback_net_option_yield_sum)}</td><td>${pct(row.net_option_yield_change_sum)}</td><td>${pct(row.strategy_return_change_sum)}</td></tr>`).join("")}</tbody></table></div>`;
+    }
+
+    function earlyCloseTriggerTable(records) {
+      const triggered = records.filter(row => truthyFlag(row.buyback_triggered));
+      if (!triggered.length) return `<div class="empty">当前阈值下没有发生提前买回。</div>`;
+      return `<div class="table-wrap"><table><thead><tr><th class="left">开仓至周期结束</th><th class="left">买回日</th><th>${earlyCloseTriggerMetricLabel()}</th><th>剩余到期日</th><th>开仓权利金</th><th>买回成本</th><th>基线净期权收益</th><th>买回后净期权收益</th><th>本期变化</th><th>原本会行权</th></tr></thead><tbody>${triggered.map(row => `<tr><td class="left">${esc(row.rebalance_date)} 至 ${esc(row.period_end_date)}</td><td class="left">${esc(row.buyback_date)}</td><td>${earlyCloseTriggerMetric(row)}</td><td>${fmt(row.buyback_remaining_dte, 0)} 天</td><td>${pct(row.gross_premium_yield)}</td><td>-${pct(row.buyback_liability_yield)}</td><td>${pct(row.baseline_net_option_yield)}</td><td>${pct(row.net_option_yield)}</td><td>${pct(row.delta_buyback_net_option_change)}</td><td>${truthyFlag(row.baseline_assignment_flag) ? "是" : "否"}</td></tr>`).join("")}</tbody></table></div>`;
+    }
+
+    function renderEarlyClose() {
+      const hasTp80 = rows(DATA.tp80_buyback?.summary).length > 0;
+      if (state.earlyclose.rule !== "delta" && state.earlyclose.rule !== "tp80") state.earlyclose.rule = "delta";
+      if (state.earlyclose.rule === "tp80" && !hasTp80) state.earlyclose.rule = "delta";
+      const allSummaries = earlyCloseSummaries();
+      const available = allSummaries.map(earlyCloseParameter).filter(value => value !== null);
+      if (!available.length) { byId("content").innerHTML = `<div class="panel"><div class="empty">尚未生成该买回规则的实验数据。</div></div>`; return; }
+      if (!available.some(value => Math.abs(value - Number(state.earlyclose.threshold)) < 1e-8)) state.earlyclose.threshold = available[0];
+      const records = earlyCloseRecords();
+      syncEarlyCloseCycles(records);
+      const parameterControl = state.earlyclose.rule === "delta"
+        ? `<div class="period-control"><label for="earlyCloseThreshold">Delta 阈值</label><select id="earlyCloseThreshold">${available.map(value => `<option value="${value}"${Math.abs(value - Number(state.earlyclose.threshold)) < 1e-8 ? " selected" : ""}>Delta ≥ ${value.toFixed(2)}</option>`).join("")}</select></div>`
+        : `<span class="tag">TP80：回购价 ≤ 开仓期权价格的 20%</span>`;
+      byId("content").innerHTML = `
+        <div class="grid">
+          <div class="panel span-12"><div class="toolbar"><h2>提前买回规则与执行口径</h2><div class="period-control"><label for="earlyCloseRule">买回规则</label><select id="earlyCloseRule"><option value="delta"${state.earlyclose.rule === "delta" ? " selected" : ""}>Delta 买回</option>${hasTp80 ? `<option value="tp80"${state.earlyclose.rule === "tp80" ? " selected" : ""}>TP80 买回</option>` : ""}</select>${parameterControl}</div></div><div class="note">${esc(earlyCloseAssumptionText())}</div></div>
+          <div class="panel span-8"><div class="toolbar"><h2>逐期净期权收益：原备兑 vs. 提前买回</h2><span class="tag">点击柱组选择或取消周期</span></div><div id="earlyCloseTimeline" class="chart"></div><div class="note">灰柱为原备兑期权腿最终净收益，深色柱为本规则下的结果；金色圆点表示当期发生提前买回。点击任一柱组可选择对应周期，再次点击即可取消；蓝框表示已选周期。</div></div>
+          <div class="panel span-4"><h2>规则参数对比</h2>${earlyCloseSummaryTable(allSummaries)}</div>
+          <div class="panel span-4 span-row-2"><div class="toolbar"><h2>选择诊断周期</h2><div class="selection-toolbar-actions"><button id="earlyCloseClearSelection" type="button">清空选择</button><span id="earlyCloseSelectedCount" class="tag">0 期已选</span></div></div><div class="note">勾选一个或多个开仓周期；最近一次勾选的周期用于右侧日频盯市。每条路径都以开仓日为基准，不跨周期累加。</div><div id="earlyCloseCycleChecklist" class="cycle-checklist"></div></div>
+          <div class="panel span-8"><div class="toolbar"><h2>所选周期日频盯市路径</h2><span class="tag">开仓日为 0%</span></div><div id="earlyCloseDailyPath" class="chart"></div><div class="subchart-heading"><h3>卖出 Call 的日末标记价格</h3><span class="tag">元/份</span></div><div id="earlyCloseOptionPrice" class="chart daily-path-price-chart"></div><div class="note">上图为 ETF、原备兑与提前买回的相对开仓日盯市收益；下图为同一张合约的日末标记价格。横轴按真实日期间隔绘制，虚线标记买回日；买回后保留期权价格仅用于观察后续市场路径，不代表仍持有该合约。</div></div>
+          <div class="panel span-8"><h2>日频路径诊断</h2><div id="earlyCloseDailyDetail"></div><div class="note">日频盯市收益为相对本期开仓日的累计估值变化，用于观察持有期风险路径；不是逐日收益相加，也不是跨周期复利净值。</div></div>
+          <div class="panel span-12"><div class="toolbar"><h2>Delta 触发后的路径归因</h2><span class="tag warn">使用买回日后的未来路径</span></div><div id="deltaTriggerAttributionKpis"></div><div class="attribution-grid"><div><h3>买回后 ETF 期末涨跌与策略变化</h3><div id="deltaTriggerEndScatter" class="chart"></div></div><div><h3>买回后最大继续上涨与策略变化</h3><div id="deltaTriggerMaxScatter" class="chart"></div></div></div><div id="deltaTriggerAttributionTable" class="attribution-table"></div><div class="note">每个点是一笔实际触发 Delta 买回的周期。纵轴为“提前买回后的完整策略收益 − 原备兑收益”，ETF 底仓路径本身未改变，因此差异全部来自期权腿。该模块用于解释历史触发结果，不能作为买回当日可直接使用的预测信号。</div></div>
+          <div class="panel span-12"><div class="toolbar"><h2>实际触发的提前买回账本</h2><span class="tag">${earlyCloseLabel(earlyCloseSummary())}</span></div>${earlyCloseTriggerTable(records)}</div>
+        </div>`;
+      earlyCloseTimeline("earlyCloseTimeline", records);
+      renderEarlyClosePathDiagnostics(records);
+      byId("earlyCloseClearSelection").addEventListener("click", () => {
+        state.earlyclose.selectedCycleIds = [];
+        state.earlyclose.activeCycleId = null;
+        earlyCloseTimeline("earlyCloseTimeline", records);
+        renderEarlyClosePathDiagnostics(records);
+      });
+      byId("earlyCloseRule").addEventListener("change", event => { state.earlyclose.rule = event.target.value; state.earlyclose.threshold = null; state.earlyclose.selectedCycleIds = null; state.earlyclose.activeCycleId = null; render(); });
+      const thresholdSelect = byId("earlyCloseThreshold");
+      if (thresholdSelect) thresholdSelect.addEventListener("change", event => { state.earlyclose.threshold = Number(event.target.value); state.earlyclose.selectedCycleIds = null; state.earlyclose.activeCycleId = null; render(); });
+    }
+
+    function renderKpis() {
+      const allRecords = currentLedger();
+      if (state.tab === "earlyclose") {
+        byId("kpis").innerHTML = earlyCloseKpis();
+        return;
+      }
+      if (state.tab === "timing") {
+        byId("kpis").innerHTML = timingKpis(timingScenario(allRecords));
+        return;
+      }
+      if (state.tab === "postdiag") {
+        byId("kpis").innerHTML = postDiagnosisKpis(postDiagnosisRecords(allRecords));
+        return;
+      }
+      if (state.tab === "path") {
+        const records = validPathRecords(allRecords);
+        byId("kpis").innerHTML = records.length ? pathKpis(records) : `<div class="panel span-12"><div class="empty">暂无完整的持有期路径数据。</div></div>`;
+        return;
+      }
+      if (state.tab === "cycles") {
+        syncSelectedCycles(allRecords);
+        const focused = activeSelectedCycle(allRecords);
+        const selectedCount = selectedCycleLedger(allRecords).length;
+        if (!focused) {
+          byId("kpis").innerHTML = `<div class="panel span-12"><div class="empty">请从逐期账本左侧选择一个交易周期。</div></div>`;
+          return;
+        }
+        const focusNote = selectedCount > 1 ? `当前查看周期；已选 ${selectedCount} 期` : "当前查看周期";
+        const settlementDate = focused.expiry_date || focused.period_end_date || "--";
+        const settlementLabel = focused.assignment_flag ? "行权日 ETF 收盘" : "到期日 ETF 收盘";
+        const premiumNote = `总权利金 ${pct(focused.gross_premium_yield)}（内在价值 ${pct(openingIntrinsicYield(focused))}）；开仓时间价值 ${pct(optionTimeValueYield(focused))}`;
+        byId("kpis").innerHTML = [
+          kpi("开仓 ETF 收盘", price(focused.underlying_price_at_entry), `${focused.rebalance_date || "--"}；${focusNote}`),
+          kpi(settlementLabel, price(focused.underlying_price_at_expiry ?? focused.underlying_price_at_period_end), `${settlementDate}；${focused.assignment_flag ? "发生行权" : "未行权"}`),
+          kpi("卖出认购期权", focused.option_code || "--", `行权价 ${price(focused.strike)}；期初 Delta ${pct(focused.selected_delta)}`),
+          kpi("收到总权利金", cash(focused.gross_premium_cash), premiumNote, "positive")
+        ].join("");
+        return;
+      }
+      const records = state.tab === "cash" ? includedCycleLedger(allRecords) : allRecords;
+      const stats = cycleStatistics(records);
+      const removed = Math.max(allRecords.length - records.length, 0);
+      const context = removed ? `剔除 ${removed} 期后，保留 ${records.length} 期` : `全样本、${records.length} 个周期`;
+      const strategy = stats.strategy_net_pnl_cash_total;
+      byId("kpis").innerHTML = [
+        kpi("样本期权利金净收入", cash(stats.premium_income_cash_total), `${context}；逐期相加、未扣行权/平仓截断`, stats.premium_income_cash_total >= 0 ? "positive" : "negative"),
+        kpi("样本期行权/平仓扣减", cash(stats.exercise_or_close_cost_cash_total), "逐期相加；发生行权或平仓时的扣减，不等同于本金损失", stats.exercise_or_close_cost_cash_total >= 0 ? "positive" : "negative"),
+        kpi("行权次数", `${fmt(stats.assignment_count, 0)} / ${fmt(stats.selected_option_cycle_count, 0)}`, "发生行权期数 / 实际卖出期数", ""),
+        kpi("样本期完整策略结果", cash(strategy), "ETF底仓涨跌、权利金和行权/平仓扣减的逐期相加；不代表复利净值", strategy >= 0 ? "positive" : "negative")
+      ].join("");
+    }
+
+    function assignmentTimeline(id, records) {
+      const el = byId(id);
+      const series = records.map((row, index) => ({ row, index }));
+      if (!el || !series.length) return;
+      const width = 460, height = 118, left = 36, right = 12, top = 13, bottom = 29, laneY = 42;
+      const band = (width - left - right) / series.length;
+      const selected = selectedCycleIndex(records);
+      const selectedItem = series.find(item => item.index === selected);
+      const selectedBand = selectedItem ? `<rect x="${left + series.indexOf(selectedItem) * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="#dcecf5" pointer-events="none"></rect>` : "";
+      const marks = series.map(({ row }, index) => {
+        const x = left + index * band + band / 2;
+        const detail = cycleDetail(row, "被行权时序");
+        if (row.assignment_flag) return `<rect x="${x - 4}" y="${laneY - 4}" width="8" height="8" fill="${colors.relative}" ${chartMark(detail)}>${svgTitle(detail)}</rect>`;
+        return `<circle cx="${x}" cy="${laneY}" r="2.2" fill="#c1cbd1" ${chartMark(detail)}>${svgTitle(detail)}</circle>`;
+      }).join("");
+      const zones = series.map(({ index: sourceIndex }, index) => `<rect class="period-hit" data-cycle-index="${sourceIndex}" x="${left + index * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="transparent" style="cursor:pointer"></rect>`).join("");
+      const ticks = [0, Math.floor(series.length / 2), series.length - 1].filter((value, index, arr) => arr.indexOf(value) === index).map(index => `<text x="${left + index * band + band / 2}" y="${height - 10}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(String(series[index].row.rebalance_date).slice(0, 7))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="期权被行权时序"><line x1="${left}" x2="${width - right}" y1="${laneY}" y2="${laneY}" stroke="#aebbc4"/>${selectedBand}${marks}${zones}<text x="2" y="${laneY + 4}" font-size="10" fill="#5e6a79">行权</text>${ticks}</svg><div class="legend"><span><i style="background:${colors.relative}"></i>方点：发生行权</span><span><i style="background:#c1cbd1"></i>圆点：未行权</span></div>`;
+      bindCycleBarEvents(el, records);
+    }
+
+    function renderCash() {
+      const ledger = currentLedger();
+      const rolling = currentRolling();
+      byId("content").innerHTML = `
+        <div class="grid">
+          <div class="panel span-8">
+            <div class="toolbar"><h2>单周期收益与信号诊断</h2><span class="tag">同一开仓日时间轴</span></div>
+            <div class="subchart-heading first-chart"><h3>期权腿现金流：权利金净收入与行权截断成本</h3><span class="tag">单位：收益率</span></div>
+            <div id="cashBars" class="chart"></div>
+            <div class="subchart-heading"><h3>ETF 当期收益与策略当期净收益</h3><span class="tag">灰柱 = ETF，深色柱 = 策略</span></div>
+            <div id="strategyReturnTimeline" class="chart"></div>
+            <div class="period-control"><label for="cycleSelect">周期明细</label><select id="cycleSelect"></select></div>
+            <div id="selectedCycleDetail" class="cycle-detail"></div>
+            <div class="note">绿柱是扣摩擦后权利金净收入，红柱是截断成本；灰柱与深色柱展示同一周期的 ETF 与完整策略结果。两张柱图均不做复利累计。</div>
+          </div>
+          <div class="panel span-4">
+            <div class="toolbar"><h2>滚动 12 期净期权收益</h2><span class="tag">非复利</span></div>
+            <div id="rollingLine" class="chart"></div>
+            <div class="note">连续 12 个交易周期的净期权收益，用于观察收入在不同阶段的连续性。</div>
+            <div class="subchart-heading"><h3>被行权时序</h3><span class="tag">方点 = 行权</span></div>
+            <div id="assignmentTimeline" class="chart assignment-chart"></div>
+          </div>
+          <div class="panel span-6"><div class="toolbar"><h2>期权现金流拆解：权利金净收入与行权截断成本</h2><span class="tag">每个点 = 一个周期</span></div><div id="premiumScatter" class="chart"></div><div class="note">绿点为扣除交易摩擦后当期留下的权利金，红点为未以权利金抵减的行权截断成本；两者可直接观察每期现金流的来源与去向。</div></div>
+          <div class="panel span-6"><div class="toolbar"><h2>单期净期权收益分布</h2><span class="tag">频数分布</span></div><div id="netOptionHistogram" class="chart"></div><div class="note">展示每个独立周期的收益分布和左尾风险，不以复利净值掩盖单期结果。</div></div>
+          <div class="panel span-6"><div class="toolbar"><h2>IV-RV 与权利金净收入</h2><span class="tag">报价端关系</span></div><div id="ivRvPremiumScatter" class="chart"></div><div class="note">横轴为开仓 IV-RV，纵轴为扣除交易摩擦后的权利金净收入；用于观察期权是否在开仓时相对更“贵”。</div></div>
+          <div class="panel span-6"><div class="toolbar"><h2>IV-RV 与最终净期权收益</h2><span class="tag">经济结果关系</span></div><div id="ivRvNetOptionScatter" class="chart"></div><div class="note">纵轴进一步扣除行权或平仓成本。该图用于检验更高 IV-RV 是否真的留下更多收益，而非证明择时有效。</div></div>
+          <div class="panel span-12">
+            <div class="toolbar"><h2>剔除特定周期后的总收益统计</h2><span class="tag">不改动原始账本</span></div>
+            <div class="exclusion-control"><div><label>剔除周期（按开仓日）</label><div id="calendarControl"></div></div><button id="clearExcludedCycles" type="button">清除选择</button></div>
+            <div id="exclusionSummary" style="margin-top:10px"></div>
+          </div>
+        </div>`;
+      setupCycleSelector(ledger);
+      renderExclusionControls(ledger);
+      groupedBars("cashBars", ledger);
+      strategyReturnTimeline("strategyReturnTimeline", ledger);
+      renderSelectedCycleDetail(ledger);
+      lineChart("rollingLine", rolling, "window_end", "net_option_yield_non_compound", { zero: true, value: pct });
+      assignmentTimeline("assignmentTimeline", ledger);
+      premiumScatter("premiumScatter", ledger);
+      netOptionHistogram("netOptionHistogram", ledger);
+      ivRvScatter("ivRvPremiumScatter", ledger, "premium");
+      ivRvScatter("ivRvNetOptionScatter", ledger, "netOption");
+    }
+
+    function selectCycle(records, index) {
+      if (!records.length) return;
+      const next = Math.max(0, Math.min(records.length - 1, Number.isFinite(index) ? Math.trunc(index) : 0));
+      if (state.selectedCycleIndex === next) return;
+      state.selectedCycleIndex = next;
+      renderSelectedCycleDetail(records);
+      groupedBars("cashBars", records);
+      if (byId("assignmentTimeline")) assignmentTimeline("assignmentTimeline", records);
+    }
+
+    function premiumScatter(id, records) {
+      const el = byId(id);
+      const series = records.map((row, index) => ({ row, index })).filter(item => num(item.row.gross_premium_yield) !== null);
+      if (!el || !series.length) return;
+      const width = 660, height = 270, left = 44, right = 14, top = 16, bottom = 42;
+      const netPremium = row => (num(row.gross_premium_yield) || 0) - (num(row.transaction_cost_yield) || 0);
+      const values = series.flatMap(({ row }) => [netPremium(row), -(num(row.exercise_or_close_cost_yield) || 0)]);
+      let min = Math.min(0, ...values), max = Math.max(0, ...values);
+      const pad = Math.max((max - min) * 0.10, 0.004);
+      min -= pad;
+      max += pad;
+      const sy = value => scale(value, min, max, height - bottom, top);
+      const zero = sy(0);
+      const band = (width - left - right) / series.length;
+      const selected = selectedCycleIndex(records);
+      const selectedItem = series.find(item => item.index === selected);
+      const selectedBand = selectedItem ? `<rect x="${left + series.indexOf(selectedItem) * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="#dcecf5" pointer-events="none"></rect>` : "";
+      const premiumDots = series.map(({ row }, index) => {
+        const x = left + index * band + band / 2;
+        const detail = cycleDetail(row, "本期权利金净收入与行权截断成本");
+        return `<circle cx="${x}" cy="${sy(netPremium(row))}" r="3.8" fill="${colors.net}" ${chartMark(detail)}>${svgTitle(detail)}</circle>`;
+      }).join("");
+      const capDots = series.map(({ row }, index) => {
+        const cost = num(row.exercise_or_close_cost_yield) || 0;
+        if (!row.assignment_flag || cost <= 0) return "";
+        const x = left + index * band + band / 2;
+        const detail = cycleDetail(row, "本期权利金净收入与行权截断成本");
+        return `<rect x="${x - 3.5}" y="${sy(-cost) - 3.5}" width="7" height="7" fill="${colors.negative}" ${chartMark(detail)}>${svgTitle(detail)}</rect>`;
+      }).join("");
+      const zones = series.map(({ index: sourceIndex }, index) => `<rect class="period-hit" data-cycle-index="${sourceIndex}" x="${left + index * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="transparent" style="cursor:pointer"></rect>`).join("");
+      const ticks = [0, Math.floor(series.length / 2), series.length - 1].filter((value, index, arr) => arr.indexOf(value) === index).map(index => `<text x="${left + index * band + band / 2}" y="${height - 13}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(String(series[index].row.rebalance_date).slice(0, 7))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="每期权利金净收入与行权截断成本时序"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${selectedBand}${premiumDots}${capDots}${zones}<text x="3" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="3" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(min)}</text>${ticks}</svg><div class="legend"><span><i style="background:${colors.net}"></i>权利金净收入（已扣交易摩擦）</span><span><i style="background:${colors.negative}"></i>行权截断成本（未抵减权利金）</span></div>`;
+      bindCycleBarEvents(el, records);
+    }
+
+    function selectCycle(records, index) {
+      if (!records.length) return;
+      const next = Math.max(0, Math.min(records.length - 1, Number.isFinite(index) ? Math.trunc(index) : 0));
+      if (state.selectedCycleIndex === next) return;
+      state.selectedCycleIndex = next;
+      renderSelectedCycleDetail(records);
+      groupedBars("cashBars", records);
+      if (byId("assignmentTimeline")) assignmentTimeline("assignmentTimeline", records);
+      if (byId("premiumScatter")) premiumScatter("premiumScatter", records);
+    }
+
+    function netPremiumYield(row) {
+      return (num(row.gross_premium_yield) || 0) - (num(row.transaction_cost_yield) || 0);
+    }
+
+    function chartDomain(values, minimumPadding = 0.004) {
+      let min = Math.min(0, ...values);
+      let max = Math.max(0, ...values);
+      const padding = Math.max((max - min) * 0.10, minimumPadding);
+      min -= padding;
+      max += padding;
+      return { min, max };
+    }
+
+    function groupedBars(id, records) {
+      const el = byId(id);
+      const series = records.map((row, index) => ({ row, index })).filter(item => num(item.row.etf_period_return) !== null);
+      if (!el || !series.length) return;
+
+      const width = 860, height = 300, left = 44, right = 14, top = 14, bottom = 46;
+      const values = series.flatMap(({ row }) => [
+        num(row.etf_period_return) || 0,
+        netPremiumYield(row),
+        -(num(row.exercise_or_close_cost_yield) || 0),
+        strategyNetRate(row)
+      ]);
+      const { min, max } = chartDomain(values);
+      const sy = value => scale(value, min, max, height - bottom, top);
+      const zero = sy(0);
+      const band = (width - left - right) / series.length;
+      const bar = Math.max(2.5, Math.min(9, band * 0.18));
+      const selected = selectedCycleIndex(records);
+      const selectedItem = series.find(item => item.index === selected);
+      const selectedBand = selectedItem ? `<rect x="${left + series.indexOf(selectedItem) * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="#dcecf5" pointer-events="none"></rect>` : "";
+      const rect = (x, value, fill, detail) => {
+        const y = Math.min(zero, sy(value));
+        return `<rect x="${x - bar / 2}" y="${y}" width="${bar}" height="${Math.max(1, Math.abs(sy(value) - zero))}" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</rect>`;
+      };
+      const components = series.map(({ row }, index) => {
+        const center = left + index * band + band / 2;
+        const detail = cycleDetail(row, "单周期收益构成");
+        const etf = num(row.etf_period_return) || 0;
+        const premium = netPremiumYield(row);
+        const cost = -(num(row.exercise_or_close_cost_yield) || 0);
+        const strategy = strategyNetRate(row);
+        const marker = `<circle cx="${center + bar * 1.35}" cy="${sy(strategy)}" r="3.8" fill="#18212f" stroke="#ffffff" stroke-width="1.2" ${chartMark(detail)}>${svgTitle(detail)}</circle>`;
+        return `${rect(center - bar * 1.35, etf, colors.baseline, detail)}${rect(center, premium, colors.net, detail)}${rect(center + bar * 1.35, cost, colors.negative, detail)}${marker}`;
+      }).join("");
+      const zones = series.map(({ index: sourceIndex }, index) => `<rect class="period-hit" data-cycle-index="${sourceIndex}" x="${left + index * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="transparent" style="cursor:pointer"></rect>`).join("");
+      const ticks = [0, Math.floor(series.length / 2), series.length - 1].filter((value, index, arr) => arr.indexOf(value) === index).map(index => `<text x="${left + index * band + band / 2}" y="${height - 13}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(String(series[index].row.rebalance_date).slice(0, 7))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="单周期ETF收益、权利金净收入、行权截断成本与策略净收益"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${selectedBand}${components}${zones}<text x="5" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="5" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(min)}</text>${ticks}</svg><div class="legend"><span><i style="background:${colors.baseline}"></i>ETF 当期收益</span><span><i style="background:${colors.net}"></i>权利金净收入（扣摩擦）</span><span><i style="background:${colors.negative}"></i>行权/平仓截断成本</span><span><i style="background:#18212f"></i>策略当期净收益</span></div>`;
+      bindCycleBarEvents(el, records);
+    }
+
+    function ivRvStrip(id, records) {
+      const el = byId(id);
+      const series = records.map((row, index) => ({ row, index })).filter(item => num(item.row.entry_iv_rv20_spread) !== null);
+      if (!el || !series.length) {
+        if (el) el.innerHTML = `<div class="empty">暂无开仓 IV-RV 数据。</div>`;
+        return;
+      }
+
+      const width = 860, height = 130, left = 44, right = 14, top = 12, bottom = 30;
+      const { min, max } = chartDomain(series.map(item => num(item.row.entry_iv_rv20_spread)), 0.005);
+      const sy = value => scale(value, min, max, height - bottom, top);
+      const zero = sy(0), band = (width - left - right) / series.length;
+      const bar = Math.max(2.5, Math.min(12, band * 0.52));
+      const selected = selectedCycleIndex(records);
+      const selectedItem = series.find(item => item.index === selected);
+      const selectedBand = selectedItem ? `<rect x="${left + series.indexOf(selectedItem) * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="#dcecf5" pointer-events="none"></rect>` : "";
+      const bars = series.map(({ row }, index) => {
+        const value = num(row.entry_iv_rv20_spread) || 0;
+        const x = left + index * band + band / 2;
+        const y = Math.min(zero, sy(value));
+        const detail = cycleDetail(row, "开仓 IV-RV");
+        const fill = value >= 0 ? colors.premium : colors.relative;
+        return `<rect x="${x - bar / 2}" y="${y}" width="${bar}" height="${Math.max(1, Math.abs(sy(value) - zero))}" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</rect>`;
+      }).join("");
+      const zones = series.map(({ index: sourceIndex }, index) => `<rect class="period-hit" data-cycle-index="${sourceIndex}" x="${left + index * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="transparent" style="cursor:pointer"></rect>`).join("");
+      const ticks = [0, Math.floor(series.length / 2), series.length - 1].filter((value, index, arr) => arr.indexOf(value) === index).map(index => `<text x="${left + index * band + band / 2}" y="${height - 9}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(String(series[index].row.rebalance_date).slice(0, 7))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="按开仓日展示的IV-RV时序"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${selectedBand}${bars}${zones}<text x="5" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="5" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(min)}</text>${ticks}</svg><div class="legend"><span><i style="background:${colors.premium}"></i>IV 高于过去20日 RV</span><span><i style="background:${colors.relative}"></i>IV 低于过去20日 RV</span></div>`;
+      bindCycleBarEvents(el, records);
+    }
+
+    function ivRvScatter(id, records, metric) {
+      const el = byId(id);
+      const outcome = row => metric === "premium" ? netPremiumYield(row) : num(row.net_option_yield);
+      const series = records.map((row, index) => ({ row, index, x: num(row.entry_iv_rv20_spread), y: outcome(row) })).filter(item => item.x !== null && item.y !== null);
+      if (!el || !series.length) {
+        if (el) el.innerHTML = `<div class="empty">暂无足够的 IV-RV 周期数据。</div>`;
+        return;
+      }
+
+      const width = 660, height = 270, left = 46, right = 14, top = 16, bottom = 46;
+      const xDomain = chartDomain(series.map(item => item.x), 0.005);
+      const yDomain = chartDomain(series.map(item => item.y), 0.004);
+      const sx = value => scale(value, xDomain.min, xDomain.max, left, width - right);
+      const sy = value => scale(value, yDomain.min, yDomain.max, height - bottom, top);
+      const selected = selectedCycleIndex(records);
+      const outcomeLabel = metric === "premium" ? "权利金净收入" : "最终净期权收益";
+      const dots = series.map(({ row, index, x, y }) => {
+        const cx = sx(x), cy = sy(y);
+        const selectedRing = index === selected ? `<circle cx="${cx}" cy="${cy}" r="6.4" fill="none" stroke="#18212f" stroke-width="1.2" pointer-events="none"></circle>` : "";
+        const detail = cycleDetail(row, `IV-RV 与${outcomeLabel}`);
+        const mark = `class="period-hit" data-cycle-index="${index}" ${chartMark(detail)}`;
+        const point = row.assignment_flag ? `<rect x="${cx - 3.5}" y="${cy - 3.5}" width="7" height="7" fill="${colors.relative}" ${mark}>${svgTitle(detail)}</rect>` : `<circle cx="${cx}" cy="${cy}" r="3.8" fill="${colors.baseline}" ${mark}>${svgTitle(detail)}</circle>`;
+        return `${selectedRing}${point}`;
+      }).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="开仓IV-RV与${outcomeLabel}散点图"><line x1="${sx(0)}" x2="${sx(0)}" y1="${top}" y2="${height - bottom}" stroke="#9eabb5"/><line x1="${left}" x2="${width - right}" y1="${sy(0)}" y2="${sy(0)}" stroke="#9eabb5"/>${dots}<text x="${left}" y="${height - 13}" font-size="10" fill="#5e6a79">${pct(xDomain.min)}</text><text x="${width - right}" y="${height - 13}" text-anchor="end" font-size="10" fill="#5e6a79">${pct(xDomain.max)}</text><text x="${left + (width - left - right) / 2}" y="${height - 4}" text-anchor="middle" font-size="10" fill="#5e6a79">开仓 IV - RV</text><text x="4" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(yDomain.max)}</text><text x="4" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(yDomain.min)}</text></svg><div class="legend"><span><i style="background:${colors.baseline}"></i>圆点：未行权</span><span><i style="background:${colors.relative}"></i>方点：发生行权</span></div>`;
+      bindCycleBarEvents(el, records);
+    }
+
+    function selectCycle(records, index) {
+      if (!records.length) return;
+      const next = Math.max(0, Math.min(records.length - 1, Number.isFinite(index) ? Math.trunc(index) : 0));
+      if (state.selectedCycleIndex === next) return;
+      state.selectedCycleIndex = next;
+      renderSelectedCycleDetail(records);
+      if (byId("cashBars")) groupedBars("cashBars", records);
+      if (byId("ivRvStrip")) ivRvStrip("ivRvStrip", records);
+      if (byId("assignmentTimeline")) assignmentTimeline("assignmentTimeline", records);
+      if (byId("premiumScatter")) premiumScatter("premiumScatter", records);
+      if (byId("ivRvPremiumScatter")) ivRvScatter("ivRvPremiumScatter", records, "premium");
+      if (byId("ivRvNetOptionScatter")) ivRvScatter("ivRvNetOptionScatter", records, "netOption");
+    }
+
+    function groupedBars(id, records) {
+      const el = byId(id);
+      const series = records.map((row, index) => ({ row, index })).filter(item => num(item.row.gross_premium_yield) !== null);
+      if (!el || !series.length) return;
+
+      const width = 860, height = 280, left = 44, right = 14, top = 14, bottom = 46;
+      const values = series.flatMap(({ row }) => [netPremiumYield(row), -(num(row.exercise_or_close_cost_yield) || 0)]);
+      const { min, max } = chartDomain(values);
+      const sy = value => scale(value, min, max, height - bottom, top);
+      const zero = sy(0), band = (width - left - right) / series.length;
+      const bar = Math.max(4, Math.min(14, band * 0.32));
+      const selected = selectedCycleIndex(records);
+      const selectedItem = series.find(item => item.index === selected);
+      const selectedBand = selectedItem ? `<rect x="${left + series.indexOf(selectedItem) * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="#dcecf5" pointer-events="none"></rect>` : "";
+      const rect = (x, value, fill, detail) => {
+        const y = Math.min(zero, sy(value));
+        return `<rect x="${x - bar / 2}" y="${y}" width="${bar}" height="${Math.max(1, Math.abs(sy(value) - zero))}" fill="${fill}" ${chartMark(detail)}>${svgTitle(detail)}</rect>`;
+      };
+      const bars = series.map(({ row }, index) => {
+        const center = left + index * band + band / 2;
+        const detail = cycleDetail(row, "期权腿现金流");
+        return `${rect(center - bar * 0.62, netPremiumYield(row), colors.net, detail)}${rect(center + bar * 0.62, -(num(row.exercise_or_close_cost_yield) || 0), colors.negative, detail)}`;
+      }).join("");
+      const zones = series.map(({ index: sourceIndex }, index) => `<rect class="period-hit" data-cycle-index="${sourceIndex}" x="${left + index * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="transparent" style="cursor:pointer"></rect>`).join("");
+      const ticks = [0, Math.floor(series.length / 2), series.length - 1].filter((value, index, arr) => arr.indexOf(value) === index).map(index => `<text x="${left + index * band + band / 2}" y="${height - 13}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(String(series[index].row.rebalance_date).slice(0, 7))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="每期权利金净收入与行权截断成本"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${selectedBand}${bars}${zones}<text x="5" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="5" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(min)}</text>${ticks}</svg><div class="legend"><span><i style="background:${colors.net}"></i>权利金净收入（扣摩擦）</span><span><i style="background:${colors.negative}"></i>行权/平仓截断成本</span></div>`;
+      bindCycleBarEvents(el, records);
+    }
+
+    function strategyReturnTimeline(id, records, highlightedCycleIds = null) {
+      const el = byId(id);
+      const series = records.map((row, index) => ({ row, index })).filter(item => num(item.row.etf_period_return) !== null && num(strategyNetRate(item.row)) !== null);
+      if (!el || !series.length) return;
+
+      const width = 860, height = 250, left = 44, right = 14, top = 14, bottom = 46;
+      const values = series.flatMap(({ row }) => [num(row.etf_period_return) || 0, strategyNetRate(row)]);
+      const { min, max } = chartDomain(values);
+      const sy = value => scale(value, min, max, height - bottom, top);
+      const zero = sy(0), band = (width - left - right) / series.length;
+      const bar = Math.max(2.5, Math.min(11, band * 0.28));
+      const highlighted = Array.isArray(highlightedCycleIds) ? new Set(highlightedCycleIds) : null;
+      const selected = selectedCycleIndex(records);
+      const selectedItem = series.find(item => item.index === selected);
+      const selectedBands = highlighted
+        ? series.map(({ row, index: sourceIndex }, index) => highlighted.has(cycleKey(row, sourceIndex)) ? `<rect x="${left + index * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="#dcecf5" pointer-events="none"></rect>` : "").join("")
+        : (selectedItem ? `<rect x="${left + series.indexOf(selectedItem) * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="#dcecf5" pointer-events="none"></rect>` : "");
+      const pairedBars = series.map(({ row }, index) => {
+        const etfValue = num(row.etf_period_return) || 0;
+        const strategyValue = strategyNetRate(row) || 0;
+        const x = left + index * band + band / 2;
+        const etfY = Math.min(zero, sy(etfValue));
+        const strategyY = Math.min(zero, sy(strategyValue));
+        const detail = cycleDetail(row, "ETF 与策略当期收益");
+        return `<rect x="${x - bar * 1.15}" y="${etfY}" width="${bar}" height="${Math.max(1, Math.abs(sy(etfValue) - zero))}" fill="#9ba8b1" ${chartMark(detail)}>${svgTitle(detail)}</rect><rect x="${x + bar * 0.15}" y="${strategyY}" width="${bar}" height="${Math.max(1, Math.abs(sy(strategyValue) - zero))}" fill="#18212f" ${chartMark(detail)}>${svgTitle(detail)}</rect>`;
+      }).join("");
+      const zones = series.map(({ index: sourceIndex }, index) => `<rect class="period-hit" data-cycle-index="${sourceIndex}" x="${left + index * band}" y="${top}" width="${band}" height="${height - top - bottom}" fill="transparent" style="cursor:pointer"></rect>`).join("");
+      const ticks = [0, Math.floor(series.length / 2), series.length - 1].filter((value, index, arr) => arr.indexOf(value) === index).map(index => `<text x="${left + index * band + band / 2}" y="${height - 13}" text-anchor="middle" font-size="10" fill="#5e6a79">${esc(String(series[index].row.rebalance_date).slice(0, 7))}</text>`).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="ETF当期收益与备兑策略当期净收益"><line x1="${left}" x2="${width - right}" y1="${zero}" y2="${zero}" stroke="#9eabb5"/>${selectedBands}${pairedBars}${zones}<text x="5" y="${top + 4}" font-size="10" fill="#5e6a79">${pct(max)}</text><text x="5" y="${height - bottom}" font-size="10" fill="#5e6a79">${pct(min)}</text>${ticks}</svg><div class="legend"><span><i style="background:#9ba8b1"></i>ETF 当期收益</span><span><i style="background:#18212f"></i>策略当期净收益</span>${highlighted ? `<span><i style="background:#dcecf5"></i>左侧已选周期</span>` : ""}</div>`;
+      bindCycleBarEvents(el, records);
+    }
+
+    function selectCycle(records, index) {
+      if (!records.length) return;
+      const next = Math.max(0, Math.min(records.length - 1, Number.isFinite(index) ? Math.trunc(index) : 0));
+      if (state.selectedCycleIndex === next) return;
+      state.selectedCycleIndex = next;
+      renderSelectedCycleDetail(records);
+      if (byId("cashBars")) groupedBars("cashBars", records);
+      if (byId("strategyReturnTimeline")) strategyReturnTimeline("strategyReturnTimeline", records);
+      if (byId("ivRvStrip")) ivRvStrip("ivRvStrip", records);
+      if (byId("assignmentTimeline")) assignmentTimeline("assignmentTimeline", records);
+      if (byId("premiumScatter")) premiumScatter("premiumScatter", records);
+      if (byId("ivRvPremiumScatter")) ivRvScatter("ivRvPremiumScatter", records, "premium");
+      if (byId("ivRvNetOptionScatter")) ivRvScatter("ivRvNetOptionScatter", records, "netOption");
+    }
+
+    function calendarMonthKey(value) {
+      return String(value || "").slice(0, 7);
+    }
+
+    function shiftCalendarMonth(monthKey, offset) {
+      const [year, month] = String(monthKey || "").split("-").map(Number);
+      const date = new Date(year, month - 1 + offset, 1);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function renderExclusionControls(records) {
+      const root = byId("calendarControl");
+      const summary = byId("exclusionSummary");
+      if (!root || !summary) return;
+
+      const knownKeys = new Set(records.map((row, index) => cycleKey(row, index)));
+      state.excludedCycleIds = (state.excludedCycleIds || []).filter(key => knownKeys.has(key));
+
+      const cyclesByDate = new Map();
+      records.forEach((row, index) => {
+        const date = String(row.rebalance_date || "").slice(0, 10);
+        if (!date) return;
+        const cycles = cyclesByDate.get(date) || [];
+        cycles.push({ key: cycleKey(row, index) });
+        cyclesByDate.set(date, cycles);
+      });
+
+      const months = [...new Set([...cyclesByDate.keys()].map(calendarMonthKey))].sort();
+      if (!months.includes(state.calendarMonth)) state.calendarMonth = months[months.length - 1] || null;
+      if (!state.calendarMonth) {
+        root.innerHTML = `<div class="empty">暂无可选周期。</div>`;
+        summary.innerHTML = exclusionSummaryTable(records, includedCycleLedger(records));
+        return;
+      }
+
+      const [year, month] = state.calendarMonth.split("-").map(Number);
+      const firstWeekday = new Date(year, month - 1, 1).getDay();
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const selected = new Set(state.excludedCycleIds);
+      const cells = Array.from({ length: 42 }, (_, index) => {
+        const day = index - firstWeekday + 1;
+        if (day < 1 || day > daysInMonth) return `<span class="calendar-day" aria-hidden="true"></span>`;
+        const date = `${state.calendarMonth}-${String(day).padStart(2, "0")}`;
+        const cycles = cyclesByDate.get(date) || [];
+        if (!cycles.length) return `<span class="calendar-day">${day}</span>`;
+        const isExcluded = cycles.some(cycle => selected.has(cycle.key));
+        const cycleKeyForDay = cycles[0].key;
+        return `<button type="button" class="calendar-day${isExcluded ? " is-excluded" : ""}" data-exclude-cycle="${esc(cycleKeyForDay)}" aria-pressed="${isExcluded}" title="${esc(`${date} 开仓周期`)}">${day}<span class="calendar-dot" aria-hidden="true"></span></button>`;
+      }).join("");
+
+      root.innerHTML = `<div class="calendar-shell"><div class="calendar-toolbar"><button type="button" class="calendar-nav" id="calendarPrev" aria-label="上一个月">&#8592;</button><select id="calendarMonthSelect" aria-label="选择月份">${months.map(key => `<option value="${esc(key)}"${key === state.calendarMonth ? " selected" : ""}>${esc(key)}</option>`).join("")}</select><button type="button" class="calendar-nav" id="calendarNext" aria-label="下一个月">&#8594;</button></div><div class="calendar-weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div><div class="calendar-days">${cells}</div></div>`;
+
+      root.querySelectorAll("[data-exclude-cycle]").forEach(button => button.addEventListener("click", () => {
+        const key = button.dataset.excludeCycle;
+        const next = new Set(state.excludedCycleIds);
+        next.has(key) ? next.delete(key) : next.add(key);
+        state.excludedCycleIds = [...next];
+        state.selectedCycleIndex = 0;
+        render();
+      }));
+      byId("calendarMonthSelect").addEventListener("change", event => {
+        state.calendarMonth = event.target.value;
+        renderExclusionControls(records);
+      });
+      byId("calendarPrev").addEventListener("click", () => {
+        const previous = shiftCalendarMonth(state.calendarMonth, -1);
+        if (months.includes(previous)) {
+          state.calendarMonth = previous;
+          renderExclusionControls(records);
+        }
+      });
+      byId("calendarNext").addEventListener("click", () => {
+        const next = shiftCalendarMonth(state.calendarMonth, 1);
+        if (months.includes(next)) {
+          state.calendarMonth = next;
+          renderExclusionControls(records);
+        }
+      });
+      const clear = byId("clearExcludedCycles");
+      if (clear) clear.addEventListener("click", () => {
+        state.excludedCycleIds = [];
+        state.selectedCycleIndex = 0;
+        render();
+      });
+      summary.innerHTML = exclusionSummaryTable(records, includedCycleLedger(records));
+    }
+
+    function init() {
+      if (!rows(DATA.etfs).length) { byId("content").innerHTML = `<div class="empty">尚未找到 ver4.0 数据。请先运行单ETF实验并构建看板数据包。</div>`; return; }
+      populateSelectors(); updateSideInfo();
+      byId("etfSelect").addEventListener("change", event => { state.etf = event.target.value; state.strategy = null; state.selectedCycleIndex = 0; state.selectedCycleIds = null; state.activeCycleId = null; state.excludedCycleIds = []; state.calendarMonth = null; state.earlyclose.selectedCycleIds = null; state.earlyclose.activeCycleId = null; populateSelectors(); updateSideInfo(); render(); });
+      byId("strategySelect").addEventListener("change", event => { state.strategy = event.target.value; state.selectedCycleIndex = 0; state.selectedCycleIds = null; state.activeCycleId = null; state.excludedCycleIds = []; state.calendarMonth = null; state.earlyclose.selectedCycleIds = null; state.earlyclose.activeCycleId = null; render(); });
+      document.querySelectorAll("[data-tab]").forEach(button => button.addEventListener("click", () => { state.tab = button.dataset.tab; document.querySelectorAll("[data-tab]").forEach(item => item.classList.toggle("active", item === button)); render(); }));
+      render();
+    }
+    init();
+  </script>
+</body>
+</html>

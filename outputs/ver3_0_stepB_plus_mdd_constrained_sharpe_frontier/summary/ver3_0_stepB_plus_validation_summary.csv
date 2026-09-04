@@ -1,0 +1,22 @@
+﻿check_name,passed,note
+project_root_exists,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini
+ver3_root_exists,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\ver3
+input_files_exist,True,所有必需的 Step A/Step B 输入文件均存在
+required_sleeves_exist,True,所有指定 selected sleeves 均存在
+universe_a_b_same_sample,True,A/B 前沿使用同一个对齐后的样本面板
+no_588000_in_main_frontier,True,588000 已排除在主前沿之外
+weights_sum_to_one,True,所有网格和最优权重行的权重和为 1
+weight_bounds_respected,True,网格与最优权重均满足当前边界
+grid_results_non_empty,True,网格结果存在有效行
+feasible_solution_exists_or_marked_infeasible,True,每个 D-star 均有可行解或明确标记为不可行
+nav_initial_reference_is_one,True,最优组合 NAV 使用 initial_nav=1.0 参考
+nav_positive,True,所有最优组合 NAV 均为正
+max_drawdown_positive_magnitude,True,MDD 使用正数幅度口径
+output_csv_rows_nonzero,True,CSV 输出存在且包含有效行
+report_generated,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\outputs\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\reports\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier_report.md
+real_outputs_written_to_root_outputs,True,真实输出保留在仓库根目录 outputs 下
+no_large_outputs_written_to_ver3_outputs,True,ver3/outputs 仅保留轻量 Markdown 索引
+no_outputs_written_outside_allowed_dirs,True,输出只写入允许的 Step B+ 输出根目录或 ver3 轻量索引
+no_ver2_files_modified,True,Step B+ 未写入冻结 ver2 证据目录
+frozen_metrics_not_modified,True,Step B+ 未写入冻结指标依赖目录
+ver3_output_index_generated,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\ver3\outputs\ver3_0_stepB_plus_output_index.md

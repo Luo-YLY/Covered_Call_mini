@@ -1,0 +1,32 @@
+{
+  "experiment_id": "ver3_0_stepC_robustness_stability_diagnostics",
+  "report_language": "zh-CN",
+  "sample_start": "2022-09-19",
+  "sample_end": "2026-05-27",
+  "candidate_set": [
+    "B_default_D18",
+    "B_default_D20",
+    "B_default_D22",
+    "A_default_D25"
+  ],
+  "fixed_baselines": [
+    "A_Selected_50_30_20",
+    "A_Selected_70_20_10",
+    "B_Selected_50_30_20",
+    "B_Selected_70_20_10"
+  ],
+  "rolling_windows_written": [252, 504],
+  "cost_bps_list": [0, 5, 10, 20, 30],
+  "event_mode_default": "auto_and_manual",
+  "main_frontier_excludes": [
+    "588000",
+    "Q100",
+    "ATM_Q100",
+    "TP80",
+    "TouchK",
+    "dynamic weighting",
+    "volatility timing",
+    "risk parity",
+    "mean variance"
+  ]
+}

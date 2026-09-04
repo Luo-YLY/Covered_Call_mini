@@ -1,0 +1,67 @@
+{
+  "experiment_id": "ver3_0_independent_effective_delta_equivalence_diagnostic",
+  "sample_start": "2022-09-19",
+  "sample_end": "2026-05-27",
+  "target_effective_delta": 0.72,
+  "target_overlay_delta": 0.28,
+  "target_etfs": [
+    "510300",
+    "510050"
+  ],
+  "include_growth_diagnostic": false,
+  "phase_shifts": [
+    0,
+    5,
+    10,
+    15,
+    20
+  ],
+  "skip_phase_lite": false,
+  "skip_plots": false,
+  "implementations": [
+    {
+      "name": "D28_Q100",
+      "target_call_delta": 0.28,
+      "coverage": 1.0,
+      "expected_overlay_delta": 0.28,
+      "expected_effective_delta": 0.72,
+      "role": "main",
+      "interpretation": "farther OTM full overwrite"
+    },
+    {
+      "name": "D35_Q80",
+      "target_call_delta": 0.35,
+      "coverage": 0.8,
+      "expected_overlay_delta": 0.27999999999999997,
+      "expected_effective_delta": 0.72,
+      "role": "main",
+      "interpretation": "middle implementation"
+    },
+    {
+      "name": "D40_Q70",
+      "target_call_delta": 0.4,
+      "coverage": 0.7,
+      "expected_overlay_delta": 0.27999999999999997,
+      "expected_effective_delta": 0.72,
+      "role": "current_mainline",
+      "interpretation": "current mainline implementation"
+    },
+    {
+      "name": "D50_Q56",
+      "target_call_delta": 0.5,
+      "coverage": 0.56,
+      "expected_overlay_delta": 0.28,
+      "expected_effective_delta": 0.72,
+      "role": "diagnostic_only",
+      "interpretation": "closer-delta low-coverage implementation"
+    }
+  ],
+  "paths": {
+    "project_root": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini",
+    "ver3_root": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini\\ver3",
+    "output_root": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini\\outputs\\ver3_0_independent_effective_delta_equivalence_diagnostic",
+    "engine_config_path": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini\\configs\\ver2_downside_protection.yaml",
+    "etf_prices_path": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini\\data\\raw\\etf_prices.csv",
+    "options_path": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini\\data\\source\\delta_enriched_options.csv"
+  }
+}

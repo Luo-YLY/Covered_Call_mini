@@ -1,0 +1,13 @@
+﻿check_name,passed,note
+required_sleeves_exist,True,组合构建前已验证必需 sleeves 存在
+weights_sum_to_one,True,所有组合权重和为 1
+portfolio_returns_non_empty,True,组合日收益存在有效行
+initial_nav_reference_is_one,True,NAV 路径使用 initial_nav=1.0 作为参考
+nav_positive,True,所有 NAV 值均为正
+max_drawdown_positive_magnitude,True,max_drawdown 使用正数幅度口径
+selected_has_matched_pure_baseline,True,每个 selected 组合均有匹配 pure ETF 基准
+universe_a_b_same_sample,True,Universe A 与 B 使用同一共同样本
+no_588000_in_main_portfolios,True,588000 已排除在长样本 Step B 主线之外
+no_q100_atm_tp80_touchk_main_selected,True,默认 selected 组合排除诊断型 sleeves
+output_csv_rows_nonzero,True,CSV 输出存在非空行
+report_generated,True,Markdown 报告已生成

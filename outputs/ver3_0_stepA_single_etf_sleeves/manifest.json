@@ -1,0 +1,106 @@
+{
+  "experiment_id": "ver3_0_stepA_single_etf_sleeves",
+  "status": "complete",
+  "generated_at": "2026-06-30",
+  "runner": "scripts/run_ver3_0_stepA_single_etf_sleeves.py",
+  "sample_start": "2022-09-19",
+  "sample_end": "2026-05-27",
+  "universe": [
+    "510300",
+    "510500",
+    "159915"
+  ],
+  "purpose": "Clarify single-ETF covered-call sleeves before portfolio-level allocation.",
+  "input_files": [
+    "outputs/multi_asset_rebalancing/ver2_6_early_close_strike_touch/intermediate/ver2_6_early_close_etf_daily_paths.csv",
+    "outputs/multi_asset_rebalancing/ver2_6_early_close_strike_touch/intermediate/ver2_6_early_close_etf_period_paths.csv",
+    "data/raw/etf_prices.csv",
+    "outputs/ver2_metric_standardization/standardized_summary/ver2_all_strategy_standardized_performance.csv"
+  ],
+  "outputs": [
+    {
+      "path": "daily/ver3_0_stepA_single_etf_sleeve_daily_nav.csv",
+      "rows": 19580,
+      "columns": 25,
+      "role": "daily sleeve nav and return panel source"
+    },
+    {
+      "path": "period/ver3_0_stepA_single_etf_period_attribution.csv",
+      "rows": 836,
+      "columns": 36,
+      "role": "holding-period attribution"
+    },
+    {
+      "path": "summary/ver3_0_stepA_single_etf_sleeve_summary.csv",
+      "rows": 44,
+      "columns": 34,
+      "role": "sleeve-level performance summary"
+    },
+    {
+      "path": "summary/ver3_0_stepA_sleeve_classification_table.csv",
+      "rows": 22,
+      "columns": 18,
+      "role": "classification and recommendation table"
+    },
+    {
+      "path": "panel/ver3_0_stepA_sleeve_return_panel_long.csv",
+      "rows": 19580,
+      "columns": 8,
+      "role": "downstream long return panel"
+    },
+    {
+      "path": "panel/ver3_0_stepA_sleeve_return_panel_wide.csv",
+      "rows": 890,
+      "columns": 23,
+      "role": "downstream wide return panel"
+    },
+    {
+      "path": "audit/ver3_0_stepA_sanity_checks.csv",
+      "rows": 18,
+      "columns": 3,
+      "role": "sanity checks"
+    }
+  ],
+  "figures": [
+    "figures/159915_sleeve_nav_comparison.png",
+    "figures/510300_sleeve_nav_comparison.png",
+    "figures/510500_sleeve_nav_comparison.png",
+    "figures/option_leg_contribution_by_etf_sleeve.png",
+    "figures/p99_mtm_stress_by_etf_sleeve.png",
+    "figures/payoff_burden_by_etf_sleeve.png",
+    "figures/recommended_sleeve_set_map.png",
+    "figures/single_etf_sleeve_return_vs_mdd.png",
+    "figures/single_etf_sleeve_sharpe_vs_mdd.png",
+    "figures/sleeve_classification_heatmap.png"
+  ],
+  "primary_recommendations": [
+    {
+      "etf": "510300",
+      "recommended_sleeve": "510300_DTE30_D40_Q70_Hold",
+      "classification": "Positive Carry Overlay"
+    },
+    {
+      "etf": "510500",
+      "recommended_sleeve": "510500_ETF_BuyHold",
+      "classification": "Pure ETF Preferred"
+    },
+    {
+      "etf": "159915",
+      "recommended_sleeve": "159915_DTE30_OTM5up_Q50_Hold",
+      "classification": "Defensive Overlay"
+    }
+  ],
+  "sanity_checks": {
+    "path": "audit/ver3_0_stepA_sanity_checks.csv",
+    "passed": 18,
+    "total": 18
+  },
+  "downstream_contract": {
+    "next_step": "ver3_0_stepB_fixed_weight_portfolios",
+    "read_first": [
+      "panel/ver3_0_stepA_sleeve_return_panel_wide.csv",
+      "panel/ver3_0_stepA_sleeve_return_panel_long.csv"
+    ],
+    "boundary": "Step A produces sleeve diagnostics and return panels only; portfolio weights begin in Step B."
+  }
+}

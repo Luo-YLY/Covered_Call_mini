@@ -1,0 +1,10 @@
+{
+  "experiment_id": "ver4_2_tp80_buyback",
+  "baseline_experiment_id": "ver4_0_single_etf_cycle_cashflow",
+  "rule": "TP80",
+  "trigger": "First post-entry daily close at or below 20% of the entry option price, with remaining DTE >= 5.",
+  "execution": "Trigger-day option close used as an end-of-day execution proxy; no intraday or bid/ask data is available.",
+  "after_buyback": "The call is not reopened. The ETF remains held until the original cycle end date.",
+  "costs": "Entry costs retain the ver4.0 result. Buyback adds 5 bps option slippage plus half of an assumed 5% bid/ask spread, applied to buyback premium yield.",
+  "accounting": "Fixed notional independent cycles; prior-cycle P&L is not reinvested."
+}

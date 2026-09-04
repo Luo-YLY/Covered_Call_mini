@@ -1,0 +1,73 @@
+{
+  "experiment_id": "ver3_0_stepA_extension_510050_sleeve_clarification",
+  "status": "complete",
+  "generated_at": "2026-06-30",
+  "runner": "ver3/scripts/python/run_ver3_0_stepA_extension_510050_sleeve_clarification.py",
+  "sample_start": "2022-09-30",
+  "sample_end": "2026-05-27",
+  "source_start": "2021-01-29",
+  "source_end": "2026-05-27",
+  "universe": [
+    "510050"
+  ],
+  "reference_etf_for_correlation": "510300",
+  "input_files": [
+    "outputs\\ver2_downside_protection\\ver2_1_dte_regime\\ver2_1_daily_mtm.csv",
+    "outputs\\ver2_downside_protection\\ver2_1_dte_regime\\ver2_1_periods_with_regime.csv",
+    "outputs\\ver3_0_stepA_single_etf_sleeves\\panel\\ver3_0_stepA_sleeve_return_panel_wide.csv"
+  ],
+  "primary_recommendation": {
+    "sleeve_name": "510050_DTE30_D40_Q70_Hold",
+    "classification": "Positive Carry Overlay",
+    "recommendation_status": "primary_for_portfolio_layer"
+  },
+  "correlation_summary": [
+    {
+      "comparison_name": "ETF_BuyHold_pair",
+      "left_sleeve": "510050__510050_ETF_BuyHold",
+      "right_sleeve": "510300__510300_ETF_BuyHold",
+      "sample_start": "2022-09-30",
+      "sample_end": "2026-05-27",
+      "n_obs": 881,
+      "daily_return_correlation": 0.9208710655983848,
+      "rolling_window_days": 63,
+      "rolling_corr_mean": 0.9095107873394325,
+      "rolling_corr_median": 0.9210387687932889,
+      "rolling_corr_p05": 0.7915530970545945,
+      "rolling_corr_p95": 0.9673508385930586,
+      "rolling_corr_min": 0.7237102866625258,
+      "rolling_corr_max": 0.9777964736857995,
+      "interpretation": "very high overlap; mainly repeated large-cap exposure"
+    },
+    {
+      "comparison_name": "D40_Q70_pair",
+      "left_sleeve": "510050__510050_DTE30_D40_Q70_Hold",
+      "right_sleeve": "510300__510300_DTE30_D40_Q70_Hold",
+      "sample_start": "2022-09-30",
+      "sample_end": "2026-05-27",
+      "n_obs": 881,
+      "daily_return_correlation": 0.89170214621515,
+      "rolling_window_days": 63,
+      "rolling_corr_mean": 0.887664292473377,
+      "rolling_corr_median": 0.9078830166052029,
+      "rolling_corr_p05": 0.7196832287867666,
+      "rolling_corr_p95": 0.9632199164791934,
+      "rolling_corr_min": 0.6422796834596449,
+      "rolling_corr_max": 0.9743799130683709,
+      "interpretation": "high overlap; limited diversification but usable as second core"
+    }
+  ],
+  "sanity_checks": {
+    "path": "audit/ver3_0_stepA_extension_510050_sanity_checks.csv",
+    "passed": 10,
+    "total": 10
+  },
+  "downstream_contract": {
+    "next_step": "ver3_0_stepB_fixed_weight_portfolios",
+    "read_first": [
+      "panel/ver3_0_stepA_extension_510050_sleeve_return_panel_wide.csv",
+      "panel/ver3_0_stepA_extension_510050_sleeve_return_panel_long.csv"
+    ],
+    "boundary": "This extension produces 510050 sleeve diagnostics only; portfolio weights begin in Step B."
+  }
+}

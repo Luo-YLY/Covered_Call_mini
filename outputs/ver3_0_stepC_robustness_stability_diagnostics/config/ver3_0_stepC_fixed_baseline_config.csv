@@ -1,0 +1,5 @@
+﻿portfolio_name,universe_short,role
+A_Selected_50_30_20,A,A 组固定权重主基准
+A_Selected_70_20_10,A,A 组偏防御固定权重基准
+B_Selected_50_30_20,B,B 组固定权重主基准
+B_Selected_70_20_10,B,B 组偏防御固定权重基准

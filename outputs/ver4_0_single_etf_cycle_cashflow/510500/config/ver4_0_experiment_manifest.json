@@ -1,0 +1,61 @@
+{
+  "experiment_id": "ver4_0_single_etf_cycle_cashflow",
+  "etf": {
+    "etf_code": "510500",
+    "sample_start": "2022-09-30",
+    "sample_end": "2026-05-27",
+    "sample_scope": "main_common_sample"
+  },
+  "paths": {
+    "project_root": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini",
+    "engine_config_path": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini\\configs\\ver2_downside_protection.yaml",
+    "etf_prices_path": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini\\data\\raw\\etf_prices.csv",
+    "option_chain_path": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini\\data\\source\\delta_enriched_options.csv",
+    "metadata_path": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini\\data\\raw\\etf_metadata.csv",
+    "output_root": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini\\outputs\\ver4_0_single_etf_cycle_cashflow\\510500"
+  },
+  "target_deltas": [
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5
+  ],
+  "include_atm": true,
+  "coverages": [
+    1.0
+  ],
+  "target_dte": 30,
+  "min_dte": 20,
+  "max_dte": 45,
+  "fixed_notional": 100.0,
+  "risk_free_rate": 0.02,
+  "rolling_cashflow_cycles": 12,
+  "cash_yield_targets": [
+    0.02,
+    0.04,
+    0.06
+  ],
+  "regime_breaks": [
+    -0.05,
+    0.05,
+    0.1
+  ],
+  "timing_enabled": false,
+  "accounting": {
+    "mode": "fixed_notional_independent_option_cycles",
+    "fixed_notional": 100.0,
+    "prior_cycle_pnl_reinvested": false,
+    "main_performance_unit": "per_cycle_cashflow_and_return",
+    "daily_mtm_role": "within_cycle_risk_diagnostic_only",
+    "cagr_role": "not_reported_as_a_primary_metric"
+  },
+  "scope": {
+    "single_etf_only": true,
+    "multi_asset_portfolio": false,
+    "dynamic_weighting": false,
+    "iv_timing": false,
+    "product_selection": "not_run_in_static_baseline",
+    "static_grid": "ATM and D10/D20/D30/D40/D50 at Q100 only"
+  }
+}

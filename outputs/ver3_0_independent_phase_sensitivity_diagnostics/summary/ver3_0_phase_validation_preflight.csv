@@ -1,0 +1,10 @@
+﻿check_name,passed,detail
+project_root_exists,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini
+ver3_root_exists,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\ver3
+input_data_exists,True,ETF prices
+option_data_exists,True,delta-enriched options preferred; raw daily options fallback
+stepA_engine_available,True,ver2 engine
+target_sleeves_defined,True,7 sleeves
+no_588000_in_phase_diagnostic,True,588000 excluded
+no_q100_atm_tp80_touchk_in_targets,True,forbidden sleeves excluded
+candidate_portfolio_weights_sum_to_1,True,weights

@@ -1,0 +1,2 @@
+﻿portfolio_name,recommendation_role,overall_stability_label,overall_stability_score,full_sample_sharpe,full_sample_mdd,matched_baseline_for_context,delta_sharpe_vs_context_baseline,reason,next_stage_suggestion
+B_v31_D20_51030070_51005014_15991516,主线 defensive-income candidate,High Stability,0.8624949968103947,0.7313188064688477,0.19955079779075025,B_Selected_40_40_20,0.04762543485528237,优先作为报告主线候选，后续只做稳健性解释和看板展示。,可进入 Step D 可选动态权重研究

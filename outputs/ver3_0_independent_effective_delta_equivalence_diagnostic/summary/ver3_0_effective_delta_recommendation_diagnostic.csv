@@ -1,0 +1,3 @@
+﻿etf_code,d40_q70_support_state,d28_q100_appendix_state,d35_q80_alternative_state,final_appendix_recommended,mainline_replacement_recommended,phase_lite_note,interpretation
+510050,supports_current_mainline_interpretation,not_primary_appendix,balanced_alternative,True,False,"phase median Sharpe 0.758, std 0.141","Implementation form changes payoff shape even when entry effective delta is matched; use as robustness evidence, not automatic parameter replacement."
+510300,supports_current_mainline_interpretation,not_primary_appendix,balanced_alternative,True,False,"phase median Sharpe 0.827, std 0.065","Implementation form changes payoff shape even when entry effective delta is matched; use as robustness evidence, not automatic parameter replacement."

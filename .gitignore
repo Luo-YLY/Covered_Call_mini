@@ -20,8 +20,79 @@ data/raw/options_daily.csv
 data/raw/tushare_opt_daily_full_raw.csv
 data/raw/_option_daily_collection_status.csv
 data/source/delta_enriched_options.csv
+data/frozen_inputs/
 
 # Local temp files
 *.tmp
 *.bak
 ~$*
+
+# Generated dashboard artifacts
+dashboard/custom_outputs*/
+
+# Generated experiment outputs
+outputs/**
+!outputs/
+!outputs/ver3_*/
+!outputs/ver3_*/README.md
+!outputs/ver3_*/manifest.json
+!outputs/ver3_*/config/
+!outputs/ver3_*/config/*.json
+!outputs/ver3_*/config/*.csv
+!outputs/ver3_*/strategy/
+!outputs/ver3_*/strategy/*.md
+!outputs/ver3_*/strategy/*.csv
+!outputs/ver3_*/summary/
+!outputs/ver3_*/summary/*.csv
+!outputs/ver3_*/attribution/
+!outputs/ver3_*/attribution/*.csv
+!outputs/ver3_*/panel/
+!outputs/ver3_*/panel/*wide.csv
+!outputs/ver3_*/cards/
+!outputs/ver3_*/cards/*.md
+!outputs/ver3_*/reports/
+!outputs/ver3_*/reports/*.md
+!outputs/ver3_*/audit/
+!outputs/ver3_*/audit/*sanity*.csv
+
+# Lightweight ver4 manifests, summaries, reports, and audits
+!outputs/ver4_0_single_etf_cycle_cashflow/
+!outputs/ver4_0_single_etf_cycle_cashflow/*/
+!outputs/ver4_0_single_etf_cycle_cashflow/*/README.md
+!outputs/ver4_0_single_etf_cycle_cashflow/*/config/
+!outputs/ver4_0_single_etf_cycle_cashflow/*/config/*.json
+!outputs/ver4_0_single_etf_cycle_cashflow/*/summary/
+!outputs/ver4_0_single_etf_cycle_cashflow/*/summary/*.csv
+!outputs/ver4_0_single_etf_cycle_cashflow/*/audit/
+!outputs/ver4_0_single_etf_cycle_cashflow/*/audit/*.csv
+!outputs/ver4_0_single_etf_cycle_cashflow/*/reports/
+!outputs/ver4_0_single_etf_cycle_cashflow/*/reports/*.md
+!outputs/ver4_0_single_etf_cycle_cashflow/dashboard/
+!outputs/ver4_0_single_etf_cycle_cashflow/dashboard/manifest.json
+!outputs/ver4_1_delta_buyback/
+!outputs/ver4_1_delta_buyback/*manifest.json
+!outputs/ver4_1_delta_buyback/*summary.csv
+!outputs/ver4_2_tp80_buyback/
+!outputs/ver4_2_tp80_buyback/*manifest.json
+!outputs/ver4_2_tp80_buyback/*summary.csv
+!outputs/ver4_1_ivrv_timing_diagnostics/
+!outputs/ver4_1_ivrv_timing_diagnostics/**
+
+# Local Codex/runtime state
+/.codex_app_debug_home/
+/.runtime/
+/.tmp/
+/ver3/.runtime/
+*.code-workspace
+
+# Build and release artifacts
+/dist/
+/build/
+*.egg-info/
+.coverage
+htmlcov/
+
+# Machine-specific launch helpers (kept locally, not part of the research repo)
+/check_codex_connections.ps1
+/start_codex_with_proxy.bat
+/start_codex_with_proxy.ps1

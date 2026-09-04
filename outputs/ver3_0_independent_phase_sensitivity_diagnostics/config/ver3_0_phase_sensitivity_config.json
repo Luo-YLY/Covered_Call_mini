@@ -1,0 +1,19 @@
+{
+  "experiment_id": "ver3_0_independent_phase_sensitivity_diagnostics",
+  "run_config": {
+    "max_phase_shift": 20,
+    "phase_step": 1,
+    "sample_start": "2022-09-19",
+    "sample_end": "2026-05-27",
+    "rf": 0.0,
+    "skip_cycle_attribution": false,
+    "skip_ensemble": false,
+    "skip_plots": false,
+    "write_report": true,
+    "strict": true
+  },
+  "created_at": "2026-07-06T09:25:17",
+  "project_root": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini",
+  "ver3_root": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini\\ver3",
+  "output_root": "C:\\Users\\WIN11\\Desktop\\CCFund\\ETF备兑策略设计\\covered_call_mini\\outputs\\ver3_0_independent_phase_sensitivity_diagnostics"
+}

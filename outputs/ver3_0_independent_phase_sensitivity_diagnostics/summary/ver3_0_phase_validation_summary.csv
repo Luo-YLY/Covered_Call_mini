@@ -1,0 +1,21 @@
+﻿check_name,passed,detail
+phase_rebuild_supported_for_covered_call_sleeves,True,covered-call phases ran
+phase_shift_grid_non_empty,True,21 rows
+phase_inception_dates_valid,True,inception dates populated
+covered_call_paths_rebuilt_not_sliced,True,engine wrapper rebuild flag
+natural_window_metrics_non_empty,True,natural metrics
+common_window_metrics_non_empty,True,common metrics
+candidate_portfolios_built,True,portfolio metrics
+ensemble_outputs_non_empty_or_marked_skipped,True,ensemble summary
+cycle_attribution_available_or_marked_unavailable,True,cycle artifact
+nav_positive,True,sleeve NAV
+max_drawdown_positive_magnitude,True,MDD uses positive magnitude
+output_csv_rows_nonzero,True,nonzero rows
+report_generated,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\outputs\ver3_0_independent_phase_sensitivity_diagnostics\reports\ver3_0_independent_phase_sensitivity_diagnostics_report.md
+real_outputs_written_to_root_outputs,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\outputs\ver3_0_independent_phase_sensitivity_diagnostics
+no_large_outputs_written_to_ver3_outputs,True,only index intended
+no_outputs_written_outside_allowed_dirs,True,output scope
+no_stepA_to_D_outputs_modified,True,phase diagnostic writes only its own output tree
+no_ver2_files_modified,True,ver2 files are read-only inputs
+frozen_metrics_not_modified,True,src/metrics is read-only input
+ver3_output_index_generated,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\ver3\outputs\ver3_0_phase_sensitivity_output_index.md

@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "covered-call-mini-ver3"
+version = "0.3.0"
+description = "Engineering package wrapper for covered_call_mini ver3 research workflow."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "matplotlib",
+  "numpy",
+  "pandas",
+  "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+]
+
+[project.scripts]
+ccm-ver3 = "covered_call_mini_ver3.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", ".."]
+addopts = "-q"

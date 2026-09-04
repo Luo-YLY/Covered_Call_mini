@@ -1,0 +1,48 @@
+{
+  "experiment_id": "ver3_0_stepB_plus_mdd_constrained_sharpe_frontier",
+  "status": "complete",
+  "runner": "ver3/scripts/python/run_stepB_plus_mdd_constrained_sharpe_frontier.py",
+  "output_root": "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier",
+  "grid_step": 0.01,
+  "constraint_sets": [
+    "default",
+    "relaxed"
+  ],
+  "sample_start": "2022-09-30",
+  "sample_end": "2026-05-27",
+  "n_grid_rows": 20,
+  "n_feasible_frontier_rows": 17,
+  "output_files": [
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\config\\ver3_0_stepB_plus_config.json",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\config\\ver3_0_stepB_plus_universe_config.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\config\\ver3_0_stepB_plus_grid_config.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\grid\\ver3_0_stepB_plus_all_grid_results_default.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\grid\\ver3_0_stepB_plus_all_grid_results_relaxed.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\daily\\ver3_0_stepB_plus_best_portfolio_daily_returns.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\daily\\ver3_0_stepB_plus_best_portfolio_daily_nav.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\daily\\ver3_0_stepB_plus_best_portfolio_drawdowns.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\summary\\ver3_0_stepB_plus_best_weights_by_drawdown_target.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\summary\\ver3_0_stepB_plus_frontier_summary_default.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\summary\\ver3_0_stepB_plus_frontier_summary_relaxed.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\summary\\ver3_0_stepB_plus_comparison_vs_fixed_weight_baselines.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\summary\\ver3_0_stepB_plus_universeA_vs_universeB_frontier_comparison.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\summary\\ver3_0_stepB_plus_sample_window_summary.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\attribution\\ver3_0_stepB_plus_option_leg_contribution.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\attribution\\ver3_0_stepB_plus_sleeve_correlation_matrix.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\attribution\\ver3_0_stepB_plus_annualized_covariance_matrix.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\attribution\\ver3_0_stepB_plus_risk_contribution.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\figures\\ver3_0_stepB_plus_sharpe_mdd_frontier.png",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\figures\\ver3_0_stepB_plus_cagr_mdd_frontier.png",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\figures\\ver3_0_stepB_plus_best_nav_curves_default.png",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\figures\\ver3_0_stepB_plus_best_drawdown_curves_default.png",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\figures\\ver3_0_stepB_plus_weight_stack_by_drawdown_target.png",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\figures\\ver3_0_stepB_plus_risk_contribution_bar.png",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\reports\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier_report.md",
+    "ver3\\outputs\\ver3_0_stepB_plus_output_index.md",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\summary\\ver3_0_stepB_plus_validation_summary.csv"
+  ],
+  "validation": {
+    "passed": 21,
+    "total": 21
+  }
+}

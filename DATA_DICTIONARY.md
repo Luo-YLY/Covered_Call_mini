@@ -143,7 +143,7 @@ sortino_ratio                    Sortino比率
 max_drawdown                     最大回撤
 calmar_ratio                     Calmar比率
 excess_return_total              相对BuyHold累计超额收益
-excess_return_annualized         相对BuyHold年化超额收益
+excess_return_annualized         相对BuyHold年化超额收益；口径为策略年化收益 - 同区间BuyHold年化收益
 information_ratio                信息比率
 average_premium_yield            平均权利金收益率
 total_premium_contribution       累计权利金贡献

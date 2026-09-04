@@ -1,0 +1,5 @@
+﻿window_name,sample_start,sample_end,n_obs,note
+stepB_plus_common_long_sample,2022-09-30,2026-05-27,881.0,Universe A/B 所有必需 sleeves 对齐后的共同非缺失样本。
+requested_main_stepB_plus_sample,2022-09-30,2026-05-27,,任务指定的长样本窗口；实际可用样本以上方对齐后的日期为准。
+input_file_count,,,10.0,使用 Step A、510050 extension 和 Step B 固定权重基准作为输入。
+grid_and_frontier_count,,,15264.0,各 D-star 和约束组下共有 17 条可行前沿行。

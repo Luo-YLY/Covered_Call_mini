@@ -1,0 +1,27 @@
+{
+  "experiment_id": "ver3_0_delta_vs_moneyness_phase_sensitivity",
+  "run_config": {
+    "max_phase_shift": 20,
+    "phase_step": 1,
+    "sample_start": "2022-09-19",
+    "sample_end": "2026-05-27",
+    "rf": 0.0,
+    "skip_cycle_attribution": true,
+    "skip_ensemble": true,
+    "skip_plots": true,
+    "write_report": true,
+    "strict": true
+  },
+  "etfs": [
+    "510300",
+    "510050"
+  ],
+  "coverages": [
+    0.7
+  ],
+  "comparison": "D40 target_delta versus fixed moneyness rules",
+  "exclusions": [
+    "TP80",
+    "Touch-K"
+  ]
+}

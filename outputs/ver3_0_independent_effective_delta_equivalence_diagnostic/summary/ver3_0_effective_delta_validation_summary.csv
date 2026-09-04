@@ -1,0 +1,29 @@
+﻿check_name,passed,detail
+project_root_exists,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini
+ver3_root_exists,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\ver3
+input_data_exists,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\data\source\delta_enriched_options.csv
+stepA_engine_available,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\configs\ver2_downside_protection.yaml
+target_etfs_available,True,"('510300', '510050')"
+no_588000_in_diagnostic,True,588000 excluded
+implementation_grid_is_preregistered,True,"('D28_Q100', 'D35_Q80', 'D40_Q70', 'D50_Q56')"
+no_unbounded_delta_coverage_grid,True,rows=4
+no_new_dte_tp_touchk,True,DTE30 Hold only; no TP/Touch-K columns are generated
+q100_only_used_for_D28_equivalence_context,True,Q100 appears only in D28_Q100
+target_effective_delta_defined,True,0.72
+actual_effective_delta_computed,True,rows=8
+effective_delta_tracking_summary_non_empty,True,rows=8
+option_selection_detail_non_empty,True,rows=352
+daily_returns_non_empty,True,rows=7048
+nav_positive,True,all nav > 0
+max_drawdown_positive_magnitude,True,MDD uses positive magnitude
+option_leg_attribution_non_empty_or_marked_unavailable,True,rows=8
+phase_lite_outputs_non_empty_or_marked_skipped,True,skip=False; rows=40
+output_csv_rows_nonzero,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\outputs\ver3_0_independent_effective_delta_equivalence_diagnostic
+report_generated,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\outputs\ver3_0_independent_effective_delta_equivalence_diagnostic\reports\ver3_0_independent_effective_delta_equivalence_diagnostic_report.md
+real_outputs_written_to_root_outputs,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\outputs\ver3_0_independent_effective_delta_equivalence_diagnostic
+no_large_outputs_written_to_ver3_outputs,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\ver3\outputs\ver3_0_effective_delta_equivalence_output_index.md
+no_outputs_written_outside_allowed_dirs,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\outputs\ver3_0_independent_effective_delta_equivalence_diagnostic
+no_stepA_to_D_outputs_modified,True,diagnostic writes only its own output root
+no_ver2_files_modified,True,ver2_downside_protection is imported read-only
+frozen_metrics_not_modified,True,src/metrics is imported read-only
+ver3_output_index_generated,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\ver3\outputs\ver3_0_effective_delta_equivalence_output_index.md

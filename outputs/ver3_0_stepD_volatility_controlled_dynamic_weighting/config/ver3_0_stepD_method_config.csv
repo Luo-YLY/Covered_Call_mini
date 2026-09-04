@@ -1,0 +1,4 @@
+﻿method,method_label,description,lookbacks,rebalance_frequency,lower_bound,upper_bound,cost_bps_values,uses_expected_returns,changes_option_parameters
+anchored_inverse_vol,Anchored inverse volatility,"Scale each universe anchor weight by inverse trailing volatility, then normalize inside bounds.","126,252",monthly,0.05,0.7,"0,5,10,20",False,False
+pure_inverse_vol,Pure inverse volatility,"Ignore anchor weights and allocate by inverse trailing volatility only, inside bounds.","126,252",monthly,0.05,0.7,"0,5,10,20",False,False
+rolling_min_variance,Rolling minimum variance,"Long-only rolling minimum-variance allocation using covariance only, no expected returns.","126,252",monthly,0.05,0.7,"0,5,10,20",False,False

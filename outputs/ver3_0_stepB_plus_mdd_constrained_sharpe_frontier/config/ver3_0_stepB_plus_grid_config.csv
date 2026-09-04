@@ -1,0 +1,11 @@
+﻿constraint_set,lower_bound,upper_bound,grid_step,D_star,objective
+default,0.05,0.7,0.01,0.18,max sharpe_daily_mean subject to max_drawdown <= D_star
+default,0.05,0.7,0.01,0.2,max sharpe_daily_mean subject to max_drawdown <= D_star
+default,0.05,0.7,0.01,0.22,max sharpe_daily_mean subject to max_drawdown <= D_star
+default,0.05,0.7,0.01,0.25,max sharpe_daily_mean subject to max_drawdown <= D_star
+default,0.05,0.7,0.01,0.3,max sharpe_daily_mean subject to max_drawdown <= D_star
+relaxed,0.0,0.8,0.01,0.18,max sharpe_daily_mean subject to max_drawdown <= D_star
+relaxed,0.0,0.8,0.01,0.2,max sharpe_daily_mean subject to max_drawdown <= D_star
+relaxed,0.0,0.8,0.01,0.22,max sharpe_daily_mean subject to max_drawdown <= D_star
+relaxed,0.0,0.8,0.01,0.25,max sharpe_daily_mean subject to max_drawdown <= D_star
+relaxed,0.0,0.8,0.01,0.3,max sharpe_daily_mean subject to max_drawdown <= D_star

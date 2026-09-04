@@ -1,0 +1,49 @@
+{
+  "experiment_id": "ver3_0_stepD_volatility_controlled_dynamic_weighting",
+  "report_language": "zh-CN",
+  "sample_start": "2022-09-30",
+  "sample_end": "2026-05-27",
+  "effective_sample_note": "Each dynamic strategy starts after its lookback and first monthly effective rebalance date.",
+  "lookbacks": [
+    126,
+    252
+  ],
+  "rebalance_frequency": "monthly",
+  "methods": [
+    "anchored_inverse_vol",
+    "pure_inverse_vol",
+    "rolling_min_variance"
+  ],
+  "weight_bounds": {
+    "lower": 0.05,
+    "upper": 0.7
+  },
+  "turnover_method": "target_weight_change_approximation",
+  "rebalance_cost_bps_values": [
+    0.0,
+    5.0,
+    10.0,
+    20.0
+  ],
+  "option_leg_method": "daily_weighted_net_option_leg_return_from_stepA",
+  "input_files": [
+    "outputs\\ver3_0_stepA_single_etf_sleeves\\panel\\ver3_0_stepA_sleeve_return_panel_wide.csv",
+    "outputs\\ver3_0_stepA_single_etf_sleeves\\panel\\ver3_0_stepA_sleeve_return_panel_long.csv",
+    "outputs\\ver3_0_stepA_single_etf_sleeves\\daily\\ver3_0_stepA_single_etf_sleeve_daily_nav.csv",
+    "outputs\\ver3_0_stepA_extension_510050_sleeve_clarification\\panel\\ver3_0_stepA_extension_510050_sleeve_return_panel_wide.csv",
+    "outputs\\ver3_0_stepA_extension_510050_sleeve_clarification\\panel\\ver3_0_stepA_extension_510050_sleeve_return_panel_long.csv",
+    "outputs\\ver3_0_stepA_extension_510050_sleeve_clarification\\daily\\ver3_0_stepA_extension_510050_sleeve_daily_nav.csv",
+    "outputs\\ver3_0_stepB_fixed_weight_universe_comparison\\summary\\ver3_0_stepB_portfolio_summary.csv",
+    "outputs\\ver3_0_stepB_fixed_weight_universe_comparison\\daily\\ver3_0_stepB_portfolio_daily_returns.csv",
+    "outputs\\ver3_0_stepB_fixed_weight_universe_comparison\\config\\ver3_0_stepB_portfolio_weight_map.csv",
+    "outputs\\ver3_0_stepC_robustness_stability_diagnostics\\summary\\ver3_0_stepC_candidate_full_sample_summary.csv",
+    "outputs\\ver3_0_stepC_robustness_stability_diagnostics\\daily\\ver3_0_stepC_candidate_daily_returns.csv"
+  ],
+  "forbidden_actions": [
+    "do not change option DTE/delta/moneyness/TP/Touch-K parameters",
+    "do not dynamically change q or call coverage",
+    "do not use volatility to decide whether to sell calls",
+    "do not use expected-return forecasts",
+    "do not include 588000 in the main long sample"
+  ]
+}

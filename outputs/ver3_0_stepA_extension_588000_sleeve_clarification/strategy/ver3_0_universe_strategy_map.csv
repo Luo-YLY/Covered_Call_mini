@@ -1,0 +1,15 @@
+﻿universe_name,universe_layer,etf_code,role,preferred_sleeve,sample_policy
+Main_Growth_Diversified_Universe,main,510300,large-cap core / positive carry covered-call candidate,510300_DTE30_D40_Q70_Hold,main sample
+Main_Growth_Diversified_Universe,main,510500,mid-cap growth diversification / pure ETF sleeve,510500_ETF_BuyHold,main sample
+Main_Growth_Diversified_Universe,main,159915,ChiNext growth / defensive overlay candidate,159915_DTE30_OTM5up_Q50_Hold,main sample
+Alternative_Defensive_Income_Universe,alternative,510300,first large-cap covered-call core,510300_DTE30_D40_Q70_Hold,main sample
+Alternative_Defensive_Income_Universe,alternative,510050,second large-cap covered-call core; high overlap with 510300,510050_DTE30_D40_Q70_Hold,main sample
+Alternative_Defensive_Income_Universe,alternative,159915,growth sleeve with defensive overlay role,159915_DTE30_OTM5up_Q50_Hold,main sample
+Tech_Growth_Extension_Universe_A,short_sample_extension,510300,large-cap anchor,510300_DTE30_D40_Q70_Hold,short sample only if combined with 588000
+Tech_Growth_Extension_Universe_A,short_sample_extension,510500,mid-cap growth sleeve,510500_ETF_BuyHold,short sample only if combined with 588000
+Tech_Growth_Extension_Universe_A,short_sample_extension,159915,ChiNext growth/defensive overlay,159915_DTE30_OTM5up_Q50_Hold,short sample only if combined with 588000
+Tech_Growth_Extension_Universe_A,short_sample_extension,588000,STAR50 tech-growth / hard-tech extension,588000_ETF_BuyHold,short-sample extension only
+Tech_Growth_Extension_Universe_B,short_sample_extension,510300,large-cap anchor,510300_DTE30_D40_Q70_Hold,short sample only if combined with 588000
+Tech_Growth_Extension_Universe_B,short_sample_extension,510050,second large-cap covered-call core,510050_DTE30_D40_Q70_Hold,short sample only if combined with 588000
+Tech_Growth_Extension_Universe_B,short_sample_extension,159915,ChiNext growth/defensive overlay,159915_DTE30_OTM5up_Q50_Hold,short sample only if combined with 588000
+Tech_Growth_Extension_Universe_B,short_sample_extension,588000,STAR50 tech-growth / hard-tech extension,588000_ETF_BuyHold,short-sample extension only

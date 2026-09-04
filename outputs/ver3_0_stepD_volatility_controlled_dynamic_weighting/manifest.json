@@ -1,0 +1,62 @@
+{
+  "experiment_id": "ver3_0_stepD_volatility_controlled_dynamic_weighting",
+  "report_language": "zh-CN",
+  "run_timestamp": "2026-07-08 10:27:03",
+  "output_root": "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting",
+  "sample_summary": [
+    {
+      "universe_short": "A",
+      "sample_start": "2022-09-30",
+      "sample_end": "2026-05-27",
+      "n_trading_days_before_lookback": 881,
+      "required_sleeve_count": 3,
+      "required_sleeves": "510300__510300_DTE30_D40_Q70_Hold;510500__510500_ETF_BuyHold;159915__159915_DTE30_OTM5up_Q50_Hold"
+    },
+    {
+      "universe_short": "B",
+      "sample_start": "2022-09-30",
+      "sample_end": "2026-05-27",
+      "n_trading_days_before_lookback": 881,
+      "required_sleeve_count": 3,
+      "required_sleeves": "510300__510300_DTE30_D40_Q70_Hold;510050__510050_DTE30_D40_Q70_Hold;159915__159915_DTE30_OTM5up_Q50_Hold"
+    }
+  ],
+  "top_research_candidate": "B_anchored_inverse_vol_L252",
+  "output_files": [
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\config\\ver3_0_stepD_config.json",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\config\\ver3_0_stepD_universe_config.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\config\\ver3_0_stepD_method_config.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\config\\ver3_0_stepD_static_baseline_config.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\signals\\ver3_0_stepD_rolling_volatility_signals.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\signals\\ver3_0_stepD_rolling_covariance_summary.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\weights\\ver3_0_stepD_dynamic_weight_paths.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\weights\\ver3_0_stepD_rebalance_weights.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\weights\\ver3_0_stepD_weight_bound_hits.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\daily\\ver3_0_stepD_dynamic_strategy_daily_returns.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\daily\\ver3_0_stepD_dynamic_strategy_daily_nav.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\daily\\ver3_0_stepD_dynamic_strategy_drawdowns.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\summary\\ver3_0_stepD_dynamic_strategy_summary.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\summary\\ver3_0_stepD_comparison_vs_static_baselines.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\summary\\ver3_0_stepD_universeA_vs_universeB_dynamic_comparison.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\summary\\ver3_0_stepD_recommendation_table.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\turnover\\ver3_0_stepD_turnover_summary.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\turnover\\ver3_0_stepD_rebalance_turnover_detail.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\cost\\ver3_0_stepD_rebalance_cost_sensitivity.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\attribution\\ver3_0_stepD_option_leg_contribution.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\attribution\\ver3_0_stepD_risk_contribution.csv",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\figures\\ver3_0_stepD_nav_vs_static_baselines.png",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\figures\\ver3_0_stepD_drawdown_vs_static_baselines.png",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\figures\\ver3_0_stepD_dynamic_weight_paths_universeA.png",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\figures\\ver3_0_stepD_dynamic_weight_paths_universeB.png",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\figures\\ver3_0_stepD_turnover_comparison.png",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\figures\\ver3_0_stepD_cost_sensitivity.png",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\figures\\ver3_0_stepD_method_metric_comparison.png",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\reports\\ver3_0_stepD_volatility_controlled_dynamic_weighting_report.md",
+    "ver3\\outputs\\ver3_0_stepD_output_index.md",
+    "outputs\\ver3_0_stepD_volatility_controlled_dynamic_weighting\\summary\\ver3_0_stepD_validation_summary.csv"
+  ],
+  "validation": {
+    "passed": 37,
+    "total": 37
+  }
+}

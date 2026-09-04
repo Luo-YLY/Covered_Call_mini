@@ -1,0 +1,99 @@
+{
+  "experiment_id": "ver3_0_stepC_robustness_stability_diagnostics",
+  "report_language": "zh-CN",
+  "sample_start": "2022-09-30",
+  "sample_end": "2026-05-27",
+  "event_mode": "auto",
+  "rolling_window_days_arg": 252,
+  "rolling_windows_written": [
+    252,
+    504
+  ],
+  "cost_scenarios": [
+    {
+      "cost_scenario": "base",
+      "extra_cost_bps": 0.0
+    },
+    {
+      "cost_scenario": "option_cost_plus_5bps",
+      "extra_cost_bps": 5.0
+    },
+    {
+      "cost_scenario": "option_cost_plus_10bps",
+      "extra_cost_bps": 10.0
+    },
+    {
+      "cost_scenario": "option_cost_plus_20bps",
+      "extra_cost_bps": 20.0
+    },
+    {
+      "cost_scenario": "option_cost_plus_30bps",
+      "extra_cost_bps": 30.0
+    }
+  ],
+  "candidates": [
+    {
+      "portfolio_name": "B_v31_D20_51030070_51005014_15991516",
+      "source_portfolio_name": "B_v31_D20_51030070_51005014_15991516",
+      "universe_short": "B",
+      "role": "3.1 主线组合（D20 回撤预算）",
+      "sleeve_weights": {
+        "510300__510300_DTE30_D40_Q70_Hold": 0.7,
+        "510050__510050_DTE30_D40_Q70_Hold": 0.14,
+        "159915__159915_DTE30_D20_Q10_Hold": 0.16
+      }
+    }
+  ],
+  "fixed_baselines": [
+    {
+      "portfolio_name": "A_Selected_50_30_20",
+      "universe_short": "A",
+      "role": "A 组固定权重主基准"
+    },
+    {
+      "portfolio_name": "A_Selected_70_20_10",
+      "universe_short": "A",
+      "role": "A 组偏防御固定权重基准"
+    },
+    {
+      "portfolio_name": "B_Selected_50_30_20",
+      "universe_short": "B",
+      "role": "B 组固定权重主基准"
+    },
+    {
+      "portfolio_name": "B_Selected_70_20_10",
+      "universe_short": "B",
+      "role": "B 组偏防御固定权重基准"
+    }
+  ],
+  "input_files": [
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\summary\\ver3_0_stepB_plus_frontier_summary_default.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\summary\\ver3_0_stepB_plus_frontier_summary_relaxed.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\summary\\ver3_0_stepB_plus_best_weights_by_drawdown_target.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\summary\\ver3_0_stepB_plus_comparison_vs_fixed_weight_baselines.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\summary\\ver3_0_stepB_plus_universeA_vs_universeB_frontier_comparison.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\daily\\ver3_0_stepB_plus_best_portfolio_daily_returns.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\daily\\ver3_0_stepB_plus_best_portfolio_daily_nav.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\daily\\ver3_0_stepB_plus_best_portfolio_drawdowns.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\attribution\\ver3_0_stepB_plus_option_leg_contribution.csv",
+    "outputs\\ver3_0_stepB_plus_mdd_constrained_sharpe_frontier\\attribution\\ver3_0_stepB_plus_risk_contribution.csv",
+    "outputs\\ver3_0_stepB_fixed_weight_universe_comparison\\summary\\ver3_0_stepB_portfolio_summary.csv",
+    "outputs\\ver3_0_stepB_fixed_weight_universe_comparison\\summary\\ver3_0_stepB_selected_vs_pure_baseline.csv",
+    "outputs\\ver3_0_stepB_fixed_weight_universe_comparison\\config\\ver3_0_stepB_portfolio_weight_map.csv",
+    "outputs\\ver3_0_stepB_fixed_weight_universe_comparison\\daily\\ver3_0_stepB_portfolio_daily_returns.csv",
+    "outputs\\ver3_0_stepA_single_etf_sleeves\\panel\\ver3_0_stepA_sleeve_return_panel_wide.csv",
+    "outputs\\ver3_0_stepA_single_etf_sleeves\\panel\\ver3_0_stepA_sleeve_return_panel_long.csv",
+    "outputs\\ver3_0_stepA_extension_510050_sleeve_clarification\\panel\\ver3_0_stepA_extension_510050_sleeve_return_panel_wide.csv",
+    "outputs\\ver3_0_stepA_extension_510050_sleeve_clarification\\panel\\ver3_0_stepA_extension_510050_sleeve_return_panel_long.csv",
+    "outputs\\ver3_1_effective_zone_target_delta\\daily\\ver3_1_selected_sleeve_daily_panel.csv",
+    "outputs\\ver3_0_stepA_single_etf_sleeves\\daily\\ver3_0_stepA_single_etf_sleeve_daily_nav.csv",
+    "outputs\\ver3_0_stepA_extension_510050_sleeve_clarification\\daily\\ver3_0_stepA_extension_510050_sleeve_daily_nav.csv",
+    "outputs\\ver3_1_effective_zone_target_delta\\daily\\ver3_1_selected_sleeve_daily_panel.csv"
+  ],
+  "forbidden_actions": [
+    "不重新运行 Step A",
+    "不新增 DTE/delta/moneyness/TP/Touch-K 网格",
+    "不引入 588000 主线长样本",
+    "不做动态择时或滚动调仓"
+  ]
+}

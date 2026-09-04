@@ -81,9 +81,11 @@ def run_fixed_covered_call_backtest(
             spec = STRATEGY_SPECS[strategy_name]
             nav = float(config["backtest"]["initial_nav"])
             nav_rows.append({"date": roll_dates[0], "etf_code": etf_code, "strategy": strategy_name, "nav": nav})
-            for roll_date in roll_dates[:-1]:
+            for roll_idx, roll_date in enumerate(roll_dates[:-1]):
                 spot_start = _price_on(price_g, roll_date)
-                expiry_or_next = roll_dates[list(roll_dates).index(roll_date) + 1]
+                period_end = roll_dates[roll_idx + 1]
+                option_settlement_date = pd.NaT
+                option_settlement_spot = None
                 strike = None
                 premium = 0.0
                 selected = False
@@ -118,11 +120,16 @@ def run_fixed_covered_call_backtest(
                             premium = float(option["selected_premium"])
                             expiry = pd.Timestamp(option["expiry"])
                             hold_end = nearest_trading_date_on_or_after(price_g["date"], expiry)
-                            expiry_or_next = hold_end if hold_end is not None else expiry_or_next
+                            option_settlement_date = hold_end if hold_end is not None else expiry
+                            option_settlement_spot = (
+                                _price_on(price_g, option_settlement_date)
+                                if hold_end is not None
+                                else _price_on(price_g, period_end)
+                            )
                             price_source = str(option.get("price_source", "close"))
                         else:
                             no_option = 1
-                spot_end = _price_on(price_g, expiry_or_next)
+                spot_end = _price_on(price_g, period_end)
                 cost = proportional_cost(
                     premium,
                     spot_start,
@@ -137,6 +144,7 @@ def run_fixed_covered_call_backtest(
                     premium,
                     coverage_ratio if selected else 0.0,
                     cost,
+                    option_settlement_spot,
                 )
                 assert_accounting_identity(accounting)
                 period = {
@@ -144,7 +152,8 @@ def run_fixed_covered_call_backtest(
                     "style_bucket": meta.get(etf_code, {}).get("style_bucket", np.nan),
                     "strategy": strategy_name,
                     "roll_date": roll_date,
-                    "end_date": expiry_or_next,
+                    "end_date": period_end,
+                    "option_settlement_date": option_settlement_date,
                     "S0": spot_start,
                     "ST": spot_end,
                     "K": strike,
@@ -173,7 +182,7 @@ def run_fixed_covered_call_backtest(
                 }
                 period_rows.append(period)
                 nav *= 1 + accounting["R_cc"]
-                nav_rows.append({"date": expiry_or_next, "etf_code": etf_code, "strategy": strategy_name, "nav": nav})
+                nav_rows.append({"date": period_end, "etf_code": etf_code, "strategy": strategy_name, "nav": nav})
     periods = pd.DataFrame(period_rows)
     nav = pd.DataFrame(nav_rows).drop_duplicates(["date", "etf_code", "strategy"], keep="last")
     nav = nav.sort_values(["etf_code", "strategy", "date"]).reset_index(drop=True)

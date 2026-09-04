@@ -1,0 +1,73 @@
+{
+  "experiment_id": "ver3_0_stepB_plus_mdd_constrained_sharpe_frontier",
+  "grid_step": 0.01,
+  "report_language": "zh-CN",
+  "d_star_list": [
+    0.18,
+    0.2,
+    0.22,
+    0.25,
+    0.3
+  ],
+  "constraint_sets": [
+    {
+      "name": "default",
+      "lower_bound": 0.05,
+      "upper_bound": 0.7,
+      "is_primary": true
+    },
+    {
+      "name": "relaxed",
+      "lower_bound": 0.0,
+      "upper_bound": 0.8,
+      "is_primary": false
+    }
+  ],
+  "objective": "在 max_drawdown <= D_star、权重和为 1、long-only 边界内最大化 sharpe_daily_mean",
+  "sample_policy": {
+    "target_start": "2022-09-30",
+    "target_end": "2026-05-27",
+    "common_sample": "drop rows with missing required sleeve returns after A/B alignment",
+    "exclude_588000_from_main_frontier": true
+  },
+  "universes": {
+    "A": {
+      "universe_name": "Main Growth-Diversified Universe",
+      "description": "510300 positive-carry core, 510500 pure ETF growth diversifier, 159915 defensive growth overlay.",
+      "sleeves_by_etf": {
+        "510300": "510300_DTE30_D40_Q70_Hold",
+        "510500": "510500_ETF_BuyHold",
+        "159915": "159915_DTE30_OTM5up_Q50_Hold"
+      }
+    },
+    "B": {
+      "universe_name": "Alternative Defensive-Income Universe",
+      "description": "510300 and 510050 dual large-cap covered-call cores plus 159915 defensive growth overlay.",
+      "sleeves_by_etf": {
+        "510300": "510300_DTE30_D40_Q70_Hold",
+        "510050": "510050_DTE30_D40_Q70_Hold",
+        "159915": "159915_DTE30_OTM5up_Q50_Hold"
+      }
+    }
+  },
+  "input_files": [
+    "outputs\\ver3_0_stepA_single_etf_sleeves\\panel\\ver3_0_stepA_sleeve_return_panel_wide.csv",
+    "outputs\\ver3_0_stepA_single_etf_sleeves\\panel\\ver3_0_stepA_sleeve_return_panel_long.csv",
+    "outputs\\ver3_0_stepA_extension_510050_sleeve_clarification\\panel\\ver3_0_stepA_extension_510050_sleeve_return_panel_wide.csv",
+    "outputs\\ver3_0_stepA_extension_510050_sleeve_clarification\\panel\\ver3_0_stepA_extension_510050_sleeve_return_panel_long.csv",
+    "outputs\\ver3_0_stepB_fixed_weight_universe_comparison\\summary\\ver3_0_stepB_portfolio_summary.csv",
+    "outputs\\ver3_0_stepB_fixed_weight_universe_comparison\\summary\\ver3_0_stepB_selected_vs_pure_baseline.csv",
+    "outputs\\ver3_0_stepB_fixed_weight_universe_comparison\\summary\\ver3_0_stepB_universeA_vs_universeB_comparison.csv",
+    "outputs\\ver3_0_stepB_fixed_weight_universe_comparison\\config\\ver3_0_stepB_portfolio_weight_map.csv",
+    "outputs\\ver3_0_stepA_single_etf_sleeves\\daily\\ver3_0_stepA_single_etf_sleeve_daily_nav.csv",
+    "outputs\\ver3_0_stepA_extension_510050_sleeve_clarification\\daily\\ver3_0_stepA_extension_510050_sleeve_daily_nav.csv"
+  ],
+  "forbidden_main_tokens": [
+    "588000",
+    "Q100",
+    "ATM_Q100",
+    "TP80",
+    "TouchK"
+  ],
+  "runner": "ver3/scripts/python/run_stepB_plus_mdd_constrained_sharpe_frontier.py"
+}

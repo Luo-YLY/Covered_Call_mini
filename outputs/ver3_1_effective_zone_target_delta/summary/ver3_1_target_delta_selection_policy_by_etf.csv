@@ -1,0 +1,6 @@
+﻿etf_code,sample_scope,target_delta_scope,selection_policy,portfolio_role,eligible_delta_grid,eligible_coverage_grid,selection_note,role_note
+510300,main_stepA_common_sample,core_target_delta_candidate,full_target_delta_surface,portfolio_candidate,D10;D20;D30;D40;D50,Q10;Q20;Q30;Q40;Q50;Q60;Q70;Q80;Q90;Q100,Select directly from the full target-delta x coverage grid with economic filters.,大盘核心资产；target-delta 执行规则候选。
+510050,main_stepA_common_sample,core_target_delta_candidate,full_target_delta_surface,portfolio_candidate,D10;D20;D30;D40;D50,Q10;Q20;Q30;Q40;Q50;Q60;Q70;Q80;Q90;Q100,Select directly from the full target-delta x coverage grid with economic filters.,大盘防御补充；target-delta 执行规则候选。
+510500,main_stepA_common_sample,buyhold_preferred,buyhold_after_surface_check,portfolio_candidate,,,Keep BuyHold because covered-call sleeves remain diagnostic rather than mainline.,中盘弹性资产；优先检验是否只适合裸持或轻覆盖。
+159915,main_stepA_common_sample,core_target_delta_candidate,full_target_delta_surface,portfolio_candidate,D10;D20;D30;D40;D50,Q10;Q20;Q30;Q40;Q50;Q60;Q70;Q80;Q90;Q100,Select directly from the full target-delta x coverage grid with economic filters.,成长弹性资产；统一纳入 target-delta 轻覆盖候选。
+588000,short_sample_extension,short_sample_baseline,extension_or_baseline,extension_or_baseline,,,Keep as short-sample extension or baseline only.,科创成长扩展样本；仅作短样本观察。

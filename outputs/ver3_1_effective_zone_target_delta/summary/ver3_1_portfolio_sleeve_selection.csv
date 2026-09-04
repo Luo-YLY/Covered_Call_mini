@@ -1,0 +1,6 @@
+﻿etf_code,selected_sleeve_name,selector_type,selection_reason,portfolio_use,target_delta_scope,selection_policy
+510300,510300_DTE30_D40_Q70_Hold,target_delta,ETF selected directly from the full target-delta x coverage grid after economic filters,portfolio_candidate,core_target_delta_candidate,full_target_delta_surface
+510050,510050_DTE30_D40_Q70_Hold,target_delta,ETF selected directly from the full target-delta x coverage grid after economic filters,portfolio_candidate,core_target_delta_candidate,full_target_delta_surface
+510500,510500_ETF_BuyHold,buyhold,mid-cap ETF keeps BuyHold because covered-call surface only shows weak defensive benefit,portfolio_candidate,buyhold_preferred,buyhold_after_surface_check
+159915,159915_DTE30_D20_Q10_Hold,target_delta,ETF selected directly from the full target-delta x coverage grid after economic filters,portfolio_candidate,core_target_delta_candidate,full_target_delta_surface
+588000,588000_ETF_BuyHold,buyhold,not in main portfolio universe or short-sample extension only,extension_or_baseline,short_sample_baseline,extension_or_baseline

@@ -1,0 +1,11 @@
+﻿check_name,passed,note
+required_sleeves_created,True,all requested 510050 sleeves exist
+common_sample_matches_stepA,True,metrics use Step A common sample
+uses_standardized_metric_names,True,summary follows ver2 field names
+option_leg_net_pnl_formula,True,period option leg equals premium minus payoff minus cost
+q100_diagnostic_only,True,Q100 sleeves are not default recommendations
+primary_not_q100,True,primary sleeve excludes Q100
+correlation_diagnostics_created,True,510050 vs 510300 correlations are populated
+no_portfolio_weighting_in_stepA_extension,True,single-ETF extension only
+panel_created,True,long and wide return panels are populated
+reports_avoid_forbidden_profit_claims,True,reports avoid guaranteed-profit wording

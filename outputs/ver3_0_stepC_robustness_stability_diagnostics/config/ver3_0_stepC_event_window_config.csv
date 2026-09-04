@@ -1,0 +1,3 @@
+﻿event_id,event_name,event_type,source_portfolio,source_date,start_date,end_date,window_radius_days,rank,description
+auto_0001,B_v31_D20_51030070_51005014_15991516_auto_downside_return_2025-04-07,auto_downside_return,B_v31_D20_51030070_51005014_15991516,2025-04-07,2025-03-28,2025-04-14,5,1,基于单日组合收益自动识别。
+auto_0002,B_v31_D20_51030070_51005014_15991516_auto_upside_return_2024-09-30,auto_upside_return,B_v31_D20_51030070_51005014_15991516,2024-09-30,2024-09-23,2024-10-14,5,1,基于单日组合收益自动识别。

@@ -1,0 +1,8 @@
+﻿check_name,passed,detail
+surface_row_count,True,expected=350; actual=350
+buyhold_row_count,True,expected=5; actual=5
+daily_no_duplicate_sleeve_dates,True,duplicated=0
+period_rows_present,True,period_rows=14770
+diagnostics_pass,True,passed=60/60
+figures_exist,True,figures=25
+source_engine_not_monthly_custom,True,ver3 refined entry uses run_ver2_backtest daily MTM

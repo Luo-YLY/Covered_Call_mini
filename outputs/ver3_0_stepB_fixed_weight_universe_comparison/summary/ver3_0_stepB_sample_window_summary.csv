@@ -1,0 +1,5 @@
+﻿window_name,sample_start,sample_end,n_obs,note
+stepB_common_long_sample,2022-09-30,2026-05-27,881.0,Universe A/B 必需 sleeves 对齐后的共同非缺失样本。
+requested_main_stepB_sample,2022-09-30,2026-05-27,,任务指定的长样本窗口；实际样本由可用面板对齐后确认。
+588000_extension_status,,,,588000 仅作为短样本 extension，可用但不进入 Step B 主线。
+portfolio_metric_sample,2022-09-30,2026-05-27,881.0,组合 NAV 构建后的指标样本。

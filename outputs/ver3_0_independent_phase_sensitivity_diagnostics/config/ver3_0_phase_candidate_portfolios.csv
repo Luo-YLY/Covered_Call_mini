@@ -1,0 +1,16 @@
+﻿portfolio_name,role,target_mdd,sleeve_key,weight
+B_default_D20,Current main defensive-income candidate.,0.2,510300__510300_DTE30_D40_Q70_Hold,0.7
+B_default_D20,Current main defensive-income candidate.,0.2,510050__510050_DTE30_D40_Q70_Hold,0.15
+B_default_D20,Current main defensive-income candidate.,0.2,159915__159915_DTE30_OTM5up_Q50_Hold,0.15
+B_default_D18,Strict defensive candidate.,0.18,510300__510300_DTE30_D40_Q70_Hold,0.7
+B_default_D18,Strict defensive candidate.,0.18,510050__510050_DTE30_D40_Q70_Hold,0.22
+B_default_D18,Strict defensive candidate.,0.18,159915__159915_DTE30_OTM5up_Q50_Hold,0.08
+B_default_D22,Balanced defensive-growth candidate.,0.22,510300__510300_DTE30_D40_Q70_Hold,0.68
+B_default_D22,Balanced defensive-growth candidate.,0.22,510050__510050_DTE30_D40_Q70_Hold,0.09
+B_default_D22,Balanced defensive-growth candidate.,0.22,159915__159915_DTE30_OTM5up_Q50_Hold,0.23
+A_default_D25,Growth comparison candidate.,0.25,510300__510300_DTE30_D40_Q70_Hold,0.63
+A_default_D25,Growth comparison candidate.,0.25,510500__510500_ETF_BuyHold,0.05
+A_default_D25,Growth comparison candidate.,0.25,159915__159915_DTE30_OTM5up_Q50_Hold,0.32
+A_Selected_50_30_20,Growth-diversified fixed baseline.,0.25,510300__510300_DTE30_D40_Q70_Hold,0.5
+A_Selected_50_30_20,Growth-diversified fixed baseline.,0.25,510500__510500_ETF_BuyHold,0.3
+A_Selected_50_30_20,Growth-diversified fixed baseline.,0.25,159915__159915_DTE30_OTM5up_Q50_Hold,0.2

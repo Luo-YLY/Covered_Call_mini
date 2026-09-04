@@ -1,0 +1,80 @@
+experiment_name: ver2_downside_protection
+
+etf_codes:
+  - "510300"
+  - "510050"
+
+paths:
+  etf_prices: data/raw/etf_prices.csv
+  options: data/raw/options_daily.csv
+  metadata: data/raw/etf_metadata.csv
+  output_dir: outputs/ver2_downside_protection
+
+backtest:
+  start_date:
+  end_date:
+  initial_nav: 1.0
+  execution_mode: continuous_30d
+  roll_frequency: monthly
+  target_dte: 30
+  min_days_to_expiry: 20
+  max_days_to_expiry: 45
+  min_periods: 6
+  require_expiry_within_period: false
+
+strategies:
+  - name: BuyHold
+    kind: buy_hold
+    coverage_ratio: 0.0
+    target_moneyness: 0.0
+    enabled: true
+  - name: ITM5_100
+    kind: itm_pct
+    coverage_ratio: 1.0
+    target_moneyness: -0.05
+    enabled: true
+  - name: ITM2_100
+    kind: itm_pct
+    coverage_ratio: 1.0
+    target_moneyness: -0.02
+    enabled: true
+  - name: ATM_100
+    kind: atm
+    coverage_ratio: 1.0
+    target_moneyness: 0.0
+    enabled: true
+  - name: OTM2_100
+    kind: otm_pct
+    coverage_ratio: 1.0
+    target_moneyness: 0.02
+    enabled: true
+  - name: OTM5_100
+    kind: otm_pct
+    coverage_ratio: 1.0
+    target_moneyness: 0.05
+    enabled: true
+  - name: OTM5_50
+    kind: otm_pct
+    coverage_ratio: 0.5
+    target_moneyness: 0.05
+    enabled: false
+
+liquidity_filters:
+  min_option_volume: 0
+  min_open_interest: 0
+  max_bid_ask_spread_pct: 1.0
+
+transaction_costs:
+  option_slippage_bps: 5
+  etf_slippage_bps: 2
+  option_commission_per_contract: 0
+  use_bid_ask_spread_cost: true
+  use_assumed_bid_ask_spread_when_missing: true
+  assumed_bid_ask_spread_pct: 0.05
+  charge_etf_slippage_on_roll: false
+
+assumptions:
+  etf_price: Use adj_close from data/raw/etf_prices.csv.
+  option_price: Use bid/ask mid when bid and ask are available and valid; otherwise use option close.
+  transaction_costs: 5 bps option slippage on option premium yield, plus an assumed 5% option bid/ask spread when market bid/ask is missing; no ETF roll slippage by default.
+  rebalance: Start on the first month-end ETF trading date, then reopen the next DTE30 call on each option settlement date; use daily option chains.

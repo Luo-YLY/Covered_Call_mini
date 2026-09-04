@@ -1,0 +1,9 @@
+﻿portfolio_name,universe_short,baseline_source,role
+B_default_D20,B,stepC_default_candidate,B main defensive-income anchor
+B_default_D18,B,stepC_default_candidate,B stricter defensive default
+B_default_D22,B,stepC_default_candidate,B balanced defensive-growth default
+B_Selected_50_30_20,B,stepB_fixed_weight,B fixed selected 50/30/20
+B_Selected_70_20_10,B,stepB_fixed_weight,B fixed selected 70/20/10
+A_Selected_50_30_20,A,stepB_fixed_weight,A fixed selected 50/30/20 anchor
+A_default_D25,A,stepC_default_candidate,A growth comparison default
+A_Selected_70_20_10,A,stepB_fixed_weight,A fixed selected 70/20/10

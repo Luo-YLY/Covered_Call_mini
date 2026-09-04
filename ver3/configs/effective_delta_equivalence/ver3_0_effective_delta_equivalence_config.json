@@ -1,0 +1,38 @@
+{
+  "sample_start": "2022-09-19",
+  "sample_end": "2026-05-27",
+  "target_effective_delta": 0.72,
+  "target_etfs": ["510300", "510050"],
+  "include_growth_diagnostic": false,
+  "phase_shifts": [0, 5, 10, 15, 20],
+  "implementations": [
+    {
+      "name": "D28_Q100",
+      "target_call_delta": 0.28,
+      "coverage": 1.0,
+      "role": "main",
+      "interpretation": "farther OTM full overwrite"
+    },
+    {
+      "name": "D35_Q80",
+      "target_call_delta": 0.35,
+      "coverage": 0.8,
+      "role": "main",
+      "interpretation": "middle implementation"
+    },
+    {
+      "name": "D40_Q70",
+      "target_call_delta": 0.4,
+      "coverage": 0.7,
+      "role": "current_mainline",
+      "interpretation": "current mainline implementation"
+    },
+    {
+      "name": "D50_Q56",
+      "target_call_delta": 0.5,
+      "coverage": 0.56,
+      "role": "diagnostic_only",
+      "interpretation": "closer-delta low-coverage implementation"
+    }
+  ]
+}

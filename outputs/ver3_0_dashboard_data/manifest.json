@@ -1,0 +1,11 @@
+{
+  "experiment_id": "ver3_1_dashboard",
+  "generated_at": "2026-07-16 08:19:16",
+  "data_file": "outputs\\ver3_0_dashboard_data\\ver3_dashboard_data.js",
+  "primary_candidate": "B_v31_D20_51030070_51005014_15991516",
+  "sample": {
+    "start": "2022-09-30",
+    "end": "2026-05-27",
+    "n_obs": 881
+  }
+}

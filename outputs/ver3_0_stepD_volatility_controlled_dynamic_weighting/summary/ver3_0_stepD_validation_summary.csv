@@ -1,0 +1,38 @@
+﻿check_name,passed,note
+project_root_exists,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini
+ver3_root_exists,True,C:\Users\WIN11\Desktop\CCFund\ETF备兑策略设计\covered_call_mini\ver3
+stepD_module_path_exists,True,Step D module path exists.
+input_files_exist,True,All required Step D input files exist.
+lookbacks_supported_only,True,Lookbacks are restricted to 126 and 252.
+methods_supported_only,True,Methods are restricted to the approved Step D set.
+rebalance_frequency_monthly,True,Only monthly rebalance frequency is used.
+universe_A_assets_match_contract,True,Universe A uses 510300/510500/159915 only.
+universe_B_assets_match_contract,True,Universe B uses 510300/510050/159915 only.
+no_588000_in_main_stepD,True,588000 is excluded from the Step D main long sample.
+no_new_option_parameter_sleeves,True,No Q100/ATM_Q100/TP80/TouchK sleeves are introduced.
+no_dynamic_q_or_call_timing_columns,True,Outputs contain no dynamic q or sell-call timing decision columns.
+anchor_weights_sum_to_one,True,Universe anchor weights sum to one.
+sample_summary_non_empty,True,Sample summary is non-empty.
+rebalance_weights_sum_to_one,True,Every rebalance target weight vector sums to one.
+daily_weights_sum_to_one,True,Every daily target weight vector sums to one.
+weight_lower_bound_respected,True,Rebalance weights respect lower bound.
+weight_upper_bound_respected,True,Rebalance weights respect upper bound.
+long_only_weights,True,All weights are long-only.
+lagged_signals_apply_next_trading_day,True,Signals are lagged to the next trading day.
+monthly_signal_dates_only,True,There is no more than one signal date per calendar month per strategy.
+no_daily_rebalancing,True,Rebalance count is consistent with monthly rather than daily trading.
+dynamic_daily_returns_non_empty,True,Dynamic daily return table is non-empty.
+nav_positive,True,All dynamic NAV values are positive.
+drawdown_magnitude_nonnegative,True,Drawdown magnitude is non-negative.
+turnover_method_recorded,True,Turnover method is recorded as target-weight approximation.
+rebalance_cost_scenarios_complete,True,Cost scenarios include 0/5/10/20 bps.
+static_baseline_comparison_non_empty,True,Static baseline comparison is non-empty.
+static_baselines_same_effective_sample,True,Static baselines are compared on dynamic effective samples.
+output_csv_rows_nonzero,True,All CSV outputs contain rows.
+report_generated,True,Chinese markdown report generated.
+ver3_output_index_generated,True,ver3 lightweight output index generated.
+real_outputs_written_to_root_outputs,True,Real outputs are under root outputs/.
+no_large_outputs_written_to_ver3_outputs,True,ver3/outputs only keeps lightweight indexes.
+no_outputs_written_outside_allowed_dirs,True,Output paths stay inside the Step D output root.
+no_ver2_files_modified,True,No output is written under frozen ver2.
+frozen_metrics_not_modified,True,Frozen metrics source path is not written.

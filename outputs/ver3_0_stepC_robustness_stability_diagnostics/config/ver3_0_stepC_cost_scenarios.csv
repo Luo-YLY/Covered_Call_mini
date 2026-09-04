@@ -1,0 +1,6 @@
+﻿cost_scenario,extra_cost_bps
+base,0.0
+option_cost_plus_5bps,5.0
+option_cost_plus_10bps,10.0
+option_cost_plus_20bps,20.0
+option_cost_plus_30bps,30.0

@@ -1,0 +1,36 @@
+{
+  "experiment_id": "ver3_1_effective_zone_target_delta",
+  "created_at": "2026-07-13T09:31:11",
+  "execution_mode": "continuous_30d_daily_mtm",
+  "input_moneyness_surface": "outputs/ver3_0_stepA_moneyness_refined_daily_mtm_surface/summary/ver3_0_stepA_moneyness_refined_daily_mtm_surface_grid.csv",
+  "input_delta_options": "data/source/delta_enriched_options.csv",
+  "delta_grid": [
+    "D10",
+    "D20",
+    "D30",
+    "D40",
+    "D50"
+  ],
+  "coverage_grid": [
+    "Q10",
+    "Q20",
+    "Q30",
+    "Q40",
+    "Q50",
+    "Q60",
+    "Q70",
+    "Q80",
+    "Q90",
+    "Q100"
+  ],
+  "outputs": {
+    "report": "outputs/ver3_1_effective_zone_target_delta/reports/ver3_1_effective_zone_target_delta_report.md",
+    "selection_policy": "outputs/ver3_1_effective_zone_target_delta/summary/ver3_1_target_delta_selection_policy_by_etf.csv",
+    "target_delta_grid": "outputs/ver3_1_effective_zone_target_delta/summary/ver3_1_target_delta_surface_grid.csv",
+    "portfolio_selection": "outputs/ver3_1_effective_zone_target_delta/summary/ver3_1_portfolio_sleeve_selection.csv",
+    "frontier_best": "outputs/ver3_1_effective_zone_target_delta/portfolio/ver3_1_mdd_frontier_best_by_dstar.csv",
+    "dynamic_summary": "outputs/ver3_1_effective_zone_target_delta/dynamic/ver3_1_dynamic_strategy_summary.csv"
+  },
+  "sanity_passed": 8,
+  "sanity_total": 8
+}

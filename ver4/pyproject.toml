@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "covered-call-mini-ver4"
+version = "0.4.0"
+description = "Single-ETF covered-call cycle cashflow diagnostic."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy", "pandas", "pyyaml"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

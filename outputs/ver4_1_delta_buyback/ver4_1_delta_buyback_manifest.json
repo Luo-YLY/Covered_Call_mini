@@ -1,0 +1,14 @@
+{
+  "experiment_id": "ver4_1_delta_buyback",
+  "baseline_experiment_id": "ver4_0_single_etf_cycle_cashflow",
+  "thresholds": [
+    0.7,
+    0.8,
+    0.9
+  ],
+  "trigger": "First post-entry daily observation with model_abs_delta >= threshold and remaining DTE >= 5.",
+  "execution": "Trigger-day option close used as an end-of-day execution proxy; no intraday or bid/ask data is available.",
+  "after_buyback": "The call is not reopened. The ETF remains held until the original cycle end date.",
+  "costs": "Entry costs retain the ver4.0 result. Buyback adds 5 bps option slippage plus half of an assumed 5% bid/ask spread, applied to buyback premium yield.",
+  "accounting": "Fixed notional independent cycles; prior-cycle P&L is not reinvested."
+}

@@ -1,0 +1,2 @@
+﻿portfolio_name,role,full_sample_sharpe,full_sample_mdd,event_exclusion_sharpe_stability,event_exclusion_mdd_stability,rolling_sharpe_stability,rolling_mdd_stability,cost_sensitivity_score,option_leg_robustness_score,weight_interpretability_score,overall_stability_score,overall_stability_label
+B_v31_D20_51030070_51005014_15991516,3.1 主线组合（D20 回撤预算）,0.7313188064688477,0.19955079779075025,0.8188267717304725,1.0,0.6476190476190476,1.0,0.9710191583232429,0.6,1.0,0.8624949968103947,High Stability

@@ -1,0 +1,13 @@
+﻿check_name,passed,detail
+cycle_ledger_nonempty,True,rows=308
+single_etf_only,True,etfs=['510050']
+static_grid_strategy_count,True,expected=7; actual=7
+fixed_notional_constant,True,notional=100.0
+net_option_cash_identity,True,premium - exercise_or_close_cost - transaction_cost
+covered_call_return_identity,True,ETF return + net option yield
+relative_buyhold_identity,True,covered-call return - ETF return
+no_compounded_nav_column,True,main ledger and summary do not expose compounded NAV/CAGR
+daily_mtm_cycle_rebased,True,daily MTM is rebased within a cycle
+summary_nonempty,True,rows=7
+rolling_cashflow_available_or_short_sample,True,window=12; rows=231
+regime_attribution_nonempty,True,rows=28

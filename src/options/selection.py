@@ -49,6 +49,10 @@ def select_option(
     min_days_to_expiry: int = 20,
     max_days_to_expiry: int = 45,
     liquidity_filters: dict[str, Any] | None = None,
+    target_delta: float = 0.30,
+    otm_pct: float = 0.05,
+    max_expiry_date: pd.Timestamp | None = None,
+    dte_fallback_mode: str = "strict_window",
 ) -> OptionSelectionResult:
     liquidity_filters = liquidity_filters or {}
     t = pd.Timestamp(trade_date)
@@ -61,10 +65,18 @@ def select_option(
         return OptionSelectionResult(False, "no_chain_on_trade_date")
 
     chain["days_to_expiry"] = (pd.to_datetime(chain["expiry"]) - t).dt.days
-    chain = chain[
+    if max_expiry_date is not None:
+        chain = chain[pd.to_datetime(chain["expiry"]) <= pd.Timestamp(max_expiry_date)]
+    window_chain = chain[
         (chain["days_to_expiry"] >= min_days_to_expiry)
         & (chain["days_to_expiry"] <= max_days_to_expiry)
     ]
+    fallback_flag = None
+    if window_chain.empty and dte_fallback_mode == "nearest_available":
+        chain = chain[chain["days_to_expiry"] > 0].copy()
+        fallback_flag = "nearest_available_expiry_outside_window"
+    else:
+        chain = window_chain.copy()
     if chain.empty:
         return OptionSelectionResult(False, "no_contract_in_dte_window")
 
@@ -73,19 +85,18 @@ def select_option(
         return OptionSelectionResult(False, "no_contract_after_liquidity_filters")
 
     chain["_expiry_distance"] = (chain["days_to_expiry"] - target_dte).abs()
-    best_expiry = chain.sort_values("_expiry_distance").iloc[0]["expiry"]
+    best_expiry = chain.sort_values(["_expiry_distance", "days_to_expiry"]).iloc[0]["expiry"]
     chain = chain[chain["expiry"] == best_expiry].copy()
 
-    fallback_flag = None
     if strategy_kind == "atm":
         chain["_selection_distance"] = (chain["strike"] - spot).abs()
-    elif strategy_kind == "otm5":
-        chain["_selection_distance"] = (chain["strike"] - spot * 1.05).abs()
-    elif strategy_kind == "delta30":
+    elif strategy_kind in {"otm5", "otm_pct"}:
+        chain["_selection_distance"] = (chain["strike"] - spot * (1 + otm_pct)).abs()
+    elif strategy_kind in {"delta30", "target_delta"}:
         delta_col = "model_delta" if "model_delta" in chain.columns and not chain["model_delta"].dropna().empty else "delta"
         if delta_col not in chain.columns or chain[delta_col].dropna().empty:
-            return OptionSelectionResult(False, "delta_unavailable_for_delta30", fallback_flag="delta_missing")
-        chain["_selection_distance"] = (chain[delta_col] - 0.30).abs()
+            return OptionSelectionResult(False, "delta_unavailable_for_target_delta", fallback_flag="delta_missing")
+        chain["_selection_distance"] = (chain[delta_col] - target_delta).abs()
     else:
         raise ValueError(f"Unknown strategy_kind: {strategy_kind}")
 

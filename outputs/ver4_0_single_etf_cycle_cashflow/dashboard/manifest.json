@@ -1,0 +1,13 @@
+{
+  "experiment_id": "ver4_0_single_etf_cycle_cashflow",
+  "generated_at": "2026-07-16 09:14:09",
+  "data_file": "outputs\\ver4_0_single_etf_cycle_cashflow\\dashboard\\ver4_dashboard_data.js",
+  "etf_count": 5,
+  "etf_codes": [
+    "159915",
+    "510050",
+    "510300",
+    "510500",
+    "588000"
+  ]
+}
