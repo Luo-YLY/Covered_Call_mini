@@ -36,6 +36,25 @@ $InputRelativeFiles = @(
     "outputs\ver3_0_stepA_moneyness_refined_daily_mtm_surface\summary\ver3_0_stepA_moneyness_refined_daily_mtm_surface_grid.csv",
     "outputs\ver3_0_stepA_moneyness_refined_daily_mtm_surface\daily\ver3_0_stepA_moneyness_refined_daily_mtm_daily_paths.csv"
 )
+$RawDataCatalogRelativeFiles = @($InputRelativeFiles) + @(
+    "outputs\ver3_1_effective_zone_target_delta\portfolio\ver3_1_fixed_weight_daily_returns.csv",
+    "outputs\ver3_1_effective_zone_target_delta\portfolio\ver3_1_fixed_weight_summary.csv",
+    "outputs\ver3_1_effective_zone_target_delta\portfolio\ver3_1_mdd_frontier_grid.csv",
+    "outputs\ver3_1_effective_zone_target_delta\portfolio\ver3_1_mdd_frontier_best_by_dstar.csv",
+    "outputs\ver4_1_delta_buyback\ver4_1_delta_buyback_cycle_ledger.csv",
+    "outputs\ver4_1_delta_buyback\ver4_1_delta_buyback_cycle_daily_mtm.csv",
+    "outputs\ver4_1_delta_buyback\ver4_1_delta_buyback_summary.csv",
+    "outputs\ver4_2_tp80_buyback\ver4_2_tp80_buyback_cycle_ledger.csv",
+    "outputs\ver4_2_tp80_buyback\ver4_2_tp80_buyback_cycle_daily_mtm.csv",
+    "outputs\ver4_2_tp80_buyback\ver4_2_tp80_buyback_summary.csv"
+)
+foreach ($etfCode in @("510050", "510300", "510500", "159915", "588000")) {
+    $RawDataCatalogRelativeFiles += @(
+        "outputs\ver4_0_single_etf_cycle_cashflow\$etfCode\period\ver4_0_cycle_ledger.csv",
+        "outputs\ver4_0_single_etf_cycle_cashflow\$etfCode\daily_mtm\ver4_0_cycle_daily_mtm.csv",
+        "outputs\ver4_0_single_etf_cycle_cashflow\$etfCode\summary\ver4_0_cycle_cashflow_summary.csv"
+    )
+}
 
 function Write-Step {
     param([string] $Message)
@@ -258,6 +277,13 @@ function Assert-ReleaseSafety {
             }
         }
     }
+    if ($PackageProfile -eq "final") {
+        foreach ($relativePath in $RawDataCatalogRelativeFiles) {
+            if (-not (Test-Path -LiteralPath (Join-Path $PackageRoot $relativePath) -PathType Leaf)) {
+                throw "Final release is missing raw-data catalog target: $relativePath"
+            }
+        }
+    }
 }
 
 function New-ReleasePackage {
@@ -315,7 +341,7 @@ function New-ReleasePackage {
             "outputs\ver3_1_effective_zone_target_delta\portfolio",
             "outputs\ver3_1_effective_zone_target_delta\reports",
             "outputs\ver3_1_effective_zone_target_delta\summary",
-            "outputs\ver4_0_single_etf_cycle_cashflow\dashboard",
+            "outputs\ver4_0_single_etf_cycle_cashflow",
             "outputs\ver4_1_delta_buyback",
             "outputs\ver4_1_ivrv_timing_diagnostics",
             "outputs\ver4_2_tp80_buyback",
