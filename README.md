@@ -13,7 +13,7 @@
 ## 项目结构
 
 ```text
-dashboard/                 对外统一的最终研究看板入口
+dashboard/                 对外统一的最终研究看板及原始数据入口
 src/                       公共数据、期权、回测和指标代码
 ver2_downside_protection/  仍被主线调用的冻结兼容引擎
 ver3/                      组合研究内部实现、脚本、测试和页面

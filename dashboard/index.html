@@ -165,7 +165,7 @@
       </nav>
       <div class="actions">
         <span class="status">本地静态数据</span>
-        <a id="openCurrent" class="open-link" href="../ver3/dashboard/" target="_blank" rel="noopener">独立打开 ↗</a>
+        <a class="open-link" href="./raw-data/">查看原始数据 →</a>
       </div>
     </header>
 
@@ -236,13 +236,12 @@
 
   <script>
     const viewConfig = {
-      portfolio: { href: "../ver3/dashboard/", frame: "portfolioFrame" },
-      cycle: { href: "../ver4/dashboard/", frame: "cycleFrame" },
-      handoff: { href: "#handoff", frame: null }
+      portfolio: { frame: "portfolioFrame" },
+      cycle: { frame: "cycleFrame" },
+      handoff: { frame: null }
     };
     const buttons = [...document.querySelectorAll("[data-view]")];
     const panels = [...document.querySelectorAll("[data-view-panel]")];
-    const openCurrent = document.getElementById("openCurrent");
 
     function selectView(view, updateHash = true) {
       if (!viewConfig[view]) view = "portfolio";
@@ -252,10 +251,6 @@
       if (config.frame) {
         const frame = document.getElementById(config.frame);
         if (!frame.src && frame.dataset.src) frame.src = frame.dataset.src;
-        openCurrent.hidden = false;
-        openCurrent.href = config.href;
-      } else {
-        openCurrent.hidden = true;
       }
       if (updateHash) history.replaceState(null, "", `#${view}`);
     }

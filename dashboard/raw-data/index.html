@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ETF备兑策略研究 · 原始数据包</title>
+  <style>
+    :root {
+      --ink: #13212b;
+      --muted: #63717a;
+      --line: #d8e1e4;
+      --paper: #ffffff;
+      --wash: #edf3f2;
+      --nav: #18383d;
+      --nav-soft: #28535a;
+      --accent: #c8863c;
+      --green: #1d725e;
+      --danger: #a54f43;
+      --shadow: 0 10px 26px rgba(20, 43, 48, .09);
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--wash); color: var(--ink); }
+    body { margin: 0; font: 14px/1.58 "Microsoft YaHei", "Segoe UI", Arial, sans-serif; }
+    a { color: inherit; }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 72px;
+      padding: 12px 28px;
+      color: #f7fbfb;
+      background: linear-gradient(115deg, #153137 0%, #1f474d 65%, #28545a 100%);
+      box-shadow: 0 4px 18px rgba(14, 37, 41, .16);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .mark {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 11px;
+      background: rgba(255,255,255,.10);
+      font-weight: 800;
+    }
+    .brand strong { display: block; font-size: 17px; }
+    .brand span { display: block; margin-top: 1px; color: #c7d8da; font-size: 11px; }
+    .back {
+      padding: 8px 13px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 8px;
+      color: #fff;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .back:hover { background: rgba(255,255,255,.09); }
+    main { width: min(1240px, calc(100% - 36px)); margin: 0 auto; padding: 34px 0 50px; }
+    .hero {
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background:
+        radial-gradient(circle at 94% 12%, rgba(200,134,60,.17), transparent 25%),
+        var(--paper);
+      box-shadow: var(--shadow);
+    }
+    .eyebrow { color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .12em; }
+    h1 { margin: 7px 0 8px; font-size: clamp(27px, 4vw, 43px); line-height: 1.18; letter-spacing: -.025em; }
+    .lead { max-width: 850px; margin: 0; color: var(--muted); font-size: 15px; }
+    .facts { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
+    .fact { padding: 7px 10px; border: 1px solid #dce5e5; border-radius: 999px; background: #f6f9f8; color: #496069; font-size: 12px; }
+    .notice { margin-top: 14px; padding: 11px 13px; border-left: 4px solid var(--accent); background: #fff8ef; color: #6d5843; font-size: 12px; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 28px 0 12px; }
+    .toolbar h2 { margin: 0; font-size: 20px; }
+    .search {
+      width: min(360px, 100%);
+      padding: 9px 12px;
+      border: 1px solid #cad6d9;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+    }
+    .search:focus { border-color: #4c7f86; box-shadow: 0 0 0 3px rgba(76,127,134,.12); }
+    .groups { display: grid; gap: 15px; }
+    .group { overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); box-shadow: var(--shadow); }
+    .group-head { display: flex; align-items: baseline; justify-content: space-between; gap: 15px; padding: 15px 18px; border-bottom: 1px solid #e2e8ea; background: #f8faf9; }
+    .group-head h3 { margin: 0; font-size: 15px; }
+    .group-head span { color: var(--muted); font-size: 11px; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 13px; border-bottom: 1px solid #e7ecee; text-align: left; vertical-align: middle; }
+    th { color: #586770; background: #fbfcfc; font-size: 11px; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #f7faf9; }
+    .name { min-width: 180px; font-weight: 700; }
+    .desc { min-width: 280px; color: var(--muted); }
+    .path { min-width: 340px; color: #59686f; font: 11px/1.45 Consolas, "Courier New", monospace; word-break: break-all; }
+    .size { min-width: 82px; color: #536168; white-space: nowrap; }
+    .file-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 68px;
+      padding: 6px 9px;
+      border: 1px solid #cfdadd;
+      border-radius: 7px;
+      color: #234f56;
+      background: #fff;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .file-link:hover { border-color: #6e949a; background: #f1f7f6; }
+    .missing { color: var(--danger); }
+    .empty { display: none; padding: 24px; color: var(--muted); text-align: center; }
+    footer { margin-top: 19px; color: #6b787f; font-size: 11px; }
+    @media (max-width: 720px) {
+      header { position: static; padding: 12px 16px; }
+      .brand strong { font-size: 15px; }
+      main { width: min(100% - 22px, 1240px); padding-top: 18px; }
+      .hero { padding: 20px; }
+      .toolbar { align-items: stretch; flex-direction: column; }
+      .search { width: 100%; }
+      .desc { min-width: 220px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="mark">CC</div>
+      <div><strong>ETF备兑策略研究</strong><span>最终交接版 · 原始数据包</span></div>
+    </div>
+    <a class="back" href="../">← 返回统一看板</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow">LOCAL DATA PACKAGE</div>
+      <h1>原始数据与研究底表</h1>
+      <p class="lead">这里集中列出最终交接包中的行情输入、冻结复现输入、组合研究底表和单 ETF 周期账本。所有文件链接均使用相对路径，交接包移动或改名后仍可访问。</p>
+      <div class="facts">
+        <span class="fact">本地静态文件</span>
+        <span class="fact">相对路径</span>
+        <span class="fact">不触发回测</span>
+        <span class="fact">不访问外部接口</span>
+      </div>
+      <div class="notice">“原始输入”与“研究结果底表”分组展示。体积较大的 CSV 建议下载后用数据工具打开，避免浏览器直接渲染造成卡顿。</div>
+    </section>
+
+    <div class="toolbar">
+      <h2>数据目录</h2>
+      <input id="search" class="search" type="search" placeholder="按名称、说明或路径筛选…" aria-label="筛选数据文件" />
+    </div>
+
+    <div id="groups" class="groups"></div>
+    <div id="empty" class="empty">没有匹配的数据文件。</div>
+    <footer>数据授权和使用范围仍以项目交接说明及内部管理要求为准。接收方可结合根目录 FILE_INDEX.csv 核对逐文件 SHA-256。</footer>
+  </main>
+
+  <script>
+    const ROOT = "../../";
+    const groups = [
+      {
+        title: "基础行情原始输入",
+        note: "采集或整理后的 ETF 与期权输入",
+        files: [
+          ["ETF 元数据", "标的代码、交易所及名称映射", "data/raw/etf_metadata.csv"],
+          ["ETF 日行情", "组合与单 ETF 研究使用的日频行情", "data/raw/etf_prices.csv"],
+          ["期权合约表", "期权合约基础记录", "data/raw/options.csv"],
+          ["期权日行情", "期权逐日价格与交易字段", "data/raw/options_daily.csv"],
+          ["Delta 增强期权表", "补充目标 Delta 选择所需字段的派生输入", "data/source/delta_enriched_options.csv"]
+        ]
+      },
+      {
+        title: "冻结复现输入与组合研究底表",
+        note: "用于复现组合曲线、参数曲面和回撤约束结果",
+        files: [
+          ["冻结日频 MTM", "冻结兼容引擎的日频盯市输入", "data/frozen_inputs/ver3_0_510050/ver2_1_daily_mtm.csv"],
+          ["冻结周期与状态", "周期划分及市场状态输入", "data/frozen_inputs/ver3_0_510050/ver2_1_periods_with_regime.csv"],
+          ["参数曲面网格", "各 ETF 的期限、Delta 与覆盖率网格结果", "outputs/ver3_0_stepA_moneyness_refined_daily_mtm_surface/summary/ver3_0_stepA_moneyness_refined_daily_mtm_surface_grid.csv"],
+          ["参数曲面日路径", "参数组合对应的日频净值与损益路径", "outputs/ver3_0_stepA_moneyness_refined_daily_mtm_surface/daily/ver3_0_stepA_moneyness_refined_daily_mtm_daily_paths.csv"],
+          ["固定权重日收益", "候选组合及基准的日收益序列", "outputs/ver3_1_effective_zone_target_delta/portfolio/ver3_1_fixed_weight_daily_returns.csv"],
+          ["固定权重摘要", "组合年化收益、波动、Sharpe 与回撤", "outputs/ver3_1_effective_zone_target_delta/portfolio/ver3_1_fixed_weight_summary.csv"],
+          ["回撤约束前沿", "回撤预算下的组合权重搜索网格", "outputs/ver3_1_effective_zone_target_delta/portfolio/ver3_1_mdd_frontier_grid.csv"],
+          ["前沿最优点", "各回撤预算对应的候选解", "outputs/ver3_1_effective_zone_target_delta/portfolio/ver3_1_mdd_frontier_best_by_dstar.csv"]
+        ]
+      },
+      {
+        title: "单 ETF 周期现金流底表",
+        note: "每个 ETF 的逐期账本、日频 MTM 与汇总",
+        files: [
+          ...["510050", "510300", "510500", "159915", "588000"].flatMap(code => [
+            [`${code} 周期账本`, "逐期权利金、行权扣减与净收益", `outputs/ver4_0_single_etf_cycle_cashflow/${code}/period/ver4_0_cycle_ledger.csv`],
+            [`${code} 日频 MTM`, "周期内逐日盯市路径", `outputs/ver4_0_single_etf_cycle_cashflow/${code}/daily_mtm/ver4_0_cycle_daily_mtm.csv`],
+            [`${code} 汇总`, "周期现金流与收益指标摘要", `outputs/ver4_0_single_etf_cycle_cashflow/${code}/summary/ver4_0_cycle_cashflow_summary.csv`]
+          ])
+        ]
+      },
+      {
+        title: "提前平仓研究底表",
+        note: "Delta 回购与 TP80 回购规则的逐周期、逐日结果",
+        files: [
+          ["Delta 回购周期账本", "触发 Delta 阈值后的周期结算记录", "outputs/ver4_1_delta_buyback/ver4_1_delta_buyback_cycle_ledger.csv"],
+          ["Delta 回购日频 MTM", "Delta 回购规则的日频路径", "outputs/ver4_1_delta_buyback/ver4_1_delta_buyback_cycle_daily_mtm.csv"],
+          ["Delta 回购汇总", "Delta 回购规则指标摘要", "outputs/ver4_1_delta_buyback/ver4_1_delta_buyback_summary.csv"],
+          ["TP80 回购周期账本", "达到 80% 权利金收益后的周期结算记录", "outputs/ver4_2_tp80_buyback/ver4_2_tp80_buyback_cycle_ledger.csv"],
+          ["TP80 回购日频 MTM", "TP80 回购规则的日频路径", "outputs/ver4_2_tp80_buyback/ver4_2_tp80_buyback_cycle_daily_mtm.csv"],
+          ["TP80 回购汇总", "TP80 回购规则指标摘要", "outputs/ver4_2_tp80_buyback/ver4_2_tp80_buyback_summary.csv"]
+        ]
+      }
+    ];
+
+    const formatBytes = bytes => {
+      if (!Number.isFinite(bytes)) return "待检测";
+      const units = ["B", "KiB", "MiB", "GiB"];
+      let value = bytes;
+      let unit = 0;
+      while (value >= 1024 && unit < units.length - 1) { value /= 1024; unit += 1; }
+      return `${value >= 10 || unit === 0 ? value.toFixed(0) : value.toFixed(2)} ${units[unit]}`;
+    };
+
+    const groupsEl = document.getElementById("groups");
+    const emptyEl = document.getElementById("empty");
+
+    function render(query = "") {
+      const keyword = query.trim().toLowerCase();
+      groupsEl.innerHTML = "";
+      let visibleRows = 0;
+
+      groups.forEach(group => {
+        const files = group.files.filter(file => file.join(" ").toLowerCase().includes(keyword));
+        if (!files.length) return;
+        visibleRows += files.length;
+
+        const section = document.createElement("section");
+        section.className = "group";
+        section.innerHTML = `
+          <div class="group-head"><h3>${group.title}</h3><span>${group.note} · ${files.length} 个文件</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>文件</th><th>用途</th><th>相对路径</th><th>大小</th><th>操作</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>`;
+        const tbody = section.querySelector("tbody");
+
+        files.forEach(([name, description, path]) => {
+          const href = ROOT + path;
+          const row = document.createElement("tr");
+          row.dataset.search = `${name} ${description} ${path}`.toLowerCase();
+          row.innerHTML = `
+            <td class="name">${name}</td>
+            <td class="desc">${description}</td>
+            <td class="path">${path}</td>
+            <td class="size" data-size>检测中…</td>
+            <td><a class="file-link" href="${href}" download>获取文件</a></td>`;
+          tbody.appendChild(row);
+
+          fetch(href, { method: "HEAD" })
+            .then(response => {
+              const sizeCell = row.querySelector("[data-size]");
+              if (!response.ok) throw new Error(String(response.status));
+              const bytes = Number(response.headers.get("content-length"));
+              sizeCell.textContent = formatBytes(bytes);
+            })
+            .catch(() => {
+              const sizeCell = row.querySelector("[data-size]");
+              sizeCell.textContent = "文件不可用";
+              sizeCell.classList.add("missing");
+              row.querySelector("a").setAttribute("aria-disabled", "true");
+            });
+        });
+        groupsEl.appendChild(section);
+      });
+
+      emptyEl.style.display = visibleRows ? "none" : "block";
+    }
+
+    document.getElementById("search").addEventListener("input", event => render(event.target.value));
+    render();
+  </script>
+</body>
+</html>

@@ -224,6 +224,7 @@ function Assert-ReleaseSafety {
     if ($PackageProfile -in @("demo", "final")) {
         $required = @(
             "dashboard\index.html",
+            "dashboard\raw-data\index.html",
             "ver3\dashboard\index.html",
             "ver4\dashboard\index.html",
             "outputs\ver3_0_dashboard_data\ver3_dashboard_data.js",
