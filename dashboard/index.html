@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ETF备兑策略研究 · 最终交接版</title>
+  <style>
+    :root {
+      --ink: #13212b;
+      --muted: #65717b;
+      --line: #d8e0e4;
+      --paper: #ffffff;
+      --wash: #f1f5f4;
+      --nav: #18353a;
+      --nav-soft: #24484e;
+      --accent: #c8863c;
+      --green: #1c705c;
+      --shadow: 0 10px 28px rgba(18, 37, 42, 0.10);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 320px; min-height: 100%; background: var(--wash); color: var(--ink); }
+    body { font: 14px/1.58 "Microsoft YaHei", "Segoe UI", Arial, sans-serif; }
+    button, a { font: inherit; }
+    .shell { min-height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      min-height: 72px;
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) auto auto;
+      align-items: center;
+      gap: 22px;
+      padding: 12px 22px;
+      color: #f6fbfb;
+      background: linear-gradient(115deg, #153137 0%, #1f474d 65%, #28545a 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 4px 18px rgba(14, 37, 41, 0.16);
+    }
+    .brand { min-width: 0; display: flex; align-items: center; gap: 12px; }
+    .mark {
+      width: 40px;
+      height: 40px;
+      flex: 0 0 40px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 11px;
+      color: #fff;
+      background: linear-gradient(145deg, rgba(255,255,255,.18), rgba(255,255,255,.05));
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+    .brand-copy { min-width: 0; }
+    .brand-title { font-size: 17px; font-weight: 800; letter-spacing: .02em; white-space: nowrap; }
+    .brand-subtitle { margin-top: 1px; color: #c7d8da; font-size: 11px; white-space: nowrap; }
+    nav { display: flex; align-items: center; gap: 7px; }
+    nav button {
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: #dbe8e9;
+      cursor: pointer;
+      transition: .16s ease;
+    }
+    nav button:hover { background: rgba(255,255,255,.08); color: #fff; }
+    nav button.active {
+      border-color: rgba(255,255,255,.2);
+      background: #f8fbfa;
+      color: #193a40;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(4, 22, 26, .18);
+    }
+    .actions { display: flex; align-items: center; gap: 10px; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 30px;
+      padding: 0 10px;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px;
+      color: #d9e8e9;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #78d2aa; box-shadow: 0 0 0 3px rgba(120,210,170,.13); }
+    .open-link { color: #fff; text-decoration: none; font-size: 12px; white-space: nowrap; }
+    .open-link:hover { text-decoration: underline; }
+    .workspace { min-height: 0; position: relative; }
+    .view { display: none; min-height: calc(100vh - 72px); }
+    .view.active { display: block; }
+    iframe { display: block; width: 100%; min-height: calc(100vh - 72px); border: 0; background: #fff; }
+    .handoff {
+      min-height: calc(100vh - 72px);
+      padding: 34px;
+      background:
+        radial-gradient(circle at 92% 8%, rgba(200,134,60,.14), transparent 24%),
+        linear-gradient(180deg, #f5f8f7 0%, #edf3f1 100%);
+    }
+    .handoff-inner { max-width: 1180px; margin: 0 auto; }
+    .eyebrow { color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { max-width: 760px; margin: 8px 0 10px; font-size: clamp(28px, 4vw, 46px); line-height: 1.18; letter-spacing: -.025em; }
+    .lead { max-width: 830px; margin: 0; color: var(--muted); font-size: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; margin-top: 26px; }
+    .card { grid-column: span 4; padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.93); box-shadow: var(--shadow); }
+    .card.wide { grid-column: span 8; }
+    .card.full { grid-column: span 12; }
+    .card h2 { margin: 0 0 8px; font-size: 15px; }
+    .card p { margin: 0; color: var(--muted); }
+    .metric { margin-top: 8px; font-size: 28px; font-weight: 800; letter-spacing: -.02em; }
+    .metric small { margin-left: 5px; color: var(--muted); font-size: 12px; font-weight: 500; }
+    .metric-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+    .metric-box { padding: 13px; border: 1px solid #e0e7e8; border-radius: 9px; background: #f8faf9; }
+    .metric-box span { display: block; color: var(--muted); font-size: 11px; }
+    .metric-box strong { display: block; margin-top: 3px; font-size: 18px; }
+    table { width: 100%; margin-top: 12px; border-collapse: collapse; }
+    th, td { padding: 9px 10px; border-bottom: 1px solid #e4eaeb; text-align: left; }
+    th { color: #52616a; background: #f3f6f5; font-size: 12px; }
+    td:last-child, th:last-child { text-align: right; }
+    tr:last-child td { border-bottom: 0; }
+    .steps { display: grid; gap: 10px; margin-top: 13px; }
+    .step { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; }
+    .step b { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; color: #fff; background: var(--nav-soft); font-size: 12px; }
+    .step strong { display: block; font-size: 13px; }
+    .step span { color: var(--muted); font-size: 12px; }
+    .notice { border-left: 4px solid var(--accent); background: #fffaf3; }
+    .footer-note { margin-top: 20px; color: #6d787f; font-size: 11px; }
+    @media (max-width: 980px) {
+      header { grid-template-columns: 1fr; gap: 9px; position: static; }
+      nav { overflow-x: auto; padding-bottom: 2px; }
+      .actions { position: absolute; top: 17px; right: 18px; }
+      .status { display: none; }
+      .view, iframe, .handoff { min-height: calc(100vh - 136px); }
+      iframe { min-height: calc(100vh - 136px); }
+      .card, .card.wide { grid-column: span 6; }
+    }
+    @media (max-width: 680px) {
+      header { padding: 12px; }
+      .brand-title { font-size: 15px; }
+      .open-link { display: none; }
+      nav button { padding: 0 10px; }
+      .handoff { padding: 22px 14px; }
+      .card, .card.wide, .card.full { grid-column: span 12; }
+      .metric-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand">
+        <div class="mark">CC</div>
+        <div class="brand-copy">
+          <div class="brand-title">ETF备兑策略研究</div>
+          <div class="brand-subtitle">最终交接版 · 研究证据与复现入口</div>
+        </div>
+      </div>
+      <nav aria-label="最终交接看板导航">
+        <button type="button" class="active" data-view="portfolio">组合研究</button>
+        <button type="button" data-view="cycle">单ETF周期验证</button>
+        <button type="button" data-view="handoff">交接说明</button>
+      </nav>
+      <div class="actions">
+        <span class="status">本地静态数据</span>
+        <a id="openCurrent" class="open-link" href="../ver3/dashboard/" target="_blank" rel="noopener">独立打开 ↗</a>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="view active" data-view-panel="portfolio" aria-label="组合研究看板">
+        <iframe id="portfolioFrame" title="组合研究看板" src="../ver3/dashboard/"></iframe>
+      </section>
+
+      <section class="view" data-view-panel="cycle" aria-label="单ETF周期验证看板">
+        <iframe id="cycleFrame" title="单ETF周期验证看板" data-src="../ver4/dashboard/"></iframe>
+      </section>
+
+      <section class="view handoff" data-view-panel="handoff" aria-label="交接说明">
+        <div class="handoff-inner">
+          <div class="eyebrow">Final research handoff</div>
+          <h1>一个入口，两层证据，一套可复现交付。</h1>
+          <p class="lead">组合研究回答“最终候选是什么、风险收益如何”；周期验证回答“每一期权利金、行权扣减和上涨让渡从哪里来”。内部研究编号仅用于追溯，不再作为交付界面名称。</p>
+
+          <div class="grid">
+            <article class="card wide">
+              <h2>当前组合研究主线</h2>
+              <p>防御收益组合池，回撤预算 20%。主样本为 2022-09-30 至 2026-05-27，共 881 个交易日。</p>
+              <div class="metric-row">
+                <div class="metric-box"><span>年化收益</span><strong>9.799%</strong></div>
+                <div class="metric-box"><span>Sharpe</span><strong>0.731</strong></div>
+                <div class="metric-box"><span>最大回撤</span><strong>19.96%</strong></div>
+              </div>
+              <table>
+                <thead><tr><th>ETF</th><th>策略规则</th><th>组合权重</th></tr></thead>
+                <tbody>
+                  <tr><td>510300</td><td>约30天 / 目标Delta40 / 覆盖70% / 持有到期</td><td>70%</td></tr>
+                  <tr><td>510050</td><td>约30天 / 目标Delta40 / 覆盖70% / 持有到期</td><td>14%</td></tr>
+                  <tr><td>159915</td><td>约30天 / 目标Delta20 / 覆盖10% / 持有到期</td><td>16%</td></tr>
+                </tbody>
+              </table>
+            </article>
+
+            <article class="card">
+              <h2>单ETF周期证据</h2>
+              <div class="metric">5 <small>只 ETF 标的</small></div>
+              <p>按固定名义本金逐期独立结算，保留权利金、行权或平仓扣减、净期权收益和策略总收益的完整账本。</p>
+            </article>
+
+            <article class="card">
+              <h2>交付阅读顺序</h2>
+              <div class="steps">
+                <div class="step"><b>1</b><div><strong>先看组合研究</strong><span>确认候选组合、基准、权重与稳健性。</span></div></div>
+                <div class="step"><b>2</b><div><strong>再看周期验证</strong><span>核对每期现金流、行权与上涨让渡。</span></div></div>
+                <div class="step"><b>3</b><div><strong>最后做复现验收</strong><span>核对哈希、测试和冻结输入。</span></div></div>
+              </div>
+            </article>
+
+            <article class="card wide">
+              <h2>证据边界</h2>
+              <p>组合净值与周期现金流是两种不同统计口径：前者用于组合层风险收益比较；后者按独立固定名义本金解释单期经济含义。参数可能重合，但不得把二者当作同一张表的不同展示。</p>
+            </article>
+
+            <article class="card notice">
+              <h2>研究用途声明</h2>
+              <p>全部结果均为历史研究与静态展示，不构成交易指令、收益承诺或投资建议。目标机器仍需重新执行环境、测试和数据授权验收。</p>
+            </article>
+          </div>
+          <div class="footer-note">当前交接数据截至 2026-05-27。页面不触发回测，不访问外部接口。</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const viewConfig = {
+      portfolio: { href: "../ver3/dashboard/", frame: "portfolioFrame" },
+      cycle: { href: "../ver4/dashboard/", frame: "cycleFrame" },
+      handoff: { href: "#handoff", frame: null }
+    };
+    const buttons = [...document.querySelectorAll("[data-view]")];
+    const panels = [...document.querySelectorAll("[data-view-panel]")];
+    const openCurrent = document.getElementById("openCurrent");
+
+    function selectView(view, updateHash = true) {
+      if (!viewConfig[view]) view = "portfolio";
+      buttons.forEach(button => button.classList.toggle("active", button.dataset.view === view));
+      panels.forEach(panel => panel.classList.toggle("active", panel.dataset.viewPanel === view));
+      const config = viewConfig[view];
+      if (config.frame) {
+        const frame = document.getElementById(config.frame);
+        if (!frame.src && frame.dataset.src) frame.src = frame.dataset.src;
+        openCurrent.hidden = false;
+        openCurrent.href = config.href;
+      } else {
+        openCurrent.hidden = true;
+      }
+      if (updateHash) history.replaceState(null, "", `#${view}`);
+    }
+
+    buttons.forEach(button => button.addEventListener("click", () => selectView(button.dataset.view)));
+    window.addEventListener("hashchange", () => selectView(location.hash.slice(1), false));
+    selectView(location.hash.slice(1) || "portfolio", false);
+  </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ver3 实验看板</title>
+  <title>ETF备兑组合研究看板</title>
   <script src="../../outputs/ver3_0_dashboard_data/ver3_dashboard_data.js"></script>
   <style>
     :root {
@@ -603,8 +603,8 @@
   <div class="app">
     <aside>
       <div class="brand">
-        <div class="title">ver3 实验看板</div>
-        <div class="subtitle">ETF 备兑策略当前实验结果</div>
+        <div class="title">ETF备兑组合研究</div>
+        <div class="subtitle">候选组合、风险收益与稳健性证据</div>
       </div>
 
       <label for="candidateSelect">候选组合</label>
@@ -614,7 +614,7 @@
         <button class="active" data-tab="overview">总览</button>
         <button data-tab="sleeves">单券策略腿</button>
         <button data-tab="fixed">固定权重</button>
-        <button data-tab="frontier">MDD Frontier</button>
+        <button data-tab="frontier">回撤前沿</button>
         <button data-tab="robustness">稳健性</button>
         <button data-tab="figures">图表原件</button>
       </nav>
@@ -635,8 +635,8 @@
     <main>
       <div class="topbar">
         <div>
-          <h1 id="pageTitle">ver3.1 当前实验总览</h1>
-          <p id="pageLead">当前看板以 target-delta × coverage 主线、回撤预算组合和动态权重研究为核心展示口径。</p>
+          <h1 id="pageTitle">当前组合研究总览</h1>
+          <p id="pageLead">当前看板以目标 Delta × 覆盖比例、回撤预算组合和稳健性研究为核心展示口径。</p>
         </div>
         <div class="status">
           <span class="badge">静态数据包</span>
@@ -779,10 +779,10 @@
     }
 
     const tabs = {
-      overview: ["ver3.1 当前实验总览", "3.1 主线候选、组合净值、回撤和权重结构。"],
+      overview: ["当前组合研究总览", "主线候选、组合净值、回撤和权重结构。"],
       sleeves: ["单券策略腿画像", "单 ETF 备兑增强、目标Delta参数图谱与裸持基准对照。"],
-      fixed: ["固定权重组合", "3.1 策略单元在固定权重组合中的风险收益表现。"],
-      frontier: ["回撤预算下的组合优化", "3.1 在不同最大回撤预算下选择 Sharpe 较高的组合权重。"],
+      fixed: ["固定权重组合", "策略单元在固定权重组合中的风险收益表现。"],
+      frontier: ["回撤预算下的组合优化", "在不同最大回撤预算下选择 Sharpe 较高的组合权重。"],
       robustness: ["稳健性诊断", "事件剔除、滚动窗口、成本敏感性和调仓时点敏感性的研究证据。"],
       figures: ["图表原件", "Step C 已生成图表图片的集中浏览。"]
     };
@@ -957,11 +957,11 @@
       const text = String(name || "");
       if (candidateNames[text]) return candidateNames[text];
       let m = text.match(/^([AB])_v31_(\d+_\d+_\d+)$/);
-      if (m) return `${m[1]}组 3.1 固定权重 ${m[2].replaceAll("_", "/")}`;
+      if (m) return `${m[1]}组 固定权重 ${m[2].replaceAll("_", "/")}`;
       m = text.match(/^([AB])_v31_D(\d+)_/);
-      if (m) return `${m[1]}组 3.1 回撤预算${m[2]}%`;
+      if (m) return `${m[1]}组 回撤预算${m[2]}%`;
       m = text.match(/^([AB])_v31_D(\d+)_NA$/);
-      if (m) return `${m[1]}组 3.1 回撤预算${m[2]}% 不可行`;
+      if (m) return `${m[1]}组 回撤预算${m[2]}% 不可行`;
       m = text.match(/^([AB])_(Selected|Pure_ETF)_(\d+_\d+_\d+)$/);
       if (m) return `${m[1]}组${m[2] === "Selected" ? "备兑精选" : "纯ETF"} ${m[3].replaceAll("_", "/")}`;
       m = text.match(/^([AB])_(default|relaxed)_D(\d+)_/);
@@ -1243,7 +1243,7 @@
     function init() {
       bindImageModal();
       if (!DATA.mainLine && !DATA.stepC) {
-        byId("content").innerHTML = `<div class="panel empty">未找到 ver3 看板数据。请先运行 python ver3\\scripts\\python\\build_ver3_dashboard_data.py</div>`;
+        byId("content").innerHTML = `<div class="panel empty">未找到组合研究看板数据，请重新生成静态数据包。</div>`;
         return;
       }
       populateCandidateSelect();
@@ -1300,7 +1300,7 @@
       }
       container.hidden = false;
       const candidateControls = candidateOptions.length
-        ? `<div class="compare-group">3.1 主线候选</div>${candidateOptions.map(name => `
+        ? `<div class="compare-group">主线候选</div>${candidateOptions.map(name => `
           <label class="compare-option">
             <input type="checkbox" data-candidate-key="${esc(name)}"${state.candidateComparisonKeys.has(name) ? " checked" : ""}>
             <span>${esc(labelCandidate(name))}</span>
@@ -1352,7 +1352,7 @@
       const stabilityValue = num(score.overall_stability_score) === null ? "--" : fmt(score.overall_stability_score, 3);
       const stabilityNote = score.portfolio_name
         ? `StepC诊断 ${labelCandidateCompact(score.portfolio_name)} / ${translateStability(score.overall_stability_label)}`
-        : "3.1稳健性归因待整合";
+        : "稳健性归因待整合";
       byId("kpis").innerHTML = [
         kpi("候选", labelCandidate(state.candidate), full.role || "当前选中组合", ""),
         kpi("年化收益", cagrPct(full.annualized_return_cagr), "全样本复合收益", "positive"),
@@ -1491,7 +1491,7 @@
         ["assignment_count", "被行权/周期", formatAssignmentFraction],
         ["sample_start", "起点"],
         ["sample_end", "终点"],
-        ["source_detail", "来源", v => String(v || "").replace("ETF BuyHold baseline", "纯ETF基准").replace("ver2_1_dte30_full_rule_grid", "ver2.1 DTE30 规则网格").replace("ver2_6_stepA_available_rules", "ver2.6 Step A 已有规则").replace("ver3_stepA_588000_q100_scaled", "588000 Q100 缩放"), "long-text"]
+        ["source_detail", "来源", v => String(v || "").replace("ETF BuyHold baseline", "纯ETF基准").replace("ver2_1_dte30_full_rule_grid", "历史 DTE30 规则网格").replace("ver2_6_stepA_available_rules", "历史已有规则").replace("ver3_stepA_588000_q100_scaled", "588000 Q100 缩放"), "long-text"]
       ];
       const parameterGridBaseRows = surfaceGridRowsWithBuyhold(currentSurfaceRows, all, state.surfaceEtf);
       const parameterGridRows = sortTableRows(parameterGridBaseRows, parameterGridCols, state.surfaceGridSort);
@@ -1583,11 +1583,11 @@
         <div class="grid">
           <div class="panel span-12">
             <div class="callout">
-              本页同时保留两层固定权重证据：上方为 3.1 target-delta 策略单元的固定权重组合，下方为迁移前 StepB 的完整备兑组合与纯ETF基准对照。
+              本页同时保留两层固定权重证据：上方为目标 Delta 策略单元的固定权重组合，下方为历史完整备兑组合与纯ETF基准对照。
             </div>
           </div>
           <div class="panel span-12">
-            <h2>3.1 固定权重组合</h2>
+            <h2>当前固定权重组合</h2>
             ${table(summary, [
               ["portfolio_name", "组合", labelPortfolio, "long-text"],
               ["universe_short", "组合池", v => `${v}组`],
@@ -1646,7 +1646,7 @@
         <div class="grid">
           <div class="panel span-12">
             <div class="toolbar">
-              <h2>${useMainFrontier ? "3.1 回撤预算优化" : `${translateConstraint(state.constraint)} frontier`}</h2>
+              <h2>${useMainFrontier ? "当前回撤预算优化" : `${translateConstraint(state.constraint)} 回撤前沿`}</h2>
               ${useMainFrontier ? `<span class="badge">target-delta mainline</span>` : `<div class="seg">
                 <button data-constraint="default" class="${state.constraint === "default" ? "active" : ""}">默认约束</button>
                 <button data-constraint="relaxed" class="${state.constraint === "relaxed" ? "active" : ""}">放宽约束</button>

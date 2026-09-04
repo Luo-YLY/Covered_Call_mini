@@ -2439,7 +2439,7 @@
     }
 
     function init() {
-      if (!rows(DATA.etfs).length) { byId("content").innerHTML = `<div class="empty">尚未找到 ver4.0 数据。请先运行单ETF实验并构建看板数据包。</div>`; return; }
+      if (!rows(DATA.etfs).length) { byId("content").innerHTML = `<div class="empty">尚未找到单ETF周期数据，请重新生成看板静态数据包。</div>`; return; }
       populateSelectors(); updateSideInfo();
       byId("etfSelect").addEventListener("change", event => { state.etf = event.target.value; state.strategy = null; state.selectedCycleIndex = 0; state.selectedCycleIds = null; state.activeCycleId = null; state.excludedCycleIds = []; state.calendarMonth = null; state.earlyclose.selectedCycleIds = null; state.earlyclose.activeCycleId = null; populateSelectors(); updateSideInfo(); render(); });
       byId("strategySelect").addEventListener("change", event => { state.strategy = event.target.value; state.selectedCycleIndex = 0; state.selectedCycleIds = null; state.activeCycleId = null; state.excludedCycleIds = []; state.calendarMonth = null; state.earlyclose.selectedCycleIds = null; state.earlyclose.activeCycleId = null; render(); });

@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-    [ValidateSet("All", "Source", "Demo", "Inputs")]
-    [string] $Profile = "All",
+    [ValidateSet("All", "Source", "Demo", "Inputs", "Final")]
+    [string] $Profile = "Final",
     [string] $ReleaseTag = (Get-Date -Format "yyyyMMdd_HHmmss"),
     [string] $OutputRoot
 )
@@ -25,6 +25,17 @@ if ($OutputRoot -eq $RepoRoot) {
 $SkippedDirectoryPattern = '^(?:\.git|\.runtime|\.tmp|\.pytest_cache|\.mypy_cache|\.ruff_cache|\.venv|\.vscode|__pycache__|build|dist|env|htmlcov|temp|tmp.*|venv|soffice_.*|render_tmp)$'
 $SkippedFilePattern = '(?i)(?:\.py[co]|\.tmp|\.bak|\.inspect\.ndjson|\.DS_Store)$|^~\$'
 $ForbiddenReleaseNamePattern = '(?i)(?:^|[._-])(?:token|secret|password|credential)(?:[._-]|$)|^\.env(?:\..*)?$'
+$InputRelativeFiles = @(
+    "data\raw\etf_metadata.csv",
+    "data\raw\etf_prices.csv",
+    "data\raw\options.csv",
+    "data\raw\options_daily.csv",
+    "data\source\delta_enriched_options.csv",
+    "data\frozen_inputs\ver3_0_510050\ver2_1_daily_mtm.csv",
+    "data\frozen_inputs\ver3_0_510050\ver2_1_periods_with_regime.csv",
+    "outputs\ver3_0_stepA_moneyness_refined_daily_mtm_surface\summary\ver3_0_stepA_moneyness_refined_daily_mtm_surface_grid.csv",
+    "outputs\ver3_0_stepA_moneyness_refined_daily_mtm_surface\daily\ver3_0_stepA_moneyness_refined_daily_mtm_daily_paths.csv"
+)
 
 function Write-Step {
     param([string] $Message)
@@ -119,6 +130,14 @@ function Copy-TreeRelative {
     }
 }
 
+function Copy-InputFiles {
+    param([string] $PackageRoot)
+
+    foreach ($file in $InputRelativeFiles) {
+        Copy-FileRelative -RelativePath $file -PackageRoot $PackageRoot
+    }
+}
+
 function Get-GitSnapshot {
     $head = (& git -C $RepoRoot rev-parse HEAD 2>$null)
     $branch = (& git -C $RepoRoot branch --show-current 2>$null)
@@ -142,8 +161,9 @@ function Write-ReleaseMetadata {
 
     $scopeText = switch ($PackageProfile) {
         "source" { "Source code, tests, non-secret configuration, and documentation; raw market data and generated results are excluded." }
-        "demo" { "Source package content plus the ver3/ver4 dashboards, selected reports, presentation material, and dashboard dependencies." }
-        "inputs" { "Frozen ETF and option inputs required by the ver3/ver4 mainline; credentials and machine-specific endpoint configuration are excluded." }
+        "demo" { "Source package content plus the unified dashboard, selected reports, presentation material, and dashboard dependencies." }
+        "inputs" { "Frozen ETF and option inputs required by the research mainline; credentials and machine-specific endpoint configuration are excluded." }
+        "final" { "Complete handoff package with source, tests, unified dashboard, selected research evidence, and frozen runtime inputs." }
     }
 
     $readme = @"
@@ -159,19 +179,18 @@ $scopeText
 
 - This package was generated from the current workspace snapshot. See GIT_SNAPSHOT.txt for commit and cleanliness evidence.
 - The package excludes config/*.txt, .env, access tokens, passwords, and machine-specific endpoint configuration.
-- The source, demo, and inputs packages form one handoff release set. Reproduction still requires environment verification and acceptance tests on the target machine.
+- The final package is the preferred complete handoff. Source, demo, and inputs remain available only for split delivery when needed.
 - All research outputs are research-only and are not trading instructions.
 
-## Demo dashboards
+## Unified dashboard
 
-From the extracted demo package, run:
+From the extracted demo or final package, run:
 
     python -m http.server 8765 --bind 127.0.0.1
 
 Then open:
 
-- `http://127.0.0.1:8765/ver3/dashboard/`
-- `http://127.0.0.1:8765/ver4/dashboard/`
+- `http://127.0.0.1:8765/dashboard/`
 
 ## Integrity
 
@@ -202,8 +221,9 @@ function Assert-ReleaseSafety {
         throw "Forbidden credential-like filenames found in release: $($forbidden.FullName -join ', ')"
     }
 
-    if ($PackageProfile -eq "demo") {
+    if ($PackageProfile -in @("demo", "final")) {
         $required = @(
+            "dashboard\index.html",
             "ver3\dashboard\index.html",
             "ver4\dashboard\index.html",
             "outputs\ver3_0_dashboard_data\ver3_dashboard_data.js",
@@ -219,7 +239,7 @@ function Assert-ReleaseSafety {
             }
         }
     }
-    elseif ($PackageProfile -eq "inputs") {
+    if ($PackageProfile -in @("inputs", "final")) {
         $required = @(
             "configs\ver2_downside_protection.yaml",
             "data\raw\etf_metadata.csv",
@@ -240,9 +260,14 @@ function Assert-ReleaseSafety {
 }
 
 function New-ReleasePackage {
-    param([ValidateSet("source", "demo", "inputs")] [string] $PackageProfile)
+    param([ValidateSet("source", "demo", "inputs", "final")] [string] $PackageProfile)
 
-    $releaseName = "covered_call_mini_${PackageProfile}_$ReleaseTag"
+    $releaseName = if ($PackageProfile -eq "final") {
+        "covered_call_research_handoff_$ReleaseTag"
+    }
+    else {
+        "covered_call_mini_${PackageProfile}_$ReleaseTag"
+    }
     $stageName = "_stage_$($PackageProfile.Substring(0, 1))_$ReleaseTag"
     $packageRoot = Join-Path $OutputRoot $stageName
     $zipPath = Join-Path $OutputRoot "$releaseName.zip"
@@ -255,22 +280,10 @@ function New-ReleasePackage {
 
     if ($PackageProfile -eq "inputs") {
         Copy-TreeRelative -RelativePath "configs" -PackageRoot $packageRoot
-        foreach ($file in @(
-            "data\raw\etf_metadata.csv",
-            "data\raw\etf_prices.csv",
-            "data\raw\options.csv",
-            "data\raw\options_daily.csv",
-            "data\source\delta_enriched_options.csv",
-            "data\frozen_inputs\ver3_0_510050\ver2_1_daily_mtm.csv",
-            "data\frozen_inputs\ver3_0_510050\ver2_1_periods_with_regime.csv",
-            "outputs\ver3_0_stepA_moneyness_refined_daily_mtm_surface\summary\ver3_0_stepA_moneyness_refined_daily_mtm_surface_grid.csv",
-            "outputs\ver3_0_stepA_moneyness_refined_daily_mtm_surface\daily\ver3_0_stepA_moneyness_refined_daily_mtm_daily_paths.csv"
-        )) {
-            Copy-FileRelative -RelativePath $file -PackageRoot $packageRoot
-        }
+        Copy-InputFiles -PackageRoot $packageRoot
     }
     else {
-        foreach ($file in @("README.md", "DATA_DICTIONARY.md", ".gitignore")) {
+        foreach ($file in @("README.md", "HANDOFF.md", "DATA_DICTIONARY.md", ".gitignore")) {
             Copy-FileRelative -RelativePath $file -PackageRoot $packageRoot
         }
         foreach ($directory in @(
@@ -279,6 +292,7 @@ function New-ReleasePackage {
             "scripts",
             "configs",
             "docs",
+            "dashboard",
             "ver2_downside_protection",
             "ver3",
             "ver4"
@@ -287,7 +301,7 @@ function New-ReleasePackage {
         }
     }
 
-    if ($PackageProfile -eq "demo") {
+    if ($PackageProfile -in @("demo", "final")) {
         foreach ($directory in @(
             "outputs\final_report",
             "outputs\presentation",
@@ -317,6 +331,10 @@ function New-ReleasePackage {
         }
     }
 
+    if ($PackageProfile -eq "final") {
+        Copy-InputFiles -PackageRoot $packageRoot
+    }
+
     Assert-ReleaseSafety -PackageRoot $packageRoot -PackageProfile $PackageProfile
     Write-ReleaseMetadata -PackageRoot $packageRoot -PackageProfile $PackageProfile
     Compress-Archive -Path (Join-Path $packageRoot "*") -DestinationPath $zipPath -CompressionLevel Optimal
@@ -343,7 +361,8 @@ $profiles = switch ($Profile) {
     "Source" { @("source") }
     "Demo" { @("demo") }
     "Inputs" { @("inputs") }
-    default { @("source", "demo", "inputs") }
+    "Final" { @("final") }
+    default { @("source", "demo", "inputs", "final") }
 }
 
 $results = foreach ($packageProfile in $profiles) {
