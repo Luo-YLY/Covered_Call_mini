@@ -31,10 +31,29 @@ function Write-Step {
     Write-Host "[project-release] $Message"
 }
 
+function Get-RelativePathCompat {
+    param(
+        [string] $BasePath,
+        [string] $TargetPath
+    )
+
+    $baseFull = [System.IO.Path]::GetFullPath($BasePath).TrimEnd('\', '/')
+    $targetFull = [System.IO.Path]::GetFullPath($TargetPath)
+    if ($targetFull.Equals($baseFull, [System.StringComparison]::OrdinalIgnoreCase)) {
+        return "."
+    }
+
+    $prefix = $baseFull + [System.IO.Path]::DirectorySeparatorChar
+    if (-not $targetFull.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Target path is outside the expected base path: $targetFull"
+    }
+    return $targetFull.Substring($prefix.Length)
+}
+
 function Test-SkippedFile {
     param([System.IO.FileInfo] $File, [string] $SourceBase)
 
-    $relative = [System.IO.Path]::GetRelativePath($SourceBase, $File.FullName)
+    $relative = Get-RelativePathCompat -BasePath $SourceBase -TargetPath $File.FullName
     $segments = $relative -split '[\\/]'
     foreach ($segment in $segments[0..([Math]::Max(0, $segments.Count - 2))]) {
         if ($segment -match $SkippedDirectoryPattern) {
@@ -93,7 +112,7 @@ function Copy-TreeRelative {
         if (Test-SkippedFile -File $file -SourceBase $source) {
             continue
         }
-        $withinTree = [System.IO.Path]::GetRelativePath($source, $file.FullName)
+        $withinTree = Get-RelativePathCompat -BasePath $source -TargetPath $file.FullName
         $destination = Join-Path (Join-Path $PackageRoot $RelativePath) $withinTree
         New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
         Copy-Item -LiteralPath $file.FullName -Destination $destination -Force
@@ -122,41 +141,41 @@ function Write-ReleaseMetadata {
     )
 
     $scopeText = switch ($PackageProfile) {
-        "source" { "源码、测试、非秘密配置和文档；不含原始行情、派生大表或生成结果。" }
-        "demo" { "源码包内容，加上 ver3/ver4 看板数据、ver3.1 摘要、ver4 汇总报告、汇报材料和精选展示图表。" }
-        "inputs" { "ver3/ver4 主线运行所需的冻结 ETF 与期权输入数据；不含访问凭据和本机接口配置。" }
+        "source" { "Source code, tests, non-secret configuration, and documentation; raw market data and generated results are excluded." }
+        "demo" { "Source package content plus the ver3/ver4 dashboards, selected reports, presentation material, and dashboard dependencies." }
+        "inputs" { "Frozen ETF and option inputs required by the ver3/ver4 mainline; credentials and machine-specific endpoint configuration are excluded." }
     }
 
     $readme = @"
 # covered_call_mini $PackageProfile release
 
-生成时间：$(Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz")
+Generated at: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz")
 
-## 范围
+## Scope
 
 $scopeText
 
-## 研究边界
+## Research boundary
 
-- 本包由当前工作区快照生成；是否对应干净 Git 提交请查看 `GIT_SNAPSHOT.txt`。
-- 本包不包含 `config/*.txt`、`.env`、访问令牌、密码或本机接口配置。
-- `source`、`demo`、`inputs` 三个包合并构成交接发布组；正式复现仍需在目标机器复核 Python 环境并重跑验收。
-- 所有研究输出仅用于研究与展示，不构成交易指令。
+- This package was generated from the current workspace snapshot. See GIT_SNAPSHOT.txt for commit and cleanliness evidence.
+- The package excludes config/*.txt, .env, access tokens, passwords, and machine-specific endpoint configuration.
+- The source, demo, and inputs packages form one handoff release set. Reproduction still requires environment verification and acceptance tests on the target machine.
+- All research outputs are research-only and are not trading instructions.
 
-## 演示看板
+## Demo dashboards
 
-`demo` 包可在解压目录运行：
+From the extracted demo package, run:
 
     python -m http.server 8765 --bind 127.0.0.1
 
-然后访问：
+Then open:
 
 - `http://127.0.0.1:8765/ver3/dashboard/`
 - `http://127.0.0.1:8765/ver4/dashboard/`
 
-## 完整性
+## Integrity
 
-`FILE_INDEX.csv` 记录包内文件的相对路径、字节数和 SHA-256。ZIP 自身哈希位于相邻的 `.sha256` 文件。
+FILE_INDEX.csv records each package file path, byte size, and SHA-256. The ZIP hash is stored in the adjacent .sha256 file.
 "@
     Set-Content -LiteralPath (Join-Path $PackageRoot "RELEASE_README.md") -Value $readme -Encoding UTF8
     Set-Content -LiteralPath (Join-Path $PackageRoot "GIT_SNAPSHOT.txt") -Value (Get-GitSnapshot) -Encoding UTF8
@@ -164,7 +183,7 @@ $scopeText
     $files = Get-ChildItem -LiteralPath $PackageRoot -Recurse -File -Force | Sort-Object FullName
     $indexRows = foreach ($file in $files) {
         [pscustomobject]@{
-            path = [System.IO.Path]::GetRelativePath($PackageRoot, $file.FullName).Replace('\', '/')
+            path = (Get-RelativePathCompat -BasePath $PackageRoot -TargetPath $file.FullName).Replace('\', '/')
             bytes = $file.Length
             sha256 = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
         }
@@ -224,8 +243,9 @@ function New-ReleasePackage {
     param([ValidateSet("source", "demo", "inputs")] [string] $PackageProfile)
 
     $releaseName = "covered_call_mini_${PackageProfile}_$ReleaseTag"
-    $packageRoot = Join-Path $OutputRoot $releaseName
-    $zipPath = "$packageRoot.zip"
+    $stageName = "_stage_$($PackageProfile.Substring(0, 1))_$ReleaseTag"
+    $packageRoot = Join-Path $OutputRoot $stageName
+    $zipPath = Join-Path $OutputRoot "$releaseName.zip"
     if ((Test-Path -LiteralPath $packageRoot) -or (Test-Path -LiteralPath $zipPath)) {
         throw "Release target already exists: $packageRoot"
     }
@@ -299,16 +319,17 @@ function New-ReleasePackage {
 
     Assert-ReleaseSafety -PackageRoot $packageRoot -PackageProfile $PackageProfile
     Write-ReleaseMetadata -PackageRoot $packageRoot -PackageProfile $PackageProfile
-    Compress-Archive -LiteralPath $packageRoot -DestinationPath $zipPath -CompressionLevel Optimal
+    Compress-Archive -Path (Join-Path $packageRoot "*") -DestinationPath $zipPath -CompressionLevel Optimal
     $zipHash = (Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash.ToLowerInvariant()
     Set-Content -LiteralPath "$zipPath.sha256" -Value "$zipHash  $([System.IO.Path]::GetFileName($zipPath))" -Encoding ASCII
 
     $packageFiles = @(Get-ChildItem -LiteralPath $packageRoot -Recurse -File -Force)
     $packageBytes = ($packageFiles | Measure-Object -Property Length -Sum).Sum
+    Remove-Item -LiteralPath $packageRoot -Recurse -Force
     Write-Step "$PackageProfile package ready: $zipPath"
     [pscustomobject]@{
         profile = $PackageProfile
-        directory = $packageRoot
+        directory = "archive only"
         archive = $zipPath
         files = $packageFiles.Count
         uncompressed_mib = [Math]::Round($packageBytes / 1MB, 2)
