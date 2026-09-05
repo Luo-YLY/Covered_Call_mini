@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ETF备兑策略研究 · 原始数据包</title>
+  <title>ETF备兑策略研究 · 原始数据</title>
   <style>
     :root {
       --ink: #13212b;
@@ -105,16 +105,19 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 68px;
+      min-width: 126px;
       padding: 6px 9px;
       border: 1px solid #cfdadd;
       border-radius: 7px;
       color: #234f56;
       background: #fff;
+      font: inherit;
       text-decoration: none;
+      cursor: pointer;
       white-space: nowrap;
     }
     .file-link:hover { border-color: #6e949a; background: #f1f7f6; }
+    .file-link:disabled { cursor: wait; opacity: .68; }
     .missing { color: var(--danger); }
     .empty { display: none; padding: 24px; color: var(--muted); text-align: center; }
     footer { margin-top: 19px; color: #6b787f; font-size: 11px; }
@@ -133,7 +136,7 @@
   <header>
     <div class="brand">
       <div class="mark">CC</div>
-      <div><strong>ETF备兑策略研究</strong><span>最终交接版 · 原始数据包</span></div>
+      <div><strong>ETF备兑策略研究</strong><span>项目数据 · 原始数据目录</span></div>
     </div>
     <a class="back" href="../">← 返回统一看板</a>
   </header>
@@ -142,14 +145,14 @@
     <section class="hero">
       <div class="eyebrow">LOCAL DATA PACKAGE</div>
       <h1>原始数据与研究底表</h1>
-      <p class="lead">这里集中列出最终交接包中的行情输入、冻结复现输入、组合研究底表和单 ETF 周期账本。所有文件链接均使用相对路径，交接包移动或改名后仍可访问。</p>
+      <p class="lead">这里集中列出项目目录中的标准化行情输入、冻结复现输入、组合研究底表和单 ETF 周期账本。新增ETF所需的供应商原始表为 Tushare fund_daily、opt_basic 和 opt_daily；ETF元数据不是回测必填项。</p>
       <div class="facts">
         <span class="fact">本地静态文件</span>
         <span class="fact">相对路径</span>
         <span class="fact">不触发回测</span>
         <span class="fact">不访问外部接口</span>
       </div>
-      <div class="notice">“原始输入”与“研究结果底表”分组展示。体积较大的 CSV 建议下载后用数据工具打开，避免浏览器直接渲染造成卡顿。</div>
+      <div class="notice">“标准化输入”与“研究结果底表”分组展示。点击操作按钮后，本地看板服务会在 Windows 文件资源管理器中定位对应文件，不会触发浏览器下载。</div>
     </section>
 
     <div class="toolbar">
@@ -159,21 +162,21 @@
 
     <div id="groups" class="groups"></div>
     <div id="empty" class="empty">没有匹配的数据文件。</div>
-    <footer>数据授权和使用范围仍以项目交接说明及内部管理要求为准。接收方可结合根目录 FILE_INDEX.csv 核对逐文件 SHA-256。</footer>
+    <footer>数据授权和使用范围仍以项目说明及内部管理要求为准。可结合根目录 FILE_INDEX.csv 核对逐文件 SHA-256。</footer>
   </main>
 
   <script>
     const ROOT = "../../";
     const groups = [
       {
-        title: "基础行情原始输入",
-        note: "采集或整理后的 ETF 与期权输入",
+        title: "当前标准化研究输入",
+        note: "由Tushare原始表转换，供现有回测读取",
         files: [
-          ["ETF 元数据", "标的代码、交易所及名称映射", "data/raw/etf_metadata.csv"],
           ["ETF 日行情", "组合与单 ETF 研究使用的日频行情", "data/raw/etf_prices.csv"],
-          ["期权合约表", "期权合约基础记录", "data/raw/options.csv"],
+          ["期权稀疏行情快照", "早期按部分交易日整理的期权研究输入", "data/raw/options.csv"],
           ["期权日行情", "期权逐日价格与交易字段", "data/raw/options_daily.csv"],
-          ["Delta 增强期权表", "补充目标 Delta 选择所需字段的派生输入", "data/source/delta_enriched_options.csv"]
+          ["Delta 增强期权表", "补充目标 Delta 选择所需字段的派生输入", "data/source/delta_enriched_options.csv"],
+          ["ETF 展示配置（可选）", "名称、交易所与风格标签；不作为新增ETF回测门槛", "data/raw/etf_metadata.csv"]
         ]
       },
       {
@@ -258,8 +261,35 @@
             <td class="desc">${description}</td>
             <td class="path">${path}</td>
             <td class="size" data-size>检测中…</td>
-            <td><a class="file-link" href="${href}" download>获取文件</a></td>`;
+            <td><button type="button" class="file-link" data-open-path="${path}">在文件资源管理器中查看</button></td>`;
           tbody.appendChild(row);
+
+          const openButton = row.querySelector("[data-open-path]");
+          openButton.addEventListener("click", async () => {
+            const idleLabel = "在文件资源管理器中查看";
+            openButton.disabled = true;
+            openButton.textContent = "正在定位…";
+            try {
+              const response = await fetch("/__dashboard/open-in-explorer", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-Dashboard-Action": "open-file"
+                },
+                body: JSON.stringify({ path })
+              });
+              const result = await response.json().catch(() => ({}));
+              if (!response.ok || !result.ok) throw new Error(result.message || String(response.status));
+              openButton.textContent = "已在资源管理器中定位";
+              window.setTimeout(() => { openButton.textContent = idleLabel; }, 1800);
+            } catch (error) {
+              openButton.textContent = "启动方式不支持";
+              window.alert("请在项目根目录使用 python scripts\\serve_dashboard.py --port 8765 启动看板，然后再试。");
+              window.setTimeout(() => { openButton.textContent = idleLabel; }, 2600);
+            } finally {
+              openButton.disabled = false;
+            }
+          });
 
           fetch(href, { method: "HEAD" })
             .then(response => {
@@ -272,7 +302,7 @@
               const sizeCell = row.querySelector("[data-size]");
               sizeCell.textContent = "文件不可用";
               sizeCell.classList.add("missing");
-              row.querySelector("a").setAttribute("aria-disabled", "true");
+              row.querySelector("[data-open-path]").disabled = true;
             });
         });
         groupsEl.appendChild(section);

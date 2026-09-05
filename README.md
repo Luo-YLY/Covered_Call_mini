@@ -2,7 +2,7 @@
 
 本仓库是项目最终交接工作区，对外统一为一个研究产品，不再用版本号区分入口。
 
-接收方请先阅读 [`HANDOFF.md`](HANDOFF.md)。
+使用前请先阅读 [`PROJECT_GUIDE.md`](PROJECT_GUIDE.md)。
 
 - 组合研究：从单 ETF 参数曲面进入固定权重、回撤约束前沿和稳健性诊断。
 - 单 ETF 周期验证：按独立固定名义本金核算备兑周期现金流、上涨让渡与提前平仓。
@@ -82,15 +82,29 @@ python ver4\scripts\python\run_ver4_0_single_etf_cycle_cashflow.py --etf 510300
 
 ## 看板
 
-从仓库根目录启动静态服务：
+从仓库根目录启动本地交接服务：
 
 ```powershell
-python -m http.server 8765 --bind 127.0.0.1
+python scripts\serve_dashboard.py --port 8765
 ```
 
 统一入口：`http://127.0.0.1:8765/dashboard/`
 
+专用服务仍然只绑定本机回环地址，并提供受限的“在文件资源管理器中查看”功能；只允许定位交接目录 `data/` 与 `outputs/` 中的已存在数据文件。
+
 交接方无需按版本号寻找页面；组合研究和单 ETF 周期验证均从统一入口切换。
+
+### 添加新的ETF数据
+
+统一看板中的“添加ETF”接收项目最初使用的三类 Tushare 原始导出：
+
+- `fund_daily`：ETF日行情；
+- `opt_basic`：期权合约基础信息；
+- `opt_daily`：期权日行情。
+
+ETF元数据不是必填项。系统会按六位ETF代码从三张原始表中提取记录，校验字段和共同样本，生成标准化行情与 Black-Scholes Delta 派生表，并将结果隔离保存在 `data/user_submissions/<ETF代码>/`。提交过程不会覆盖当前主线输入或自动改写既有研究结果。
+
+页面校验的是本项目最初使用的 Tushare 原始字段结构；字段结构一致并不能对文件来源作密码学认证。新增数据只有通过ETF行情、相关期权合约、期权日行情、DTE20～45认购合约和有效Delta检查后，才标记为“具备回测条件”。
 
 ## 交接打包
 

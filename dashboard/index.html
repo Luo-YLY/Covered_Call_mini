@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ETF备兑策略研究 · 最终交接版</title>
+  <title>ETF备兑策略研究 · 项目总览</title>
   <style>
     :root {
       --ink: #13212b;
@@ -93,14 +93,14 @@
     .view { display: none; min-height: calc(100vh - 72px); }
     .view.active { display: block; }
     iframe { display: block; width: 100%; min-height: calc(100vh - 72px); border: 0; background: #fff; }
-    .handoff {
+    .guide {
       min-height: calc(100vh - 72px);
       padding: 34px;
       background:
         radial-gradient(circle at 92% 8%, rgba(200,134,60,.14), transparent 24%),
         linear-gradient(180deg, #f5f8f7 0%, #edf3f1 100%);
     }
-    .handoff-inner { max-width: 1180px; margin: 0 auto; }
+    .guide-inner { max-width: 1180px; margin: 0 auto; }
     .eyebrow { color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
     h1 { max-width: 760px; margin: 8px 0 10px; font-size: clamp(28px, 4vw, 46px); line-height: 1.18; letter-spacing: -.025em; }
     .lead { max-width: 830px; margin: 0; color: var(--muted); font-size: 16px; }
@@ -133,7 +133,7 @@
       nav { overflow-x: auto; padding-bottom: 2px; }
       .actions { position: absolute; top: 17px; right: 18px; }
       .status { display: none; }
-      .view, iframe, .handoff { min-height: calc(100vh - 136px); }
+      .view, iframe, .guide { min-height: calc(100vh - 136px); }
       iframe { min-height: calc(100vh - 136px); }
       .card, .card.wide { grid-column: span 6; }
     }
@@ -142,7 +142,7 @@
       .brand-title { font-size: 15px; }
       .open-link { display: none; }
       nav button { padding: 0 10px; }
-      .handoff { padding: 22px 14px; }
+      .guide { padding: 22px 14px; }
       .card, .card.wide, .card.full { grid-column: span 12; }
       .metric-row { grid-template-columns: 1fr; }
     }
@@ -155,13 +155,14 @@
         <div class="mark">CC</div>
         <div class="brand-copy">
           <div class="brand-title">ETF备兑策略研究</div>
-          <div class="brand-subtitle">最终交接版 · 研究证据与复现入口</div>
+          <div class="brand-subtitle">研究证据与复现入口</div>
         </div>
       </div>
-      <nav aria-label="最终交接看板导航">
+      <nav aria-label="项目看板导航">
         <button type="button" class="active" data-view="portfolio">组合研究</button>
         <button type="button" data-view="cycle">单ETF周期验证</button>
-        <button type="button" data-view="handoff">交接说明</button>
+        <button type="button" data-view="add-etf">添加ETF</button>
+        <button type="button" data-view="guide">项目说明</button>
       </nav>
       <div class="actions">
         <span class="status">本地静态数据</span>
@@ -178,9 +179,13 @@
         <iframe id="cycleFrame" title="单ETF周期验证看板" data-src="../ver4/dashboard/"></iframe>
       </section>
 
-      <section class="view handoff" data-view-panel="handoff" aria-label="交接说明">
-        <div class="handoff-inner">
-          <div class="eyebrow">Final research handoff</div>
+      <section class="view" data-view-panel="add-etf" aria-label="添加ETF数据">
+        <iframe id="addEtfFrame" title="添加ETF数据" data-src="./add-etf/"></iframe>
+      </section>
+
+      <section class="view guide" data-view-panel="guide" aria-label="项目说明">
+        <div class="guide-inner">
+          <div class="eyebrow">PROJECT OVERVIEW</div>
           <h1>一个入口，两层证据，一套可复现交付。</h1>
           <p class="lead">组合研究回答“最终候选是什么、风险收益如何”；周期验证回答“每一期权利金、行权扣减和上涨让渡从哪里来”。内部研究编号仅用于追溯，不再作为交付界面名称。</p>
 
@@ -238,7 +243,8 @@
     const viewConfig = {
       portfolio: { frame: "portfolioFrame" },
       cycle: { frame: "cycleFrame" },
-      handoff: { frame: null }
+      "add-etf": { frame: "addEtfFrame" },
+      guide: { frame: null }
     };
     const buttons = [...document.querySelectorAll("[data-view]")];
     const panels = [...document.querySelectorAll("[data-view-panel]")];

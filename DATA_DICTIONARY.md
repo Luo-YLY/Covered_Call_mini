@@ -2,7 +2,7 @@
 
 ## data/raw/
 
-`data/raw/` 保存本 mini demo 自带的 Tushare 原始数据和转换后的研究输入表。项目运行时从这里读取数据，不依赖外部目录。
+`data/raw/` 保存当前主线使用的标准化研究输入表。项目最初的供应商上游是 Tushare `fund_daily`、`opt_basic` 和 `opt_daily`；这三张供应商原始表与下列标准化研究输入不是同一层。
 
 主要文件：
 
@@ -16,6 +16,24 @@ tushare_opt_daily_raw.csv       Tushare opt_daily 原始拉取结果
 _etf_price_collection_status.csv ETF行情采集状态
 _option_collection_status.csv    期权采集状态
 ```
+
+`etf_metadata.csv` 只提供名称、交易所和风格标签，不是新增ETF的回测硬门槛。用户提交的新ETF以六位代码识别；展示信息缺失时直接显示代码。
+
+## data/user_submissions/
+
+统一看板“添加ETF”生成的隔离数据包。每次提交保留三张原始文件、两张标准化输入、一张Delta派生表和一份处理清单：
+
+```text
+<ETF代码>/<提交编号>/raw/tushare_fund_daily_raw.csv
+<ETF代码>/<提交编号>/raw/tushare_opt_basic_raw.csv
+<ETF代码>/<提交编号>/raw/tushare_opt_daily_raw.csv
+<ETF代码>/<提交编号>/normalized/etf_prices.csv
+<ETF代码>/<提交编号>/normalized/options_daily.csv
+<ETF代码>/<提交编号>/derived/delta_enriched_options.csv
+<ETF代码>/<提交编号>/manifest.json
+```
+
+原始字段结构分别对应 Tushare `fund_daily`、`opt_basic`、`opt_daily`。清单中的 `source_contract` 表示通过Tushare字段结构校验，不表示对上传文件的来源作密码学认证。该目录不会覆盖 `data/raw/` 或 `data/source/` 的当前主线输入。
 
 ## data/source/iv_style_rule_close_v1_periods.csv
 
