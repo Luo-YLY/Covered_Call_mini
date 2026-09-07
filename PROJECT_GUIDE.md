@@ -75,7 +75,7 @@ http://127.0.0.1:8765/dashboard/
 .\scripts\verify_delivery.ps1
 ```
 
-最终包同时提供 `data/sample_uploads/five_etf_daily/`，包含510050、510300、159919、159915和159922五份完整日频上传样本。五券真实上传、单券回测、50点参数图谱及日频组合的自动验收记录位于 `outputs/final_acceptance/five_etf_acceptance.json`；逐项人工验收见 `DELIVERY_CHECKLIST.md`。
+最终包的冻结数据仅包含原始五只ETF：159915、510050、510300、510500和588000。工作区中的上传样本、用户提交目录和动态验收结果不随包交付；新增ETF上传、单券回测、50点参数图谱及日频组合功能代码完整保留。逐项人工验收见 `DELIVERY_CHECKLIST.md`。
 
 最终包内文件：
 

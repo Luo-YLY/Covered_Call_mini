@@ -25,6 +25,14 @@ if ($OutputRoot -eq $RepoRoot) {
 $SkippedDirectoryPattern = '^(?:\.git|\.runtime|\.tmp|\.pytest_cache|\.mypy_cache|\.ruff_cache|\.venv|\.vscode|__pycache__|build|dist|env|htmlcov|temp|tmp.*|venv|soffice_.*|render_tmp)$'
 $SkippedFilePattern = '(?i)(?:\.py[co]|\.tmp|\.bak|\.inspect\.ndjson|\.DS_Store)$|^~\$'
 $ForbiddenReleaseNamePattern = '(?i)(?:^|[._-])(?:token|secret|password|credential)(?:[._-]|$)|^\.env(?:\..*)?$'
+$FrozenEtfCodes = @("159915", "510050", "510300", "510500", "588000")
+$FrozenCsvFilters = @{
+    "data\raw\etf_metadata.csv" = @{ ColumnIndex = 0; ColumnName = "etf_code" }
+    "data\raw\etf_prices.csv" = @{ ColumnIndex = 1; ColumnName = "etf_code" }
+    "data\raw\options.csv" = @{ ColumnIndex = 2; ColumnName = "underlying_etf" }
+    "data\raw\options_daily.csv" = @{ ColumnIndex = 2; ColumnName = "underlying_etf" }
+    "data\source\delta_enriched_options.csv" = @{ ColumnIndex = 2; ColumnName = "underlying_etf" }
+}
 $InputRelativeFiles = @(
     "data\raw\etf_metadata.csv",
     "data\raw\etf_prices.csv",
@@ -149,11 +157,82 @@ function Copy-TreeRelative {
     }
 }
 
+function Copy-FrozenCsvRelative {
+    param(
+        [string] $RelativePath,
+        [string] $PackageRoot,
+        [int] $ColumnIndex,
+        [string] $ColumnName
+    )
+
+    $source = Join-Path $RepoRoot $RelativePath
+    if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
+        throw "Required file is missing: $RelativePath"
+    }
+    $destination = Join-Path $PackageRoot $RelativePath
+    New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+
+    $counts = @{}
+    foreach ($code in $FrozenEtfCodes) {
+        $counts[$code] = 0
+    }
+    $reader = [System.IO.StreamReader]::new($source, [System.Text.Encoding]::UTF8, $true)
+    $writer = [System.IO.StreamWriter]::new(
+        $destination,
+        $false,
+        [System.Text.UTF8Encoding]::new($false)
+    )
+    try {
+        $header = $reader.ReadLine()
+        if ($null -eq $header) {
+            throw "CSV is empty: $RelativePath"
+        }
+        $headerFields = $header.Split(',')
+        if (($headerFields.Count -le $ColumnIndex) -or ($headerFields[$ColumnIndex].Trim('"') -ne $ColumnName)) {
+            throw "CSV filter column mismatch in ${RelativePath}: expected $ColumnName at index $ColumnIndex"
+        }
+        $writer.WriteLine($header)
+        while (($line = $reader.ReadLine()) -ne $null) {
+            if ([string]::IsNullOrWhiteSpace($line)) {
+                continue
+            }
+            $fields = $line.Split(',')
+            if ($fields.Count -le $ColumnIndex) {
+                throw "Malformed CSV row in $RelativePath"
+            }
+            $code = $fields[$ColumnIndex].Trim().Trim('"')
+            if ($FrozenEtfCodes -contains $code) {
+                $writer.WriteLine($line)
+                $counts[$code] = [int]$counts[$code] + 1
+            }
+        }
+    }
+    finally {
+        $writer.Dispose()
+        $reader.Dispose()
+    }
+
+    $missingCodes = @($FrozenEtfCodes | Where-Object { [int]$counts[$_] -eq 0 })
+    if ($missingCodes.Count -gt 0) {
+        throw "Frozen data file $RelativePath is missing ETF rows: $($missingCodes -join ', ')"
+    }
+}
+
 function Copy-InputFiles {
     param([string] $PackageRoot)
 
     foreach ($file in $InputRelativeFiles) {
-        Copy-FileRelative -RelativePath $file -PackageRoot $PackageRoot
+        if ($FrozenCsvFilters.ContainsKey($file)) {
+            $filter = $FrozenCsvFilters[$file]
+            Copy-FrozenCsvRelative `
+                -RelativePath $file `
+                -PackageRoot $PackageRoot `
+                -ColumnIndex $filter.ColumnIndex `
+                -ColumnName $filter.ColumnName
+        }
+        else {
+            Copy-FileRelative -RelativePath $file -PackageRoot $PackageRoot
+        }
     }
 }
 
@@ -182,7 +261,7 @@ function Write-ReleaseMetadata {
         "source" { "Source code, tests, non-secret configuration, and documentation; raw market data and generated results are excluded." }
         "demo" { "Source package content plus the unified dashboard, selected reports, presentation material, and dashboard dependencies." }
         "inputs" { "Frozen ETF and option inputs required by the research mainline; credentials and machine-specific endpoint configuration are excluded." }
-        "final" { "Complete final package with source, tests, unified dashboard, selected research evidence, and frozen runtime inputs." }
+        "final" { "Complete final package with source, tests, unified dashboard, selected research evidence, and frozen inputs for 159915, 510050, 510300, 510500, and 588000 only." }
     }
 
     $readme = @"
@@ -289,17 +368,14 @@ function Assert-ReleaseSafety {
                 throw "Final release is missing raw-data catalog target: $relativePath"
             }
         }
-        foreach ($relativePath in @(
-            "data\sample_uploads\five_etf_daily\sample_manifest.json",
-            "data\sample_uploads\five_etf_daily\510050\etf_daily.csv",
-            "data\sample_uploads\five_etf_daily\510300\option_daily.csv",
-            "data\sample_uploads\five_etf_daily\159919\option_contracts.csv",
-            "data\sample_uploads\five_etf_daily\159915\option_daily.csv",
-            "data\sample_uploads\five_etf_daily\159922\source_manifest.json",
-            "outputs\final_acceptance\five_etf_acceptance.json"
+        foreach ($excludedPath in @(
+            "data\sample_uploads",
+            "data\user_submissions",
+            "outputs\final_acceptance",
+            "outputs\user_backtests"
         )) {
-            if (-not (Test-Path -LiteralPath (Join-Path $PackageRoot $relativePath) -PathType Leaf)) {
-                throw "Final release is missing five-ETF acceptance evidence: $relativePath"
+            if (Test-Path -LiteralPath (Join-Path $PackageRoot $excludedPath)) {
+                throw "Final release contains local test or runtime data: $excludedPath"
             }
         }
     }
@@ -389,8 +465,6 @@ function New-ReleasePackage {
 
     if ($PackageProfile -eq "final") {
         Copy-InputFiles -PackageRoot $packageRoot
-        Copy-TreeRelative -RelativePath "data\sample_uploads\five_etf_daily" -PackageRoot $packageRoot
-        Copy-TreeRelative -RelativePath "outputs\final_acceptance" -PackageRoot $packageRoot
     }
 
     Assert-ReleaseSafety -PackageRoot $packageRoot -PackageProfile $PackageProfile

@@ -20,10 +20,15 @@ try {
         throw "Automated tests failed."
     }
 
-    Write-Host "[verify] Checking five-ETF daily upload samples and acceptance evidence"
-    & python scripts\verify_five_etf_delivery.py
-    if ($LASTEXITCODE -ne 0) {
-        throw "Five-ETF delivery evidence failed verification."
+    if (Test-Path -LiteralPath (Join-Path $RepoRoot "RELEASE_README.md") -PathType Leaf) {
+        Write-Host "[verify] Checking the final package frozen five-ETF boundary"
+        & python scripts\verify_release_frozen_scope.py --root $RepoRoot
+        if ($LASTEXITCODE -ne 0) {
+            throw "Final package frozen data scope failed verification."
+        }
+    }
+    else {
+        Write-Host "[verify] Workspace mode: package-only frozen data check will run after extraction"
     }
 
     Write-Host "[verify] Checking delivery entrypoints"
@@ -34,11 +39,8 @@ try {
         "ver3\dashboard\index.html",
         "ver4\dashboard\index.html",
         "scripts\serve_dashboard.py",
-        "scripts\run_five_etf_acceptance.py",
-        "scripts\verify_five_etf_delivery.py",
+        "scripts\verify_release_frozen_scope.py",
         "scripts\package_project_release.ps1",
-        "data\sample_uploads\five_etf_daily\sample_manifest.json",
-        "outputs\final_acceptance\five_etf_acceptance.json",
         "DELIVERY_CHECKLIST.md",
         "requirements.txt",
         "start_dashboard.ps1"
