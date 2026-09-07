@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-07T12:57:51+08:00",
+  "source_layer": "project_standardized_daily_archive",
+  "source_files": [
+    "data/raw/etf_prices.csv",
+    "data/raw/options_daily.csv"
+  ],
+  "provenance_note": "由项目既有完整日频研究输入拆分；上游原始文件采用Tushare Pro字段体系，本清单验证日期与文件完整性，不独立认证外部数据提供方。",
+  "etf_code": "510300",
+  "sample_start": "2021-01-04",
+  "sample_end": "2026-06-03",
+  "etf_trade_dates": 1310,
+  "option_trade_dates": 1310,
+  "daily_option_date_coverage": 1.0,
+  "option_contracts": 2430,
+  "option_daily_rows": 159298,
+  "files": {
+    "etf_daily": {
+      "path": "etf_daily.csv",
+      "rows": 1310,
+      "bytes": 93455,
+      "sha256": "94ca71d091505b4bff9cb89ec40f57d5db58c1c73898cfcb6b3389aba5d0f7c2"
+    },
+    "option_contracts": {
+      "path": "option_contracts.csv",
+      "rows": 2430,
+      "bytes": 91289,
+      "sha256": "0aa9e1f8e14ae203aec39e869ca480287899f56d9ddf1e1d43954612023799df"
+    },
+    "option_daily": {
+      "path": "option_daily.csv",
+      "rows": 159298,
+      "bytes": 8477512,
+      "sha256": "c705b63440747e7f067f505912643502efdfec8dd9d6b344b7c9523bf9e61d42"
+    }
+  }
+}

@@ -38,6 +38,18 @@
     .tabs { display: grid; gap: 6px; margin-top: 17px; }
     .tabs button { height: 34px; padding: 0 10px; border: 1px solid transparent; border-radius: 6px; background: var(--nav-soft); color: #eef4f7; text-align: left; font: inherit; cursor: pointer; }
     .tabs button.active { border-color: #b9d9d8; background: #edf7f7; color: #174148; font-weight: 700; }
+    .tabs button.unavailable { display: none; }
+    .interval-link { display: block; margin-top: 11px; padding: 9px 10px; border: 1px solid #607482; border-radius: 6px; color: #e8f4f1; text-align: center; text-decoration: none; font-size: 12px; }
+    .interval-link:hover { background: rgba(255,255,255,.08); }
+    .run-box { margin-top: 11px; padding: 10px; border: 1px solid #607482; border-radius: 6px; background: rgba(255,255,255,.035); }
+    .run-box summary { cursor: pointer; color: #fff; font-weight: 700; }
+    .run-box label { margin: 8px 0 3px; color: #cdd9df; font-size: 11px; }
+    .run-box input, .run-box select { width: 100%; height: 31px; padding: 0 7px; border: 1px solid #607482; border-radius: 5px; background: #16242e; color: #fff; font: inherit; }
+    .run-actions { display: grid; grid-template-columns: 1fr; gap: 6px; margin-top: 10px; }
+    .run-actions button { min-height: 32px; border: 1px solid #8eb7ba; border-radius: 5px; background: #eaf6f6; color: #173f47; font: inherit; font-weight: 700; cursor: pointer; }
+    .run-actions button.secondary { border-color: #607482; background: transparent; color: #edf6f7; }
+    .run-actions button[hidden] { display: none; }
+    .run-status { min-height: 18px; margin-top: 7px; color: #cdd9df; font-size: 11px; line-height: 1.45; }
     .side-note { margin-top: 17px; padding-top: 13px; border-top: 1px solid #536775; color: #c9d4db; font-size: 12px; line-height: 1.65; }
     .top { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
     .tag { display: inline-flex; align-items: center; min-height: 24px; padding: 2px 7px; border: 1px solid #cbd8df; border-radius: 6px; background: #fff; color: #4d5c69; font-size: 12px; white-space: nowrap; }
@@ -164,6 +176,18 @@
       <select id="etfSelect"></select>
       <label for="strategySelect">备兑规则</label>
       <select id="strategySelect"></select>
+      <details class="run-box" open>
+        <summary>自选单券回测</summary>
+        <label for="singleStart">开始日期</label><input id="singleStart" type="date" />
+        <label for="singleEnd">结束日期</label><input id="singleEnd" type="date" />
+        <label for="singleMode">虚值规则</label>
+        <select id="singleMode"><option value="target_delta">目标 Delta</option><option value="atm">ATM</option><option value="otm_pct">OTM 比例</option></select>
+        <label for="singleDepth" id="singleDepthLabel">目标 Delta</label><input id="singleDepth" type="number" min="0.01" max="0.95" step="0.01" value="0.30" />
+        <label for="singleCoverage">覆盖率（%）</label><input id="singleCoverage" type="number" min="0" max="100" step="5" value="100" />
+        <div class="run-actions"><button id="singleRun" type="button">运行并更新本页</button><button id="singlePublish" class="secondary" type="button" hidden>确认保存到看板</button></div>
+        <div id="singleRunStatus" class="run-status">请先选择ETF与参数。</div>
+      </details>
+      <a class="interval-link" href="../../dashboard/#add-etf" target="_parent">上传新ETF数据</a>
       <nav class="tabs" aria-label="周期现金流页面">
         <button class="active" data-tab="cash">现金收入</button>
         <button data-tab="cycles">逐期账本</button>
@@ -193,7 +217,9 @@
     </main>
   </div>
   <script>
-    const DATA = window.VER4_DASHBOARD_DATA || {};
+    let DATA = window.VER4_DASHBOARD_DATA || {};
+    let AVAILABLE_PACKAGES = [];
+    let currentDynamicRun = null;
     const state = { etf: null, strategy: null, tab: "cash", selectedCycleIndex: 0, selectedCycleIds: null, activeCycleId: null, excludedCycleIds: [], calendarMonth: null, timing: { useIvPercentile: false, ivLookback: 12, ivPercentileThreshold: 0.70, useIvRv: false, ivRvThreshold: 0 }, postdiag: { exclude924: false }, earlyclose: { rule: "delta", threshold: 0.70, selectedCycleIds: null, activeCycleId: null } };
     const earlyCloseDailyCache = {};
     const earlyCloseDailyRequests = {};
@@ -230,7 +256,7 @@
       const etfs = rows(DATA.etfs);
       if (!etfs.length) return;
       if (!state.etf || !etfs.some(item => item.etf_code === state.etf)) state.etf = etfs.find(item => item.etf_code === "510300")?.etf_code || etfs[0].etf_code;
-      byId("etfSelect").innerHTML = etfs.map(item => `<option value="${esc(item.etf_code)}">${esc(item.etf_code)}</option>`).join("");
+      byId("etfSelect").innerHTML = etfs.map(item => `<option value="${esc(item.etf_code)}">${esc(item.etf_code)}${item.pending_result ? " · 待运行" : item.manifest?.etf?.sample_scope === "user_selected_window" ? " · 自选区间" : ""}</option>`).join("");
       byId("etfSelect").value = state.etf;
       // Buy-and-hold remains the comparison anchor inside every covered-call view;
       // it is intentionally not rendered as an option-income strategy.
@@ -245,6 +271,15 @@
       }
       byId("strategySelect").innerHTML = ordered.map(row => `<option value="${esc(row.strategy_name)}">${esc(labelStrategy(row))}</option>`).join("");
       byId("strategySelect").value = state.strategy;
+      syncTabAvailability();
+    }
+
+    function syncTabAvailability() {
+      const capabilities = currentEtf()?.capabilities;
+      const allowed = new Set(Array.isArray(capabilities) && capabilities.length ? capabilities : Object.keys(tabs));
+      document.querySelectorAll("[data-tab]").forEach(button => button.classList.toggle("unavailable", !allowed.has(button.dataset.tab)));
+      if (!allowed.has(state.tab)) state.tab = allowed.has("cash") ? "cash" : [...allowed][0];
+      document.querySelectorAll("[data-tab]").forEach(button => button.classList.toggle("active", button.dataset.tab === state.tab));
     }
 
     function updateSideInfo() {
@@ -253,7 +288,7 @@
       const sample = manifest.etf || {};
       byId("sampleText").textContent = sample.sample_start && sample.sample_end ? `${sample.sample_start} 至 ${sample.sample_end}` : "--";
       byId("notionalText").textContent = num(manifest.fixed_notional) === null ? "--" : fmt(manifest.fixed_notional, 0);
-      byId("generatedText").textContent = DATA.generated_at || "--";
+      byId("generatedText").textContent = etf?.generated_at || DATA.generated_at || "--";
     }
 
     function renderKpis() {
@@ -271,6 +306,11 @@
       const [title, lead] = tabs[state.tab];
       byId("pageTitle").textContent = title;
       byId("pageLead").textContent = lead;
+      if (!rows(currentEtf()?.summary).length) {
+        byId("kpis").innerHTML = "";
+        byId("content").innerHTML = `<div class="empty">该ETF数据已就绪。请在左侧选择回测区间、虚值规则与覆盖率，然后点击“运行并更新本页”。</div>`;
+        return;
+      }
       renderKpis();
       if (state.tab === "cash") renderCash();
       if (state.tab === "cycles") renderCycles();
@@ -1482,7 +1522,8 @@
     }
 
     function earlyClosePayload() {
-      return state.earlyclose.rule === "tp80" ? (DATA.tp80_buyback || {}) : (DATA.delta_buyback || {});
+      const key = state.earlyclose.rule === "tp80" ? "tp80_buyback" : "delta_buyback";
+      return currentEtf()?.cycle_validation?.[key] || currentEtf()?.[key] || DATA[key] || {};
     }
 
     function earlyCloseParameter(row) {
@@ -1564,6 +1605,8 @@
 
     function ensureEarlyCloseDailyData() {
       const rule = state.earlyclose.rule;
+      const embedded = rows(earlyClosePayload().daily);
+      if (embedded.length) return Promise.resolve(embedded);
       if (earlyCloseDailyCache[rule]) return Promise.resolve(earlyCloseDailyCache[rule]);
       if (earlyCloseDailyRequests[rule]) return earlyCloseDailyRequests[rule];
       earlyCloseDailyRequests[rule] = fetch(earlyCloseDailyUrl())
@@ -1581,7 +1624,8 @@
 
     function earlyCloseDailyRecords(cycleId) {
       const parameter = Number(state.earlyclose.threshold);
-      return rows(earlyCloseDailyCache[state.earlyclose.rule]).filter(row =>
+      const embedded = rows(earlyClosePayload().daily);
+      return (embedded.length ? embedded : rows(earlyCloseDailyCache[state.earlyclose.rule])).filter(row =>
         String(row.etf_code || "").padStart(6, "0") === String(state.etf || "").padStart(6, "0")
         && row.strategy_name === state.strategy
         && row.cycle_id === cycleId
@@ -1722,7 +1766,7 @@
         if (detail) detail.innerHTML = `<div class="empty">暂无选中周期。</div>`;
         return;
       }
-      if (!earlyCloseDailyCache[state.earlyclose.rule]) {
+      if (!earlyCloseDailyCache[state.earlyclose.rule] && !rows(earlyClosePayload().daily).length) {
         if (chart) chart.innerHTML = `<div class="empty">正在读取所选规则的日频盯市路径…</div>`;
         if (detail) detail.innerHTML = `<div class="empty">路径加载后展示买回前后诊断。</div>`;
         ensureEarlyCloseDailyData().then(() => {
@@ -1739,7 +1783,8 @@
     }
 
     function deltaTriggerPathItems(records) {
-      if (state.earlyclose.rule !== "delta" || !earlyCloseDailyCache.delta) return [];
+      const hasDaily = Boolean(earlyCloseDailyCache.delta) || rows(earlyClosePayload().daily).length > 0;
+      if (state.earlyclose.rule !== "delta" || !hasDaily) return [];
       return records.filter(row => truthyFlag(row.buyback_triggered)).map(row => {
         const series = earlyCloseDailyRecords(row.cycle_id);
         const triggerIndex = series.findIndex(item => truthyFlag(item.buyback_trigger_day));
@@ -1830,7 +1875,7 @@
         const table = byId("deltaTriggerAttributionTable"); if (table) table.innerHTML = "";
         return;
       }
-      if (!earlyCloseDailyCache.delta) {
+      if (!earlyCloseDailyCache.delta && !rows(earlyClosePayload().daily).length) {
         kpis.innerHTML = `<div class="empty">正在读取 Delta 触发后的日频路径，用于归因分析…</div>`;
         endChart.innerHTML = ""; maxChart.innerHTML = "";
         ensureEarlyCloseDailyData().then(() => {
@@ -1940,7 +1985,7 @@
     }
 
     function renderEarlyClose() {
-      const hasTp80 = rows(DATA.tp80_buyback?.summary).length > 0;
+      const hasTp80 = rows(currentEtf()?.tp80_buyback?.summary || DATA.tp80_buyback?.summary).length > 0;
       if (state.earlyclose.rule !== "delta" && state.earlyclose.rule !== "tp80") state.earlyclose.rule = "delta";
       if (state.earlyclose.rule === "tp80" && !hasTp80) state.earlyclose.rule = "delta";
       const allSummaries = earlyCloseSummaries();
@@ -2438,10 +2483,159 @@
       summary.innerHTML = exclusionSummaryTable(records, includedCycleLedger(records));
     }
 
-    function init() {
+    function selectedPackage() {
+      return currentEtf()?.data_package || AVAILABLE_PACKAGES.find(item => item.etf_code === state.etf) || null;
+    }
+
+    function syncSingleControls() {
+      const item = selectedPackage();
+      const start = byId("singleStart"), end = byId("singleEnd");
+      if (item) {
+        start.min = start.max = ""; end.min = end.max = "";
+        start.min = item.sample_start || ""; start.max = item.sample_end || "";
+        end.min = item.sample_start || ""; end.max = item.sample_end || "";
+        if (!start.value || start.value < start.min || start.value > start.max) start.value = item.sample_start || "";
+        if (!end.value || end.value < end.min || end.value > end.max) end.value = item.sample_end || "";
+      }
+      const mode = byId("singleMode").value;
+      const depth = byId("singleDepth"), label = byId("singleDepthLabel");
+      depth.disabled = mode === "atm";
+      if (mode === "target_delta") {
+        label.textContent = "目标 Delta"; depth.min = "0.01"; depth.max = "0.95"; depth.step = "0.01";
+        if (!num(depth.value) || num(depth.value) > .95) depth.value = "0.30";
+      } else if (mode === "otm_pct") {
+        label.textContent = "OTM 比例（0.05 = 5%）"; depth.min = "0"; depth.max = "0.50"; depth.step = "0.01";
+        if (num(depth.value) === null || num(depth.value) > .50) depth.value = "0.05";
+      } else {
+        label.textContent = "ATM（不需要深度参数）";
+      }
+      byId("singleRun").disabled = !item || !item.ready_for_backtest;
+    }
+
+    async function dashboardApi(path, options = {}) {
+      const response = await fetch(path, { cache: "no-store", ...options });
+      let payload = {};
+      try { payload = await response.json(); } catch (_) {}
+      if (!response.ok || payload.ok === false) throw new Error(payload.message || `请求失败（${response.status}）`);
+      return payload;
+    }
+
+    function resetResearchState() {
+      state.strategy = null; state.selectedCycleIndex = 0; state.selectedCycleIds = null;
+      state.activeCycleId = null; state.excludedCycleIds = []; state.calendarMonth = null;
+      state.earlyclose.selectedCycleIds = null; state.earlyclose.activeCycleId = null;
+    }
+
+    async function runSingleResearch() {
+      const item = selectedPackage();
+      if (!item) return;
+      const status = byId("singleRunStatus"), button = byId("singleRun");
+      status.textContent = "正在计算完整单券研究…"; button.disabled = true; byId("singlePublish").hidden = true;
+      const mode = byId("singleMode").value;
+      try {
+        const payload = await dashboardApi("/__dashboard/backtest/run", {
+          method: "POST",
+          headers: {"Content-Type":"application/json", "X-Dashboard-Action":"run-backtest"},
+          body: JSON.stringify({
+            manifest_path: item.manifest_path,
+            start_date: byId("singleStart").value,
+            end_date: byId("singleEnd").value,
+            selection_mode: mode,
+            target_delta: mode === "target_delta" ? Number(byId("singleDepth").value) : 0.30,
+            otm_pct: mode === "otm_pct" ? Number(byId("singleDepth").value) : 0.05,
+            coverage_ratio: Number(byId("singleCoverage").value) / 100,
+          }),
+        });
+        currentDynamicRun = payload;
+        const research = { ...payload.cycle_validation, data_package: item, pending_result: false };
+        const code = String(research.etf_code).padStart(6, "0");
+        const merged = new Map(rows(DATA.etfs).map(row => [String(row.etf_code).padStart(6, "0"), row]));
+        merged.set(code, research); DATA = { ...DATA, generated_at: research.generated_at, etfs: [...merged.values()] };
+        state.etf = code; resetResearchState(); populateSelectors(); updateSideInfo(); render();
+        status.textContent = `已更新本页：${payload.audit.cycle_count} 个月度周期，选出期权 ${payload.audit.selected_option_cycles} 期。`;
+        byId("singlePublish").hidden = false;
+      } catch (error) {
+        status.textContent = `回测未完成：${error.message}`;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    async function saveSingleResearch() {
+      if (!currentDynamicRun?.run_manifest_path) return;
+      const status = byId("singleRunStatus"), button = byId("singlePublish");
+      button.disabled = true; status.textContent = "正在保存为本ETF的当前看板结果…";
+      try {
+        await dashboardApi("/__dashboard/backtest/publish", {
+          method: "POST", headers: {"Content-Type":"application/json", "X-Dashboard-Action":"publish-backtest"},
+          body: JSON.stringify({run_manifest_path: currentDynamicRun.run_manifest_path}),
+        });
+        status.textContent = "已保存。下次打开看板时仍会显示这个结果。"; button.hidden = true;
+        window.parent?.postMessage({type:"dashboard-backtest-published", etf_code:state.etf}, "*");
+      } catch (error) {
+        status.textContent = `保存失败：${error.message}`; button.disabled = false;
+      }
+    }
+
+    function bindSingleControls() {
+      byId("singleMode").addEventListener("change", () => {
+        if (byId("singleMode").value === "otm_pct") byId("singleDepth").value = "0.05";
+        if (byId("singleMode").value === "target_delta") byId("singleDepth").value = "0.30";
+        syncSingleControls();
+      });
+      byId("singleRun").addEventListener("click", runSingleResearch);
+      byId("singlePublish").addEventListener("click", saveSingleResearch);
+    }
+
+    async function hydratePublishedEtfs() {
+      try {
+        const [submissionsResponse, response] = await Promise.all([
+          fetch("/__dashboard/submissions", { cache: "no-store" }),
+          fetch("/__dashboard/backtest/published", { cache: "no-store" }),
+        ]);
+        if (submissionsResponse.ok) {
+          const data = await submissionsResponse.json();
+          const latest = new Map();
+          rows(data.submissions).filter(item => item.ready_for_backtest).forEach(item => {
+            const code = String(item.etf_code).padStart(6, "0");
+            if (!latest.has(code)) latest.set(code, {...item, etf_code:code});
+          });
+          AVAILABLE_PACKAGES = [...latest.values()];
+        }
+        if (!response.ok) return;
+        const payload = await response.json();
+        const published = Object.values(payload.latest_by_etf || {})
+          .map(run => run?.cycle_validation)
+          .filter(item => item && item.etf_code && rows(item.summary).length && rows(item.ledger).length);
+        const merged = new Map(rows(DATA.etfs).map(item => [String(item.etf_code).padStart(6, "0"), item]));
+        AVAILABLE_PACKAGES.forEach(item => {
+          const code = item.etf_code;
+          if (merged.has(code)) merged.set(code, {...merged.get(code), data_package:item});
+          else merged.set(code, {
+            etf_code: code, generated_at: item.created_at, pending_result: true, data_package: item,
+            capabilities: ["cash","cycles","postdiag","tradeoff","path","regime","timing"],
+            manifest: {fixed_notional:100, etf:{etf_code:code, sample_start:item.sample_start, sample_end:item.sample_end, sample_scope:"available_data"}},
+            summary: [], ledger: [], rolling_cashflow: [], regime: [], validation: [],
+          });
+        });
+        published.forEach(item => {
+          const code = String(item.etf_code).padStart(6, "0");
+          merged.set(code, {...item, data_package:AVAILABLE_PACKAGES.find(row => row.etf_code === code) || merged.get(code)?.data_package});
+        });
+        DATA = { ...DATA, generated_at: payload.updated_at || DATA.generated_at, etfs: [...merged.values()] };
+      } catch (_) {
+        // The packaged static dashboard remains usable when the local service is not running.
+      }
+    }
+
+    async function init() {
+      await hydratePublishedEtfs();
       if (!rows(DATA.etfs).length) { byId("content").innerHTML = `<div class="empty">尚未找到单ETF周期数据，请重新生成看板静态数据包。</div>`; return; }
-      populateSelectors(); updateSideInfo();
-      byId("etfSelect").addEventListener("change", event => { state.etf = event.target.value; state.strategy = null; state.selectedCycleIndex = 0; state.selectedCycleIds = null; state.activeCycleId = null; state.excludedCycleIds = []; state.calendarMonth = null; state.earlyclose.selectedCycleIds = null; state.earlyclose.activeCycleId = null; populateSelectors(); updateSideInfo(); render(); });
+      const requestedEtfRaw = new URLSearchParams(location.search).get("etf");
+      const requestedEtf = requestedEtfRaw ? String(requestedEtfRaw).padStart(6, "0") : "";
+      if (rows(DATA.etfs).some(item => String(item.etf_code).padStart(6, "0") === requestedEtf)) state.etf = requestedEtf;
+      bindSingleControls(); populateSelectors(); updateSideInfo(); syncSingleControls();
+      byId("etfSelect").addEventListener("change", event => { state.etf = event.target.value; resetResearchState(); populateSelectors(); updateSideInfo(); syncSingleControls(); byId("singlePublish").hidden = true; render(); });
       byId("strategySelect").addEventListener("change", event => { state.strategy = event.target.value; state.selectedCycleIndex = 0; state.selectedCycleIds = null; state.activeCycleId = null; state.excludedCycleIds = []; state.calendarMonth = null; state.earlyclose.selectedCycleIds = null; state.earlyclose.activeCycleId = null; render(); });
       document.querySelectorAll("[data-tab]").forEach(button => button.addEventListener("click", () => { state.tab = button.dataset.tab; document.querySelectorAll("[data-tab]").forEach(item => item.classList.toggle("active", item === button)); render(); }));
       render();

@@ -182,7 +182,7 @@ function Write-ReleaseMetadata {
         "source" { "Source code, tests, non-secret configuration, and documentation; raw market data and generated results are excluded." }
         "demo" { "Source package content plus the unified dashboard, selected reports, presentation material, and dashboard dependencies." }
         "inputs" { "Frozen ETF and option inputs required by the research mainline; credentials and machine-specific endpoint configuration are excluded." }
-        "final" { "Complete handoff package with source, tests, unified dashboard, selected research evidence, and frozen runtime inputs." }
+        "final" { "Complete final package with source, tests, unified dashboard, selected research evidence, and frozen runtime inputs." }
     }
 
     $readme = @"
@@ -198,14 +198,14 @@ $scopeText
 
 - This package was generated from the current workspace snapshot. See GIT_SNAPSHOT.txt for commit and cleanliness evidence.
 - The package excludes config/*.txt, .env, access tokens, passwords, and machine-specific endpoint configuration.
-- The final package is the preferred complete handoff. Source, demo, and inputs remain available only for split delivery when needed.
+- The final package is the preferred complete delivery. Source, demo, and inputs remain available only for split delivery when needed.
 - All research outputs are research-only and are not trading instructions.
 
 ## Unified dashboard
 
 From the extracted demo or final package, run:
 
-    python -m http.server 8765 --bind 127.0.0.1
+    python scripts\serve_dashboard.py --port 8765
 
 Then open:
 
@@ -242,13 +242,19 @@ function Assert-ReleaseSafety {
 
     if ($PackageProfile -in @("demo", "final")) {
         $required = @(
+            "requirements.txt",
+            "start_dashboard.ps1",
+            "DELIVERY_CHECKLIST.md",
+            "scripts\verify_delivery.ps1",
             "dashboard\index.html",
+            "dashboard\portfolio\index.html",
             "dashboard\raw-data\index.html",
             "ver3\dashboard\index.html",
             "ver4\dashboard\index.html",
             "outputs\ver3_0_dashboard_data\ver3_dashboard_data.js",
             "outputs\ver3_0_sleeve_diagnostics_report_pack\manifest.json",
             "outputs\ver3_0_stepC_robustness_stability_diagnostics\figures\ver3_0_stepC_candidate_nav_curves.png",
+            "outputs\ver3_1_effective_zone_target_delta\analysis\target_delta_surface_contours\figures\159915_target_delta_coverage_sharpe_contours.png",
             "outputs\ver4_0_single_etf_cycle_cashflow\dashboard\ver4_dashboard_data.js",
             "outputs\ver4_1_delta_buyback\ver4_1_delta_buyback_cycle_daily_mtm.csv",
             "outputs\ver4_2_tp80_buyback\ver4_2_tp80_buyback_cycle_daily_mtm.csv"
@@ -283,6 +289,19 @@ function Assert-ReleaseSafety {
                 throw "Final release is missing raw-data catalog target: $relativePath"
             }
         }
+        foreach ($relativePath in @(
+            "data\sample_uploads\five_etf_daily\sample_manifest.json",
+            "data\sample_uploads\five_etf_daily\510050\etf_daily.csv",
+            "data\sample_uploads\five_etf_daily\510300\option_daily.csv",
+            "data\sample_uploads\five_etf_daily\159919\option_contracts.csv",
+            "data\sample_uploads\five_etf_daily\159915\option_daily.csv",
+            "data\sample_uploads\five_etf_daily\159922\source_manifest.json",
+            "outputs\final_acceptance\five_etf_acceptance.json"
+        )) {
+            if (-not (Test-Path -LiteralPath (Join-Path $PackageRoot $relativePath) -PathType Leaf)) {
+                throw "Final release is missing five-ETF acceptance evidence: $relativePath"
+            }
+        }
     }
 }
 
@@ -290,7 +309,7 @@ function New-ReleasePackage {
     param([ValidateSet("source", "demo", "inputs", "final")] [string] $PackageProfile)
 
     $releaseName = if ($PackageProfile -eq "final") {
-        "covered_call_research_handoff_$ReleaseTag"
+        "covered_call_research_final_$ReleaseTag"
     }
     else {
         "covered_call_mini_${PackageProfile}_$ReleaseTag"
@@ -310,7 +329,16 @@ function New-ReleasePackage {
         Copy-InputFiles -PackageRoot $packageRoot
     }
     else {
-        foreach ($file in @("README.md", "HANDOFF.md", "DATA_DICTIONARY.md", ".gitignore")) {
+        foreach ($file in @(
+            "README.md",
+            "PROJECT_GUIDE.md",
+            "DATA_DICTIONARY.md",
+            "DELIVERY_CHECKLIST.md",
+            ".gitignore",
+            "requirements.txt",
+            "requirements-collectors.txt",
+            "start_dashboard.ps1"
+        )) {
             Copy-FileRelative -RelativePath $file -PackageRoot $packageRoot
         }
         foreach ($directory in @(
@@ -336,6 +364,7 @@ function New-ReleasePackage {
             "outputs\ver3_0_dashboard_data",
             "outputs\ver3_0_sleeve_diagnostics_report_pack",
             "outputs\ver3_0_stepC_robustness_stability_diagnostics\figures",
+            "outputs\ver3_1_effective_zone_target_delta\analysis\target_delta_surface_contours\figures",
             "outputs\ver3_1_effective_zone_target_delta\audit",
             "outputs\ver3_1_effective_zone_target_delta\dynamic",
             "outputs\ver3_1_effective_zone_target_delta\portfolio",
@@ -360,6 +389,8 @@ function New-ReleasePackage {
 
     if ($PackageProfile -eq "final") {
         Copy-InputFiles -PackageRoot $packageRoot
+        Copy-TreeRelative -RelativePath "data\sample_uploads\five_etf_daily" -PackageRoot $packageRoot
+        Copy-TreeRelative -RelativePath "outputs\final_acceptance" -PackageRoot $packageRoot
     }
 
     Assert-ReleaseSafety -PackageRoot $packageRoot -PackageProfile $PackageProfile

@@ -1,0 +1,5 @@
+-r requirements.txt
+
+# Optional only: the dashboard accepts provider-neutral CSV files without these.
+akshare
+tushare>=1.4.24

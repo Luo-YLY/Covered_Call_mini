@@ -24,12 +24,35 @@ from src.data.etf_submission import (  # noqa: E402
     DATASET_FILENAMES,
     SubmissionValidationError,
     normalize_etf_code,
-    prepare_tushare_submission,
+    prepare_etf_submission,
+)
+from src.dashboard_runtime import (  # noqa: E402
+    DashboardRuntimeError,
+    list_submission_packages,
+    load_published_portfolio,
+    load_published_results,
+    load_published_surfaces,
+    publish_backtest_result,
+    publish_parameter_surface,
+    publish_portfolio_result,
+    run_parameter_surface,
+    run_portfolio_backtest,
+    run_submission_backtest,
 )
 
 OPEN_ENDPOINT = "/__dashboard/open-in-explorer"
 UPLOAD_ENDPOINT = "/__dashboard/submit-etf/upload"
 PREPARE_ENDPOINT = "/__dashboard/submit-etf/prepare"
+SUBMISSIONS_ENDPOINT = "/__dashboard/submissions"
+BACKTEST_ENDPOINT = "/__dashboard/backtest/run"
+PUBLISH_ENDPOINT = "/__dashboard/backtest/publish"
+PUBLISHED_ENDPOINT = "/__dashboard/backtest/published"
+PORTFOLIO_BACKTEST_ENDPOINT = "/__dashboard/portfolio/run"
+PORTFOLIO_PUBLISH_ENDPOINT = "/__dashboard/portfolio/publish"
+PORTFOLIO_PUBLISHED_ENDPOINT = "/__dashboard/portfolio/published"
+SURFACE_BACKTEST_ENDPOINT = "/__dashboard/surface/run"
+SURFACE_PUBLISH_ENDPOINT = "/__dashboard/surface/publish"
+SURFACE_PUBLISHED_ENDPOINT = "/__dashboard/surface/published"
 ALLOWED_TOP_LEVEL = {"data", "outputs"}
 ALLOWED_SUFFIXES = {".csv", ".json", ".js", ".md"}
 MAX_UPLOAD_BYTES = 512 * 1024 * 1024
@@ -64,12 +87,17 @@ def resolve_catalog_file(relative_path: str) -> Path:
 class DashboardRequestHandler(SimpleHTTPRequestHandler):
     server_version = "ResearchDashboard/1.1"
 
+    def end_headers(self) -> None:
+        # Dashboard HTML and JavaScript change during local research iterations;
+        # stale iframe resources can otherwise hide newly activated controls.
+        self.send_header("Cache-Control", "no-store")
+        super().end_headers()
+
     def _send_json(self, status: int, payload: dict[str, Any]) -> None:
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(body)
 
@@ -177,7 +205,7 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
             stage = self._submission_stage(session_id)
             if not stage.is_dir():
                 raise ValueError("找不到本次上传，请重新选择三个文件")
-            result = prepare_tushare_submission(PROJECT_ROOT, stage, etf_code, session_id)
+            result = prepare_etf_submission(PROJECT_ROOT, stage, etf_code, session_id)
         except (OSError, ValueError, SubmissionValidationError, json.JSONDecodeError) as exc:
             self._send_json(400, {"ok": False, "message": str(exc)})
             return
@@ -187,6 +215,111 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
             return
         self._send_json(200, result)
 
+    def _handle_backtest(self) -> None:
+        if not self._allow_local_action("run-backtest"):
+            return
+        try:
+            payload = self._read_json(max_bytes=16384)
+            result = run_submission_backtest(PROJECT_ROOT, payload.get("manifest_path"), payload)
+        except (DashboardRuntimeError, OSError, ValueError, json.JSONDecodeError) as exc:
+            self._send_json(400, {"ok": False, "message": str(exc)})
+            return
+        except Exception as exc:  # preserve detailed server logs without exposing internals to the browser
+            self.log_error("Dynamic backtest failed: %s", exc)
+            self._send_json(500, {"ok": False, "message": "回测失败，请查看服务窗口中的错误信息"})
+            return
+        result["ok"] = True
+        self._send_json(200, result)
+
+    def _handle_publish(self) -> None:
+        if not self._allow_local_action("publish-backtest"):
+            return
+        try:
+            payload = self._read_json(max_bytes=8192)
+            result = publish_backtest_result(PROJECT_ROOT, payload.get("run_manifest_path"))
+        except (DashboardRuntimeError, OSError, ValueError, json.JSONDecodeError) as exc:
+            self._send_json(400, {"ok": False, "message": str(exc)})
+            return
+        self._send_json(200, result)
+
+    def _handle_surface_backtest(self) -> None:
+        if not self._allow_local_action("run-surface"):
+            return
+        try:
+            payload = self._read_json(max_bytes=32768)
+            result = run_parameter_surface(PROJECT_ROOT, payload.get("manifest_path"), payload)
+        except (DashboardRuntimeError, OSError, ValueError, json.JSONDecodeError) as exc:
+            self._send_json(400, {"ok": False, "message": str(exc)})
+            return
+        except Exception as exc:
+            self.log_error("Dynamic parameter surface failed: %s", exc)
+            self._send_json(500, {"ok": False, "message": "参数图谱生成失败，请查看服务窗口中的错误信息"})
+            return
+        result["ok"] = True
+        self._send_json(200, result)
+
+    def _handle_surface_publish(self) -> None:
+        if not self._allow_local_action("publish-surface"):
+            return
+        try:
+            payload = self._read_json(max_bytes=8192)
+            result = publish_parameter_surface(PROJECT_ROOT, payload.get("surface_manifest_path"))
+        except (DashboardRuntimeError, OSError, ValueError, json.JSONDecodeError) as exc:
+            self._send_json(400, {"ok": False, "message": str(exc)})
+            return
+        self._send_json(200, result)
+
+    def _handle_portfolio_backtest(self) -> None:
+        if not self._allow_local_action("run-portfolio"):
+            return
+        try:
+            payload = self._read_json(max_bytes=32768)
+            result = run_portfolio_backtest(PROJECT_ROOT, payload)
+        except (DashboardRuntimeError, OSError, ValueError, json.JSONDecodeError) as exc:
+            self._send_json(400, {"ok": False, "message": str(exc)})
+            return
+        except Exception as exc:
+            self.log_error("Dynamic portfolio backtest failed: %s", exc)
+            self._send_json(500, {"ok": False, "message": "组合回测失败，请查看服务窗口中的错误信息"})
+            return
+        result["ok"] = True
+        self._send_json(200, result)
+
+    def _handle_portfolio_publish(self) -> None:
+        if not self._allow_local_action("publish-portfolio"):
+            return
+        try:
+            payload = self._read_json(max_bytes=8192)
+            result = publish_portfolio_result(PROJECT_ROOT, payload.get("run_manifest_path"))
+        except (DashboardRuntimeError, OSError, ValueError, json.JSONDecodeError) as exc:
+            self._send_json(400, {"ok": False, "message": str(exc)})
+            return
+        self._send_json(200, result)
+
+    def _handle_runtime_read(self, path: str) -> bool:
+        try:
+            if path == SUBMISSIONS_ENDPOINT:
+                self._send_json(200, {"ok": True, "submissions": list_submission_packages(PROJECT_ROOT)})
+                return True
+            if path == PUBLISHED_ENDPOINT:
+                self._send_json(200, load_published_results(PROJECT_ROOT))
+                return True
+            if path == PORTFOLIO_PUBLISHED_ENDPOINT:
+                self._send_json(200, load_published_portfolio(PROJECT_ROOT))
+                return True
+            if path == SURFACE_PUBLISHED_ENDPOINT:
+                self._send_json(200, load_published_surfaces(PROJECT_ROOT))
+                return True
+        except (DashboardRuntimeError, OSError, ValueError, json.JSONDecodeError) as exc:
+            self._send_json(500, {"ok": False, "message": str(exc)})
+            return True
+        return False
+
+    def do_GET(self) -> None:  # noqa: N802 - stdlib handler API
+        path = urlsplit(self.path).path
+        if not self._handle_runtime_read(path):
+            super().do_GET()
+
     def do_POST(self) -> None:  # noqa: N802 - stdlib handler API
         path = urlsplit(self.path).path
         if path == OPEN_ENDPOINT:
@@ -195,6 +328,18 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
             self._handle_upload()
         elif path == PREPARE_ENDPOINT:
             self._handle_prepare()
+        elif path == BACKTEST_ENDPOINT:
+            self._handle_backtest()
+        elif path == PUBLISH_ENDPOINT:
+            self._handle_publish()
+        elif path == SURFACE_BACKTEST_ENDPOINT:
+            self._handle_surface_backtest()
+        elif path == SURFACE_PUBLISH_ENDPOINT:
+            self._handle_surface_publish()
+        elif path == PORTFOLIO_BACKTEST_ENDPOINT:
+            self._handle_portfolio_backtest()
+        elif path == PORTFOLIO_PUBLISH_ENDPOINT:
+            self._handle_portfolio_publish()
         else:
             self._send_json(404, {"ok": False, "message": "接口不存在"})
 

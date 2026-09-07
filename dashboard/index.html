@@ -161,11 +161,11 @@
       <nav aria-label="项目看板导航">
         <button type="button" class="active" data-view="portfolio">组合研究</button>
         <button type="button" data-view="cycle">单ETF周期验证</button>
-        <button type="button" data-view="add-etf">添加ETF</button>
+        <button type="button" data-view="add-etf">数据与回测</button>
         <button type="button" data-view="guide">项目说明</button>
       </nav>
       <div class="actions">
-        <span class="status">本地静态数据</span>
+        <span class="status">一体化研究看板</span>
         <a class="open-link" href="./raw-data/">查看原始数据 →</a>
       </div>
     </header>
@@ -179,8 +179,8 @@
         <iframe id="cycleFrame" title="单ETF周期验证看板" data-src="../ver4/dashboard/"></iframe>
       </section>
 
-      <section class="view" data-view-panel="add-etf" aria-label="添加ETF数据">
-        <iframe id="addEtfFrame" title="添加ETF数据" data-src="./add-etf/"></iframe>
+      <section class="view" data-view-panel="add-etf" aria-label="ETF数据与动态回测">
+        <iframe id="addEtfFrame" title="ETF数据与动态回测" data-src="./add-etf/?ui=option-date-range"></iframe>
       </section>
 
       <section class="view guide" data-view-panel="guide" aria-label="项目说明">
@@ -219,7 +219,7 @@
               <div class="steps">
                 <div class="step"><b>1</b><div><strong>先看组合研究</strong><span>确认候选组合、基准、权重与稳健性。</span></div></div>
                 <div class="step"><b>2</b><div><strong>再看周期验证</strong><span>核对每期现金流、行权与上涨让渡。</span></div></div>
-                <div class="step"><b>3</b><div><strong>最后做复现验收</strong><span>核对哈希、测试和冻结输入。</span></div></div>
+                <div class="step"><b>3</b><div><strong>最后做复现验收</strong><span>核对哈希、测试和输入数据。</span></div></div>
               </div>
             </article>
 
@@ -233,7 +233,7 @@
               <p>全部结果均为历史研究与静态展示，不构成交易指令、收益承诺或投资建议。目标机器仍需重新执行环境、测试和数据授权验收。</p>
             </article>
           </div>
-          <div class="footer-note">当前交接数据截至 2026-05-27。页面不触发回测，不访问外部接口。</div>
+          <div class="footer-note">当前基础样本截至 2026-05-27。新增数据和回测均在本机处理，确认发布后进入同一看板，不访问外部接口。</div>
         </div>
       </section>
     </main>
@@ -256,13 +256,47 @@
       const config = viewConfig[view];
       if (config.frame) {
         const frame = document.getElementById(config.frame);
-        if (!frame.src && frame.dataset.src) frame.src = frame.dataset.src;
+        if (!frame.getAttribute("src") && frame.dataset.src) {
+          let source = frame.dataset.src;
+          if (view === "cycle") {
+            const requestedEtf = new URLSearchParams(location.search).get("etf");
+            if (requestedEtf) {
+              const url = new URL(source, location.href);
+              url.searchParams.set("etf", requestedEtf);
+              source = url.href;
+            }
+          }
+          frame.src = source;
+        }
       }
       if (updateHash) history.replaceState(null, "", `#${view}`);
     }
 
     buttons.forEach(button => button.addEventListener("click", () => selectView(button.dataset.view)));
     window.addEventListener("hashchange", () => selectView(location.hash.slice(1), false));
+    window.addEventListener("message", event => {
+      if (event.origin !== location.origin) return;
+      if (event.data?.type === "dashboard-open-view" && viewConfig[event.data?.view]) {
+        selectView(event.data.view);
+        return;
+      }
+      if (event.data?.type === "dashboard-open-surface") {
+        selectView("portfolio");
+        requestAnimationFrame(() => document.getElementById("portfolioFrame")?.contentWindow?.postMessage(event.data, location.origin));
+        return;
+      }
+      if (event.data?.type === "dashboard-backtest-published") {
+        const cycleFrame = document.getElementById("cycleFrame");
+        if (cycleFrame.src) {
+          const url = new URL(cycleFrame.src);
+          url.searchParams.set("published", Date.now());
+          cycleFrame.src = url.href;
+        }
+      }
+      if (["dashboard-data-prepared", "dashboard-backtest-published", "dashboard-surface-published"].includes(event.data?.type)) {
+        document.getElementById("portfolioFrame")?.contentWindow?.postMessage(event.data, location.origin);
+      }
+    });
     selectView(location.hash.slice(1) || "portfolio", false);
   </script>
 </body>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>自选ETF组合研究</title>
+  <style>
+    :root { --ink:#18212f; --muted:#617083; --line:#dbe3ec; --blue:#2f6fbd; --green:#247a5a; --red:#bd4b43; --bg:#f5f7fa; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:13px/1.5 "Microsoft YaHei","Segoe UI",Arial,sans-serif; }
+    main { padding:16px; }
+    h2,h3,p { margin-top:0; } h2 { margin-bottom:5px; font-size:17px; } h3 { margin-bottom:8px; font-size:14px; }
+    p,.muted { color:var(--muted); }
+    .notice { padding:10px 12px; border-left:3px solid #4f8991; background:#edf5f6; color:#405762; }
+    .toolbar,.actions { display:flex; flex-wrap:wrap; gap:10px; align-items:end; margin-top:13px; }
+    .field { min-width:190px; } .field label { display:block; margin-bottom:4px; color:var(--muted); font-size:12px; font-weight:700; }
+    input,select,button { min-height:34px; border:1px solid #a9b8c5; border-radius:6px; background:#fff; color:var(--ink); padding:0 9px; font:inherit; }
+    input,select { width:100%; } button { cursor:pointer; font-weight:700; }
+    button.primary { border-color:#2461a7; background:var(--blue); color:#fff; } button.save { border-color:#267354; background:var(--green); color:#fff; }
+    button[disabled] { opacity:.55; cursor:not-allowed; }
+    .panel { margin-top:13px; padding:14px; border:1px solid var(--line); border-radius:8px; background:#fff; box-shadow:0 1px 7px rgba(17,31,48,.07); }
+    .legs { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:10px; }
+    .leg { padding:11px; border:1px solid var(--line); border-radius:7px; background:#fbfcfd; }
+    .leg.off { opacity:.62; }
+    .leg-head { display:flex; justify-content:space-between; gap:8px; align-items:center; margin-bottom:7px; }
+    .leg-check { display:flex; gap:7px; align-items:center; font-size:15px; font-weight:800; } .leg-check input { width:16px; min-height:16px; }
+    .range { color:var(--muted); font-size:11px; }
+    .leg-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .leg-fields label { color:var(--muted); font-size:11px; }
+    .leg-fields input,.leg-fields select { margin-top:3px; min-height:31px; }
+    .status { flex:1; min-width:240px; color:var(--muted); } .status.error { color:var(--red); } .status.ok { color:var(--green); }
+    .metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:10px; }
+    .metric { padding:12px; border:1px solid var(--line); border-radius:7px; background:#fff; }
+    .metric span,.metric strong { display:block; } .metric span { color:var(--muted); font-size:12px; } .metric strong { margin-top:3px; font-size:21px; }
+    .charts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:12px; }
+    .chart { min-width:0; padding:12px; border:1px solid var(--line); border-radius:7px; background:#fff; }
+    canvas { display:block; width:100%; height:260px; }
+    .legend { display:flex; gap:14px; color:var(--muted); font-size:12px; }.legend i { display:inline-block; width:9px; height:9px; margin-right:4px; border-radius:50%; }
+    .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:6px; } table { width:100%; border-collapse:collapse; background:#fff; }
+    th,td { padding:8px 9px; border-bottom:1px solid #e5ebef; text-align:right; white-space:nowrap; } th { background:#f0f4f6; } th:first-child,td:first-child { text-align:left; }
+    .empty { padding:25px; border:1px dashed var(--line); border-radius:7px; text-align:center; color:var(--muted); }
+    @media(max-width:850px){.metrics{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}.leg-fields{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <h2>自选ETF组合</h2>
+  <p>每只ETF独立设置权重、虚值规则与覆盖率；在共同月度周期内生成逐日盯市净值。</p>
+  <div class="notice">组合按月末固定权重再平衡，周期内使用ETF日收盘与所选期权日收盘逐日盯市；缺失的期权报价沿用最近收盘，并在结果审计中披露覆盖率。该结果与原有静态组合主线分开展示。
+  </div>
+  <section class="panel">
+    <div class="toolbar">
+      <div class="field"><label for="startDate">开始日期</label><input id="startDate" type="date" /></div>
+      <div class="field"><label for="endDate">结束日期</label><input id="endDate" type="date" /></div>
+      <div class="field"><label>共同可用区间</label><div id="commonRange" class="range">--</div></div>
+    </div>
+  </section>
+  <section class="panel"><h3>选择ETF并配置每条策略腿</h3><div id="legs" class="legs"><div class="empty">正在读取可用ETF数据包…</div></div></section>
+  <div class="actions"><button id="run" class="primary" type="button">运行组合研究</button><button id="save" class="save" type="button" hidden>确认保存当前组合</button><span id="status" class="status">请至少选择2只ETF，权重合计应为100%。</span></div>
+  <section id="result" class="panel" hidden></section>
+</main>
+<script>
+  const $=id=>document.getElementById(id), esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+  const pct=(value,d=2)=>Number.isFinite(Number(value))?`${(Number(value)*100).toFixed(d)}%`:"--";
+  const num=(value,d=3)=>Number.isFinite(Number(value))?Number(value).toFixed(d):"--";
+  let packages=[], draft=new Map(), current=null;
+
+  async function api(path,options={}){
+    const response=await fetch(path,{cache:"no-store",...options}); let payload={};
+    try{payload=await response.json();}catch(_){}
+    if(!response.ok||payload.ok===false)throw new Error(payload.message||`请求失败（${response.status}）`);
+    return payload;
+  }
+  function selected(){return packages.filter(item=>draft.get(item.etf_code)?.enabled);}
+  function commonWindow(force=false){
+    const items=selected(), start=items.length?items.map(x=>x.sample_start).sort().at(-1):"", end=items.length?items.map(x=>x.sample_end).sort()[0]:"";
+    $("commonRange").textContent=start&&end?`${start} 至 ${end}`:"--";
+    $("startDate").min=start;$("startDate").max=end;$("endDate").min=start;$("endDate").max=end;
+    if(force||!$("startDate").value||$("startDate").value<start||$("startDate").value>end)$("startDate").value=start;
+    if(force||!$("endDate").value||$("endDate").value<start||$("endDate").value>end)$("endDate").value=end;
+  }
+  function balanceWeights(){const items=selected();items.forEach((item,index)=>{draft.get(item.etf_code).weight=index===items.length-1?100-Math.floor(100/items.length)*(items.length-1):Math.floor(100/items.length);});}
+  function legHtml(item){
+    const d=draft.get(item.etf_code), disabled=d.enabled?"":" disabled", depthDisabled=!d.enabled||d.mode==="atm"?" disabled":"";
+    const depthLabel=d.mode==="otm_pct"?"OTM比例（0.05=5%）":d.mode==="atm"?"ATM无需参数":"目标Delta";
+    return `<div class="leg${d.enabled?"":" off"}" data-code="${item.etf_code}"><div class="leg-head"><label class="leg-check"><input data-key="enabled" type="checkbox"${d.enabled?" checked":""}>${item.etf_code}</label><span class="range">${item.sample_start} 至 ${item.sample_end}</span></div><div class="leg-fields"><label>组合权重（%）<input data-key="weight" type="number" min="0.01" max="100" step="1" value="${d.weight}"${disabled}></label><label>虚值规则<select data-key="mode"${disabled}><option value="target_delta"${d.mode==="target_delta"?" selected":""}>目标Delta</option><option value="atm"${d.mode==="atm"?" selected":""}>ATM</option><option value="otm_pct"${d.mode==="otm_pct"?" selected":""}>OTM比例</option></select></label><label>${depthLabel}<input data-key="depth" type="number" min="0" max="0.95" step="0.01" value="${d.depth}"${depthDisabled}></label><label>覆盖率（%）<input data-key="coverage" type="number" min="0" max="100" step="5" value="${d.coverage}"${disabled}></label></div></div>`;
+  }
+  function renderLegs(){
+    $("legs").innerHTML=packages.length?packages.map(legHtml).join(""):`<div class="empty">没有通过完整性检查的ETF数据包。</div>`;
+    $("legs").querySelectorAll(".leg").forEach(card=>card.querySelectorAll("[data-key]").forEach(input=>input.addEventListener("change",()=>{
+      const d=draft.get(card.dataset.code),key=input.dataset.key;
+      if(key==="enabled"){d.enabled=input.checked;balanceWeights();commonWindow(true);renderLegs();return;}
+      if(key==="mode"){d.mode=input.value;if(d.mode==="otm_pct")d.depth=.05;else if(d.mode==="target_delta")d.depth=.30;renderLegs();return;}
+      d[key]=Number(input.value);
+    })));
+  }
+  function setStatus(text,kind=""){$("status").textContent=text;$("status").className=`status ${kind}`;}
+  function buildLegs(){return selected().map(item=>{const d=draft.get(item.etf_code);return {etf_code:item.etf_code,manifest_path:item.manifest_path,weight:d.weight/100,selection_mode:d.mode,target_delta:d.mode==="target_delta"?d.depth:.30,otm_pct:d.mode==="otm_pct"?d.depth:.05,coverage_ratio:d.coverage/100};});}
+  function draw(canvasId,records,keyA,keyB,zero=false){
+    const canvas=$(canvasId),ratio=window.devicePixelRatio||1,w=Math.max(canvas.clientWidth,320),h=260,p=38;canvas.width=w*ratio;canvas.height=h*ratio;const c=canvas.getContext("2d");c.scale(ratio,ratio);c.clearRect(0,0,w,h);
+    const vals=records.flatMap(r=>[Number(r[keyA]),Number(r[keyB])]).filter(Number.isFinite);if(!vals.length)return;let lo=Math.min(...vals),hi=Math.max(...vals);if(zero){lo=Math.min(lo,0);hi=Math.max(hi,0);}if(hi===lo)hi=lo+1;
+    c.font="11px Segoe UI";c.fillStyle="#70808a";c.strokeStyle="#e2e8ed";for(let i=0;i<5;i++){const y=p+(h-p*2)*i/4;c.beginPath();c.moveTo(p,y);c.lineTo(w-p,y);c.stroke();const v=hi-(hi-lo)*i/4;c.fillText(zero?`${(v*100).toFixed(0)}%`:v.toFixed(2),2,y+4);}
+    [[keyA,"#2f6fbd",3],[keyB,"#819096",2]].forEach(([key,color,width])=>{c.strokeStyle=color;c.lineWidth=width;c.beginPath();records.forEach((r,i)=>{const x=p+(w-p*2)*(records.length===1?0:i/(records.length-1)),y=p+(h-p*2)*(hi-Number(r[key]))/(hi-lo);i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();});
+  }
+  function renderResult(data){
+    const s=data.summary||{},b=data.buyhold_summary||{},daily=data.daily_mtm||[],path=daily.length?daily:(data.monthly||[]);
+    const quoteRatio=Number(data.audit?.minimum_exact_option_quote_ratio),quoteText=Number.isFinite(quoteRatio)?pct(quoteRatio,1):"--";
+    $("result").hidden=false;
+    $("result").innerHTML=`<div class="metrics"><div class="metric"><span>年化收益（日频MTM）</span><strong>${pct(s.annualized_return)}</strong></div><div class="metric"><span>Sharpe（日频）</span><strong>${num(s.sharpe_ratio)}</strong></div><div class="metric"><span>最大回撤（日频）</span><strong>${pct(Math.abs(Number(s.max_drawdown)))}</strong></div><div class="metric"><span>共同月度周期</span><strong>${s.periods||0}</strong></div><div class="metric"><span>共同交易日</span><strong>${s.daily_observations||path.length||0}</strong></div></div><div class="charts"><div class="chart"><h3>日频MTM组合净值</h3><canvas id="navChart"></canvas><div class="legend"><span><i style="background:#2f6fbd"></i>自选备兑组合</span><span><i style="background:#819096"></i>同组合权重裸持基准</span></div></div><div class="chart"><h3>日频回撤</h3><canvas id="ddChart"></canvas><div class="legend"><span><i style="background:#2f6fbd"></i>自选备兑组合</span><span><i style="background:#819096"></i>同组合权重裸持基准</span></div></div></div><div style="margin-top:12px"><h3>单券贡献与参数</h3><div class="table-wrap"><table><thead><tr><th>ETF</th><th>权重</th><th>虚值规则</th><th>覆盖率</th><th>回报贡献合计</th><th>期权腿贡献合计</th></tr></thead><tbody>${(data.contributions||[]).map(r=>`<tr><td>${esc(r.etf_code)}</td><td>${pct(r.weight,0)}</td><td>${esc(r.strategy_label)}</td><td>${pct(r.coverage_ratio,0)}</td><td>${pct(r.strategy_return_contribution_sum)}</td><td>${pct(r.option_contribution_sum)}</td></tr>`).join("")}</tbody></table></div></div><div class="notice" style="margin-top:12px">审计通过：按月末固定权重再平衡，${data.audit?.selected_etf_count||0} 只ETF覆盖 ${data.audit?.common_periods||0} 个共同月度周期和 ${data.audit?.common_daily_observations||path.length||0} 个共同交易日；月末MTM与周期结算最大误差 ${Number(data.audit?.max_month_end_reconciliation_error||0).toExponential(2)}。所选期权当日收盘覆盖率最低 ${quoteText}，其余日期沿用最近收盘。裸持基准年化收益 ${pct(b.annualized_return)}。</div>`;
+    requestAnimationFrame(()=>{draw("navChart",path,"nav","buyhold_nav");draw("ddChart",path,"drawdown","buyhold_drawdown",true);});
+  }
+  async function run(){
+    const legs=buildLegs();if(legs.length<2)return setStatus("请至少选择2只ETF。","error");
+    const total=legs.reduce((sum,x)=>sum+x.weight,0);if(Math.abs(total-1)>.000001)return setStatus(`权重合计必须为100%，当前为 ${(total*100).toFixed(2)}%。`,"error");
+    $("run").disabled=true;$("save").hidden=true;setStatus("正在分别计算各ETF，并对齐共同周期与日频MTM路径…");
+    try{current=await api("/__dashboard/portfolio/run",{method:"POST",headers:{"Content-Type":"application/json","X-Dashboard-Action":"run-portfolio"},body:JSON.stringify({start_date:$("startDate").value,end_date:$("endDate").value,legs})});renderResult(current);$("save").hidden=false;setStatus(`组合研究已生成：${current.audit.common_periods} 个共同月度周期、${current.audit.common_daily_observations} 个共同交易日。`,"ok");}catch(e){setStatus(`组合回测未完成：${e.message}`,"error");}finally{$("run").disabled=false;}
+  }
+  async function save(){if(!current?.run_manifest_path)return;$("save").disabled=true;try{await api("/__dashboard/portfolio/publish",{method:"POST",headers:{"Content-Type":"application/json","X-Dashboard-Action":"publish-portfolio"},body:JSON.stringify({run_manifest_path:current.run_manifest_path})});$("save").hidden=true;setStatus("已保存为当前自选组合。","ok");}catch(e){setStatus(`保存失败：${e.message}`,"error");$("save").disabled=false;}}
+  function restoreDraft(result){
+    if(!(result?.legs||[]).length)return;
+    draft.forEach(value=>value.enabled=false);
+    result.legs.forEach(leg=>{const d=draft.get(String(leg.etf_code).padStart(6,"0"));if(!d)return;d.enabled=true;d.weight=Number(leg.weight)*100;d.mode=leg.selection_mode||"target_delta";d.depth=d.mode==="otm_pct"?Number(leg.otm_pct):Number(leg.target_delta);d.coverage=Number(leg.coverage_ratio)*100;});
+    commonWindow(true);if(result.sample?.start)$("startDate").value=result.sample.start;if(result.sample?.end)$("endDate").value=result.sample.end;renderLegs();
+  }
+  async function init(){
+    try{const [data,published]=await Promise.all([api("/__dashboard/submissions"),api("/__dashboard/portfolio/published")]);const latest=new Map();(data.submissions||[]).filter(x=>x.ready_for_backtest).forEach(x=>{const code=String(x.etf_code).padStart(6,"0");if(!latest.has(code))latest.set(code,{...x,etf_code:code});});packages=[...latest.values()];const preferred=new Set(["510300","510050","159915"]);const usePreferred=packages.filter(item=>preferred.has(item.etf_code)).length>=2;packages.forEach((item,index)=>draft.set(item.etf_code,{enabled:usePreferred?preferred.has(item.etf_code):index<Math.min(3,packages.length),weight:0,mode:"target_delta",depth:.30,coverage:100}));balanceWeights();commonWindow(true);renderLegs();if(published.current){current=published.current;restoreDraft(current);renderResult(current);setStatus(`已读取上次保存的组合：${current.audit?.common_periods||0} 个共同周期、${current.audit?.common_daily_observations||0} 个共同交易日。`,"ok");}}catch(e){$("legs").innerHTML=`<div class="empty">${esc(e.message)}</div>`;setStatus("请使用项目本地服务启动看板。","error");$("run").disabled=true;}
+  }
+  $("run").addEventListener("click",run);$("save").addEventListener("click",save);window.addEventListener("resize",()=>current&&renderResult(current));init();
+</script>
+</body>
+</html>

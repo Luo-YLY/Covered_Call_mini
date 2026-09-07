@@ -1,0 +1,146 @@
+{
+  "status": "passed",
+  "generated_at": "2026-09-07T13:02:51+08:00",
+  "dashboard_url": "http://127.0.0.1:8766",
+  "etf_codes": [
+    "510050",
+    "510300",
+    "159919",
+    "159915",
+    "159922"
+  ],
+  "common_window": {
+    "start": "2022-09-19",
+    "end": "2026-06-03"
+  },
+  "single_etf_backtests": [
+    {
+      "etf_code": "510050",
+      "sample": {
+        "start": "2021-01-04",
+        "end": "2026-06-03"
+      },
+      "cycles": 65,
+      "selected_option_cycles": 64,
+      "daily_mtm_rows": 1355,
+      "exact_option_quote_ratio": 1.0,
+      "max_reconciliation_error": 1.1102230246251565e-16,
+      "run_manifest_path": "outputs/user_backtests/510050/20260907T125949_3d4aaeab/run_manifest.json"
+    },
+    {
+      "etf_code": "510300",
+      "sample": {
+        "start": "2021-01-04",
+        "end": "2026-06-03"
+      },
+      "cycles": 65,
+      "selected_option_cycles": 64,
+      "daily_mtm_rows": 1355,
+      "exact_option_quote_ratio": 1.0,
+      "max_reconciliation_error": 1.1102230246251565e-16,
+      "run_manifest_path": "outputs/user_backtests/510300/20260907T130035_ae611a19/run_manifest.json"
+    },
+    {
+      "etf_code": "159919",
+      "sample": {
+        "start": "2021-01-04",
+        "end": "2026-06-03"
+      },
+      "cycles": 65,
+      "selected_option_cycles": 64,
+      "daily_mtm_rows": 1355,
+      "exact_option_quote_ratio": 1.0,
+      "max_reconciliation_error": 1.1102230246251565e-16,
+      "run_manifest_path": "outputs/user_backtests/159919/20260907T130118_f85838de/run_manifest.json"
+    },
+    {
+      "etf_code": "159915",
+      "sample": {
+        "start": "2022-09-19",
+        "end": "2026-06-03"
+      },
+      "cycles": 45,
+      "selected_option_cycles": 44,
+      "daily_mtm_rows": 930,
+      "exact_option_quote_ratio": 1.0,
+      "max_reconciliation_error": 1.1102230246251565e-16,
+      "run_manifest_path": "outputs/user_backtests/159915/20260907T130154_d4a8082c/run_manifest.json"
+    },
+    {
+      "etf_code": "159922",
+      "sample": {
+        "start": "2022-09-19",
+        "end": "2026-06-03"
+      },
+      "cycles": 45,
+      "selected_option_cycles": 43,
+      "daily_mtm_rows": 930,
+      "exact_option_quote_ratio": 1.0,
+      "max_reconciliation_error": 1.1102230246251565e-16,
+      "run_manifest_path": "outputs/user_backtests/159922/20260907T130223_eca57212/run_manifest.json"
+    }
+  ],
+  "parameter_surfaces": [
+    {
+      "etf_code": "510050",
+      "sample": {
+        "start": "2021-01-04",
+        "end": "2026-06-03"
+      },
+      "grid_points": 50,
+      "engine_runs": 5,
+      "surface_manifest_path": "outputs/user_surfaces/510050/20260907T130005_63545d1c/surface_manifest.json"
+    },
+    {
+      "etf_code": "510300",
+      "sample": {
+        "start": "2021-01-04",
+        "end": "2026-06-03"
+      },
+      "grid_points": 50,
+      "engine_runs": 5,
+      "surface_manifest_path": "outputs/user_surfaces/510300/20260907T130050_a732b515/surface_manifest.json"
+    },
+    {
+      "etf_code": "159919",
+      "sample": {
+        "start": "2021-01-04",
+        "end": "2026-06-03"
+      },
+      "grid_points": 50,
+      "engine_runs": 5,
+      "surface_manifest_path": "outputs/user_surfaces/159919/20260907T130134_23f59dcc/surface_manifest.json"
+    },
+    {
+      "etf_code": "159915",
+      "sample": {
+        "start": "2022-09-19",
+        "end": "2026-06-03"
+      },
+      "grid_points": 50,
+      "engine_runs": 5,
+      "surface_manifest_path": "outputs/user_surfaces/159915/20260907T130206_246d082d/surface_manifest.json"
+    },
+    {
+      "etf_code": "159922",
+      "sample": {
+        "start": "2022-09-19",
+        "end": "2026-06-03"
+      },
+      "grid_points": 50,
+      "engine_runs": 5,
+      "surface_manifest_path": "outputs/user_surfaces/159922/20260907T130235_2814cb80/surface_manifest.json"
+    }
+  ],
+  "portfolio": {
+    "accounting_mode": "fixed_weight_monthly_rebalanced_daily_mtm",
+    "common_periods": 45,
+    "common_daily_observations": 886,
+    "minimum_exact_option_quote_ratio": 1.0,
+    "max_month_end_reconciliation_error": 2.220446049250313e-16,
+    "annualized_return": 0.08307866813688625,
+    "sharpe_ratio": 0.5476300239076176,
+    "max_drawdown": -0.2255370637096028,
+    "run_manifest_path": "outputs/user_portfolios/20260907T130251_5c1dedd5/run_manifest.json"
+  }
+}

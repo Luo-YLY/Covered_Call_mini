@@ -21,19 +21,35 @@ _option_collection_status.csv    期权采集状态
 
 ## data/user_submissions/
 
-统一看板“添加ETF”生成的隔离数据包。每次提交保留三张原始文件、两张标准化输入、一张Delta派生表和一份处理清单：
+统一看板“数据与回测”生成的隔离数据包。每次提交保留三张原始文件、两张标准化输入、一张Delta派生表和一份处理清单：
 
 ```text
-<ETF代码>/<提交编号>/raw/tushare_fund_daily_raw.csv
-<ETF代码>/<提交编号>/raw/tushare_opt_basic_raw.csv
-<ETF代码>/<提交编号>/raw/tushare_opt_daily_raw.csv
+<ETF代码>/<提交编号>/raw/etf_daily.csv
+<ETF代码>/<提交编号>/raw/option_contracts.csv
+<ETF代码>/<提交编号>/raw/option_daily.csv
 <ETF代码>/<提交编号>/normalized/etf_prices.csv
 <ETF代码>/<提交编号>/normalized/options_daily.csv
 <ETF代码>/<提交编号>/derived/delta_enriched_options.csv
 <ETF代码>/<提交编号>/manifest.json
 ```
 
-原始字段结构分别对应 Tushare `fund_daily`、`opt_basic`、`opt_daily`。清单中的 `source_contract` 表示通过Tushare字段结构校验，不表示对上传文件的来源作密码学认证。该目录不会覆盖 `data/raw/` 或 `data/source/` 的当前主线输入。
+新增数据采用项目通用字段约定：ETF日行情以 `etf_code` 和 `trade_date` 标识，期权合约以 `option_code` 和 `underlying_etf` 关联标的，期权日行情以 `option_code` 和 `trade_date` 关联交易记录。系统兼容现有原始数据中的常见列名，但不认证文件的外部来源。完整研究要求至少12个可闭合月度周期，且至少12期能在月末选出DTE20～45、有效Delta并可在下一周期内结算的认购期权。该目录不会覆盖 `data/raw/` 或 `data/source/` 的既有输入。
+
+## data/sample_uploads/five_etf_daily/
+
+最终交付的五ETF手动上传样本。每个ETF子目录包含 `etf_daily.csv`、`option_contracts.csv`、`option_daily.csv` 和 `source_manifest.json`；顶层 `sample_manifest.json` 汇总日期范围、交易日覆盖、行数、文件大小和SHA-256。当前五只为510050、510300、159919、159915和159922，期权日行情在各自样本期内覆盖每一个ETF交易日。
+
+这些文件由项目既有完整日频研究输入拆分，目的是验证用户上传链路；清单只证明包内结构和日期覆盖，不独立认证外部数据提供方。
+
+## outputs/user_backtests/
+
+动态回测运行目录。每次预览保存 `summary.csv`、`periods.csv`、`nav.csv`、`drawdown.csv`、`cycle_ledger.csv`、`cycle_cashflow_summary.csv`、`rolling_12_cycle_cashflow.csv`、`cycle_regime_attribution.csv`、`research_audit.json`、`preview.json` 和 `run_manifest.json`。用户点击“确认更新看板”后，`published.json` 记录每只ETF最近一次已发布结果，并由“单ETF周期验证”动态读取；它不改写既有静态研究文件。该目录属于本地运行产物，默认不进入 Git。
+
+其中 `daily_mtm.csv` 使用ETF日收盘与所选期权日收盘记录周期内每日盯市；期权当日收盘缺失时沿用最近可得收盘。`research_audit.json` 同时记录精确期权报价覆盖率和日频MTM与周期结算的最大对账误差。
+
+## outputs/user_portfolios/
+
+自选组合运行目录。`daily_mtm.csv` 是按月末固定权重再平衡后的组合日频净值、裸持基准和回撤；`monthly_returns.csv` 保留每个共同月度周期的结算收益，用于验证日频路径月末值；`sleeve_contributions.csv` 保存单券回报与期权腿贡献。`run_manifest.json` 中的 `daily_mtm_quote_quality` 按ETF披露当日精确期权报价与最近收盘延续的比例。
 
 ## data/source/iv_style_rule_close_v1_periods.csv
 

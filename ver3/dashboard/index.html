@@ -293,6 +293,41 @@
       display: none;
       z-index: 2;
     }
+    .surface-heatmap {
+      width: 100%;
+      min-height: 330px;
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      overflow: hidden;
+    }
+    .surface-run-panel { border-left: 4px solid var(--teal); }
+    .surface-run-grid {
+      display: grid;
+      grid-template-columns: minmax(180px, 1.5fr) repeat(2, minmax(150px, 1fr)) auto auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .surface-run-grid label { color: var(--muted); font-size: 11px; font-weight: 700; }
+    .surface-run-grid input,
+    .surface-run-grid select {
+      display: block;
+      width: 100%;
+      height: 34px;
+      margin-top: 4px;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      font: inherit;
+    }
+    .surface-run-grid .catalog-status { display: block; margin-top: 4px; font-weight: 400; line-height: 1.35; }
+    .surface-run-status { margin-top: 8px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .surface-run-status.error { color: var(--red); }
+    .surface-original { margin-top: 10px; color: var(--muted); font-size: 12px; }
+    .surface-original summary { cursor: pointer; font-weight: 700; }
     svg { width: 100%; height: 100%; display: block; }
     .axis { stroke: #cfd8e3; stroke-width: 1; }
     .gridline { stroke: #e6edf3; stroke-width: 1; }
@@ -451,6 +486,98 @@
       padding: 26px 0;
       text-align: center;
     }
+    .custom-portfolio-frame { display: block; width: 100%; min-height: calc(100vh - 112px); border: 0; border-radius: 7px; background: #fff; box-shadow: var(--shadow); }
+    .sleeve-compact-intro {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 12px;
+      padding: 16px;
+    }
+    .sleeve-compact-intro h2, .sleeve-catalog h2 { margin: 0 0 6px; }
+    .sleeve-compact-intro p, .sleeve-catalog p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .compact-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid #a8bbc7;
+      border-radius: 7px;
+      background: #ffffff;
+      color: #244257;
+      font-size: 12px;
+      font-weight: 800;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .compact-action.primary {
+      border-color: #1e686b;
+      background: #1e686b;
+      color: #ffffff;
+    }
+    .sleeve-leg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .sleeve-leg-card {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      padding: 16px;
+    }
+    .sleeve-leg-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .sleeve-code { font-size: 18px; font-weight: 850; color: var(--ink); }
+    .sleeve-weight {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #e7f3f2;
+      color: #176466;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .sleeve-rule {
+      min-height: 42px;
+      color: #405164;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .sleeve-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .sleeve-metric {
+      padding: 8px 9px;
+      border-radius: 7px;
+      background: #f5f8fa;
+    }
+    .sleeve-metric span { display: block; color: var(--muted); font-size: 11px; }
+    .sleeve-metric b { display: block; margin-top: 3px; color: var(--ink); font-size: 15px; }
+    .sleeve-card-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .sleeve-catalog { padding: 16px; }
+    .sleeve-catalog .toolbar { margin-bottom: 12px; }
+    .catalog-status { color: var(--muted); font-size: 12px; }
     .figure-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -596,6 +723,9 @@
       .status { justify-content: flex-start; }
       .definition-grid { grid-template-columns: 1fr; }
       .figure-grid { grid-template-columns: 1fr; }
+      .sleeve-compact-intro { align-items: flex-start; flex-direction: column; }
+      .sleeve-leg-grid { grid-template-columns: 1fr; }
+      .surface-run-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -612,7 +742,9 @@
 
       <nav class="nav-tabs" aria-label="dashboard sections">
         <button class="active" data-tab="overview">总览</button>
+        <button data-tab="custom">自选组合</button>
         <button data-tab="sleeves">单券策略腿</button>
+        <button data-tab="sleeveAtlas">单券参数图谱</button>
         <button data-tab="fixed">固定权重</button>
         <button data-tab="frontier">回撤前沿</button>
         <button data-tab="robustness">稳健性</button>
@@ -638,7 +770,7 @@
           <h1 id="pageTitle">当前组合研究总览</h1>
           <p id="pageLead">当前看板以目标 Delta × 覆盖比例、回撤预算组合和稳健性研究为核心展示口径。</p>
         </div>
-        <div class="status">
+        <div class="status" id="modeBadges">
           <span class="badge">静态数据包</span>
           <span class="badge">不重跑回测</span>
           <span class="badge">中文报告口径</span>
@@ -693,6 +825,13 @@
       "159915": "159915_DTE30_D20_Q10_Hold",
       "588000": "588000_ETF_BuyHold"
     };
+    let sleevePackages = [];
+    let sleevePublished = {};
+    let sleeveCatalogState = "idle";
+    let dynamicSurfaces = {};
+    let currentSurfacePreview = null;
+    let surfaceCatalogState = "idle";
+    const surfaceDateDrafts = {};
     const comparisonNames = Object.fromEntries((DATA.overviewComparisons?.options || []).map(row => [row.key, row.label]));
     function mainLineRows(key) {
       const main = rows(DATA.mainLine?.[key]);
@@ -780,7 +919,9 @@
 
     const tabs = {
       overview: ["当前组合研究总览", "主线候选、组合净值、回撤和权重结构。"],
-      sleeves: ["单券策略腿画像", "单 ETF 备兑增强、目标Delta参数图谱与裸持基准对照。"],
+      custom: ["自选组合研究", "在共同月度周期内设置策略腿，并生成按月末再平衡的日频MTM净值。"],
+      sleeves: ["单券策略腿", "紧凑查看当前组合的单券配置与核心表现；完整周期证据在独立验证页。"],
+      sleeveAtlas: ["单券参数图谱", "保留原有单ETF静态备兑增强、目标Delta参数图谱与裸持基准对照。"],
       fixed: ["固定权重组合", "策略单元在固定权重组合中的风险收益表现。"],
       frontier: ["回撤预算下的组合优化", "在不同最大回撤预算下选择 Sharpe 较高的组合权重。"],
       robustness: ["稳健性诊断", "事件剔除、滚动窗口、成本敏感性和调仓时点敏感性的研究证据。"],
@@ -989,6 +1130,257 @@
       if (text.includes("Hold")) parts.push("持有到期");
       return parts.length ? parts.join(" / ") : raw.replaceAll("_", " ");
     }
+
+    function sleeveResearchRows() {
+      return [
+        ...rows(DATA.stepA?.sleeve_ranking_current),
+        ...rows(DATA.stepA?.sleeves),
+        ...rows(DATA.stepA?.target_delta_candidate_pool),
+        ...rows(DATA.stepA?.target_delta_surface_grid)
+      ];
+    }
+    function sleeveMetricRow(sleeveName) {
+      return sleeveResearchRows().find(row => row.sleeve_name === sleeveName) || {};
+    }
+    function currentCandidateSleeves() {
+      return activeCandidateWeights().filter(row => row.portfolio_name === state.candidate);
+    }
+    function sleeveValidationHref(code) {
+      return `../../dashboard/?etf=${encodeURIComponent(String(code).padStart(6, "0"))}#cycle`;
+    }
+    function fallbackSleevePackages() {
+      const packages = new Map();
+      sleeveResearchRows().forEach(row => {
+        const code = String(row.etf_code || "").padStart(6, "0");
+        if (!/^\d{6}$/.test(code) || packages.has(code)) return;
+        packages.set(code, {
+          etf_code: code,
+          sample_start: row.sample_start || DATA.sample?.start,
+          sample_end: row.sample_end || DATA.sample?.end,
+          date_availability: { selectable_monthly_periods: row.selected_periods || null },
+          ready_for_backtest: true
+        });
+      });
+      return [...packages.values()];
+    }
+    function publishedSleeveSummary(code) {
+      const run = sleevePublished[String(code).padStart(6, "0")];
+      const summary = rows(run?.cycle_validation?.summary || run?.summary);
+      return summary.find(row => row.parameter_role !== "buyhold" && !String(row.strategy_name || "").includes("BuyHold")) || {};
+    }
+    function renderCompactSleeves() {
+      const legs = currentCandidateSleeves();
+      const cards = legs.map(leg => {
+        const code = String(leg.etf_code).padStart(6, "0");
+        const metric = sleeveMetricRow(leg.sleeve_name);
+        const sample = metric.sample_start && metric.sample_end
+          ? `${metric.sample_start} 至 ${metric.sample_end}`
+          : `${DATA.sample?.start || "--"} 至 ${DATA.sample?.end || "--"}`;
+        return `<article class="panel sleeve-leg-card">
+          <div class="sleeve-leg-top">
+            <div><div class="sleeve-code">${esc(code)}</div><div class="catalog-status">当前组合策略腿</div></div>
+            <span class="sleeve-weight">组合权重 ${esc(pct(leg.weight, 0))}</span>
+          </div>
+          <div class="sleeve-rule">${esc(labelSleeve(leg.sleeve_name))}</div>
+          <div class="sleeve-metrics">
+            <div class="sleeve-metric"><span>年化收益</span><b>${esc(pct(metric.annualized_return_cagr))}</b></div>
+            <div class="sleeve-metric"><span>夏普比率</span><b>${esc(fmt(metric.sharpe_daily_mean, 3))}</b></div>
+            <div class="sleeve-metric"><span>最大回撤</span><b>${esc(pct(metric.max_drawdown))}</b></div>
+            <div class="sleeve-metric"><span>期权腿贡献</span><b>${esc(pct(metric.option_leg_annualized_pnl_contribution))}</b></div>
+          </div>
+          <div class="sleeve-card-foot">
+            <span>${esc(sample)}</span>
+            <a class="compact-action" target="_top" href="${esc(sleeveValidationHref(code))}">完整验证 →</a>
+          </div>
+        </article>`;
+      }).join("");
+      const packages = sleevePackages.length ? sleevePackages : fallbackSleevePackages();
+      const packageRows = packages
+        .slice()
+        .sort((a, b) => String(a.etf_code).localeCompare(String(b.etf_code)))
+        .map(item => {
+          const code = String(item.etf_code).padStart(6, "0");
+          const published = publishedSleeveSummary(code);
+          const periods = item.date_availability?.selectable_monthly_periods ?? item.date_availability?.available_monthly_periods;
+          const resultState = Object.keys(published).length ? "已有看板结果" : "数据就绪";
+          return `<tr>
+            <td><strong>${esc(code)}</strong></td>
+            <td>${esc(item.sample_start || "--")} 至 ${esc(item.sample_end || "--")}</td>
+            <td>${esc(periods ?? "--")}</td>
+            <td>${esc(resultState)}</td>
+            <td><a class="compact-action" target="_top" href="${esc(sleeveValidationHref(code))}">打开验证</a></td>
+          </tr>`;
+        }).join("");
+      const catalogText = sleeveCatalogState === "loading"
+        ? "正在读取本地数据包…"
+        : sleeveCatalogState === "error"
+          ? "当前显示静态数据包"
+          : `共 ${packages.length} 只 ETF`;
+      byId("content").innerHTML = `
+        <section class="panel sleeve-compact-intro">
+          <div>
+            <h2>当前组合的单券拆解</h2>
+            <p>本页只保留配置和核心表现。现金收入、逐期账本、行权明细及诊断集中在“单ETF周期验证”。</p>
+          </div>
+          <a class="compact-action primary" target="_top" href="../../dashboard/#cycle">进入完整周期验证 →</a>
+        </section>
+        <div class="sleeve-leg-grid">${cards || `<div class="panel empty">当前组合没有可展示的单券腿。</div>`}</div>
+        <section class="panel sleeve-catalog">
+          <div class="toolbar">
+            <div><h2>全部可用 ETF</h2><p>选择标的后进入独立周期验证，不在组合页重复展开完整账本。</p></div>
+            <span class="catalog-status">${esc(catalogText)}</span>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>ETF</th><th>可用区间</th><th>可选月度周期</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody>${packageRows || `<tr><td colspan="5">尚未读取到可用ETF数据包</td></tr>`}</tbody>
+          </table></div>
+        </section>`;
+    }
+    async function hydrateCompactSleeves() {
+      if (["loading", "ready"].includes(sleeveCatalogState)) return;
+      sleeveCatalogState = "loading";
+      if (state.tab === "sleeves") renderCompactSleeves();
+      try {
+        const [submissionsResponse, publishedResponse] = await Promise.all([
+          fetch("/__dashboard/submissions", { cache: "no-store" }),
+          fetch("/__dashboard/backtest/published", { cache: "no-store" })
+        ]);
+        if (submissionsResponse.ok) {
+          const data = await submissionsResponse.json();
+          const latest = new Map();
+          rows(data.submissions).filter(item => item.ready_for_backtest).forEach(item => {
+            const code = String(item.etf_code).padStart(6, "0");
+            if (!latest.has(code)) latest.set(code, { ...item, etf_code: code });
+          });
+          sleevePackages = [...latest.values()];
+        }
+        if (publishedResponse.ok) {
+          const data = await publishedResponse.json();
+          sleevePublished = data.latest_by_etf || {};
+        }
+        sleeveCatalogState = "ready";
+      } catch (_) {
+        sleeveCatalogState = "error";
+      }
+      if (state.tab === "sleeves") renderCompactSleeves();
+    }
+
+    function activeSurfaceRuns() {
+      const merged = { ...dynamicSurfaces };
+      if (currentSurfacePreview?.etf_code) merged[String(currentSurfacePreview.etf_code).padStart(6, "0")] = currentSurfacePreview;
+      return Object.values(merged).filter(item => item && rows(item.surface_grid).length);
+    }
+    function surfacePackage(code) {
+      return sleevePackages.find(item => String(item.etf_code).padStart(6, "0") === String(code).padStart(6, "0")) || null;
+    }
+    function surfaceDateSelection(code, item) {
+      const key = String(code).padStart(6, "0");
+      const existing = surfaceDateDrafts[key];
+      const saved = activeSurfaceRuns().find(run => String(run.etf_code).padStart(6, "0") === key)?.sample;
+      const min = item?.date_availability?.backtest_start || item?.sample_start || "";
+      const max = item?.date_availability?.backtest_end || item?.sample_end || "";
+      const start = existing?.start || saved?.start || min;
+      const end = existing?.end || saved?.end || max;
+      return { min, max, start, end };
+    }
+    async function dashboardJson(path, options = {}) {
+      const response = await fetch(path, { cache: "no-store", ...options });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || payload.ok === false) throw new Error(payload.message || `请求失败（${response.status}）`);
+      return payload;
+    }
+    async function hydrateSurfaceCatalog(force = false) {
+      if (!force && ["loading", "ready"].includes(surfaceCatalogState)) return;
+      surfaceCatalogState = "loading";
+      try {
+        const [packagesPayload, surfacesPayload] = await Promise.all([
+          dashboardJson("/__dashboard/submissions"),
+          dashboardJson("/__dashboard/surface/published")
+        ]);
+        const latest = new Map();
+        rows(packagesPayload.submissions).filter(item => item.ready_for_backtest).forEach(item => {
+          const code = String(item.etf_code).padStart(6, "0");
+          if (!latest.has(code)) latest.set(code, { ...item, etf_code: code });
+        });
+        sleevePackages = [...latest.values()];
+        dynamicSurfaces = surfacesPayload.latest_by_etf || {};
+        surfaceCatalogState = "ready";
+      } catch (_) {
+        surfaceCatalogState = "error";
+      }
+      if (state.tab === "sleeveAtlas") renderSleeves();
+      if (state.tab === "sleeves") renderCompactSleeves();
+    }
+    function syncSurfaceRunStatus() {
+      const start = byId("surfaceStart");
+      const end = byId("surfaceEnd");
+      const button = byId("surfaceRun");
+      const status = byId("surfaceRunStatus");
+      if (!start || !end || !button || !status) return false;
+      const invalid = !start.value || !end.value || start.value < start.min || end.value > end.max || start.value >= end.value;
+      const startDate = new Date(`${start.value}T00:00:00`);
+      const endDate = new Date(`${end.value}T00:00:00`);
+      const months = invalid ? 0 : (endDate.getFullYear() - startDate.getFullYear()) * 12 + endDate.getMonth() - startDate.getMonth();
+      const tooShort = !invalid && months < 12;
+      button.disabled = invalid || tooShort;
+      status.classList.toggle("error", invalid || tooShort);
+      status.textContent = invalid
+        ? `请选择 ${start.min} 至 ${end.max} 内的有效区间。`
+        : tooShort
+          ? "参数图谱至少需要12个可闭合月度周期。"
+          : "将生成 D10–D50 × 覆盖率10%–100%，共50个真实回测格点。";
+      return !(invalid || tooShort);
+    }
+    async function runDynamicSurface() {
+      const item = surfacePackage(state.surfaceEtf);
+      const button = byId("surfaceRun");
+      const status = byId("surfaceRunStatus");
+      if (!item || !button || !status || !syncSurfaceRunStatus()) return;
+      const start = byId("surfaceStart").value;
+      const end = byId("surfaceEnd").value;
+      surfaceDateDrafts[String(state.surfaceEtf).padStart(6, "0")] = { start, end };
+      button.disabled = true;
+      status.classList.remove("error");
+      status.textContent = "正在完成5次目标Delta期权选择，并重算50个参数格点…";
+      try {
+        const payload = await dashboardJson("/__dashboard/surface/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Dashboard-Action": "run-surface" },
+          body: JSON.stringify({ manifest_path: item.manifest_path, start_date: start, end_date: end })
+        });
+        currentSurfacePreview = payload;
+        state.surfaceEtf = String(payload.etf_code).padStart(6, "0");
+        renderSleeves();
+      } catch (error) {
+        button.disabled = false;
+        status.classList.add("error");
+        status.textContent = `参数图谱未生成：${error.message}`;
+      }
+    }
+    async function publishDynamicSurface() {
+      if (!currentSurfacePreview?.surface_manifest_path) return;
+      const button = byId("surfacePublish");
+      const status = byId("surfaceRunStatus");
+      if (!button || !status) return;
+      button.disabled = true;
+      status.textContent = "正在保存为该ETF的当前参数图谱…";
+      try {
+        const payload = await dashboardJson("/__dashboard/surface/publish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Dashboard-Action": "publish-surface" },
+          body: JSON.stringify({ surface_manifest_path: currentSurfacePreview.surface_manifest_path })
+        });
+        const code = String(payload.published.etf_code).padStart(6, "0");
+        dynamicSurfaces = { ...dynamicSurfaces, [code]: payload.published };
+        currentSurfacePreview = null;
+        renderSleeves();
+        window.parent?.postMessage({ type: "dashboard-surface-published", etf_code: code }, "*");
+      } catch (error) {
+        button.disabled = false;
+        status.classList.add("error");
+        status.textContent = `参数图谱未保存：${error.message}`;
+      }
+    }
     function labelSleeveChart(name) {
       const raw = String(name || "");
       const text = raw.replace(/^\d{6}_/, "");
@@ -1021,6 +1413,79 @@
       if (name === "sharpe_daily_mean") return fmt(value, 3);
       if (name === "annualized_return_cagr") return cagrPct(value);
       return pct(value);
+    }
+    function surfacePointLabel(row) {
+      if (!row) return "--";
+      const delta = String(row.moneyness_label || row.delta_label || "").trim();
+      const coverage = String(row.coverage_label || "").trim();
+      return `${delta}${coverage}`.replaceAll(" ", "") || "--";
+    }
+    function surfaceMetricClass(name, value) {
+      if (name === "max_drawdown") return "risk";
+      if (name === "annualized_volatility") return "";
+      if (name === "option_leg_annualized_pnl_contribution") {
+        return num(value) >= 0 ? "positive" : "warning";
+      }
+      return "positive";
+    }
+    function renderSurfaceKpis(surfaceRows, buyholdRow = null) {
+      const best = sortSurfaceRows(surfaceRows, state.surfaceMetric)[0] || null;
+      if (!best) {
+        byId("kpis").innerHTML = [
+          kpi("当前ETF", state.surfaceEtf, "已通过校验的数据包", ""),
+          kpi("参数图谱", "待生成", "选择区间后生成50个真实格点", "")
+        ].join("");
+        return;
+      }
+
+      const point = surfacePointLabel(best);
+      const metricLabel = labelSurfaceMetric(state.surfaceMetric);
+      const lowerIsBetter = ["max_drawdown", "annualized_volatility"].includes(state.surfaceMetric);
+      const baseline = buyholdRow ? formatSurfaceMetric(state.surfaceMetric, buyholdRow[state.surfaceMetric]) : "--";
+      const metricNote = buyholdRow
+        ? `${point} · 同期BuyHold ${baseline}`
+        : `${point} · ${lowerIsBetter ? "越低越优" : "越高越优"}`;
+      const targetDelta = num(best.target_delta) ?? num(best.moneyness_axis);
+      const coverage = num(best.coverage);
+      const parameterNote = [
+        targetDelta === null ? "" : `目标Delta ${pct(targetDelta, 0)}`,
+        coverage === null ? "" : `覆盖率 ${pct(coverage, 0)}`
+      ].filter(Boolean).join(" · ") || "当前指标的最优真实格点";
+      const supportMetrics = [
+        "sharpe_daily_mean",
+        "annualized_return_cagr",
+        "max_drawdown",
+        "option_leg_annualized_pnl_contribution",
+        "annualized_volatility"
+      ].filter(name => name !== state.surfaceMetric).slice(0, 3);
+      const selectedPeriods = num(best.selected_periods);
+      const sampleNote = [
+        `${best.sample_start || "--"} 至 ${best.sample_end || "--"}`,
+        selectedPeriods === null ? "" : `${Math.round(selectedPeriods)}个有效周期`,
+        `${surfaceRows.length}个真实格点`
+      ].filter(Boolean).join(" · ");
+      const cards = [
+        kpi(
+          "当前ETF",
+          state.surfaceEtf,
+          sampleNote,
+          ""
+        ),
+        kpi(
+          `样本内${metricLabel}最优值`,
+          formatSurfaceMetric(state.surfaceMetric, best[state.surfaceMetric]),
+          metricNote,
+          surfaceMetricClass(state.surfaceMetric, best[state.surfaceMetric])
+        ),
+        kpi("样本内最优参数", point, parameterNote, ""),
+        ...supportMetrics.map(name => kpi(
+          `对应${labelSurfaceMetric(name)}`,
+          formatSurfaceMetric(name, best[name]),
+          `样本内最优参数点 ${point}`,
+          surfaceMetricClass(name, best[name])
+        ))
+      ];
+      byId("kpis").innerHTML = cards.join("");
     }
     function formatAssignmentFraction(value, row) {
       const periods = num(row.selected_periods);
@@ -1191,7 +1656,8 @@
         "588000 extension": "588000 补充实验",
         "Fixed moneyness grid": "固定虚值网格",
         "Delta anchor": "D40 Delta锚点",
-        "BuyHold baseline": "BuyHold基准"
+        "BuyHold baseline": "BuyHold基准",
+        "动态参数图谱": "动态参数图谱"
       })[value] || value || "--";
     }
     function labelPortfolioType(value) {
@@ -1262,6 +1728,24 @@
         render();
       });
       render();
+      hydrateSurfaceCatalog();
+      window.addEventListener("message", event => {
+        if (event.origin !== location.origin || !["dashboard-data-prepared", "dashboard-backtest-published", "dashboard-surface-published", "dashboard-open-surface"].includes(event.data?.type)) return;
+        if (event.data?.type === "dashboard-open-surface") {
+          const code = String(event.data?.etf_code || "").padStart(6, "0");
+          hydrateSurfaceCatalog(true).then(() => {
+            if (surfacePackage(code)) state.surfaceEtf = code;
+            state.tab = "sleeveAtlas";
+            document.querySelectorAll("[data-tab]").forEach(item => item.classList.toggle("active", item.dataset.tab === "sleeveAtlas"));
+            render();
+          });
+          return;
+        }
+        if (event.data?.type === "dashboard-data-prepared" && event.data?.etf_code && String(currentSurfacePreview?.etf_code).padStart(6, "0") === String(event.data.etf_code).padStart(6, "0")) {
+          currentSurfacePreview = null;
+        }
+        hydrateSurfaceCatalog(true);
+      });
     }
 
     function populateCandidateSelect() {
@@ -1276,10 +1760,31 @@
       const [title, lead] = tabs[state.tab];
       byId("pageTitle").textContent = title;
       byId("pageLead").textContent = lead;
+      byId("modeBadges").innerHTML = state.tab === "custom"
+        ? `<span class="badge">本地数据</span><span class="badge">日频MTM</span><span class="badge">月末再平衡</span>`
+        : state.tab === "sleeves"
+          ? `<span class="badge">组合拆解</span><span class="badge">紧凑摘要</span><span class="badge">完整验证独立</span>`
+          : state.tab === "sleeveAtlas"
+            ? `<span class="badge">真实格点</span><span class="badge">自选区间</span><span class="badge">可更新图谱</span>`
+          : `<span class="badge">静态数据包</span><span class="badge">不重跑回测</span><span class="badge">中文报告口径</span>`;
       renderComparisonControls();
+      if (state.tab === "custom") {
+        byId("kpis").innerHTML = "";
+        byId("content").innerHTML = `<iframe id="customPortfolioFrame" class="custom-portfolio-frame" src="../../dashboard/portfolio/" title="自选组合研究"></iframe>`;
+        return;
+      }
+      if (state.tab === "sleeves") {
+        byId("kpis").innerHTML = "";
+        renderCompactSleeves();
+        hydrateCompactSleeves();
+        return;
+      }
+      if (state.tab === "sleeveAtlas") {
+        renderSleeves();
+        return;
+      }
       renderKpis();
       if (state.tab === "overview") renderOverview();
-      if (state.tab === "sleeves") renderSleeves();
       if (state.tab === "fixed") renderFixed();
       if (state.tab === "frontier") renderFrontier();
       if (state.tab === "robustness") renderRobustness();
@@ -1442,23 +1947,43 @@
     }
 
     function renderSleeves() {
-      const rankingCurrent = rows(DATA.stepA?.sleeve_ranking_current);
-      const legacySleeves = rows(DATA.stepA?.sleeves);
+      const surfaceRuns = activeSurfaceRuns();
+      const dynamicCodes = new Set(surfaceRuns.map(run => String(run.etf_code).padStart(6, "0")));
+      const dynamicGrid = surfaceRuns.flatMap(run => rows(run.surface_grid));
+      const dynamicBuyhold = surfaceRuns.map(run => run.buyhold).filter(Boolean);
+      const dynamicMeta = surfaceRuns.map(run => run.metadata).filter(Boolean);
+      const rankingCurrent = [
+        ...rows(DATA.stepA?.sleeve_ranking_current).filter(row => !dynamicCodes.has(String(row.etf_code).padStart(6, "0"))),
+        ...dynamicGrid
+      ];
+      const legacySleeves = [
+        ...rows(DATA.stepA?.sleeves).filter(row => !dynamicCodes.has(String(row.etf_code).padStart(6, "0"))),
+        ...dynamicBuyhold
+      ];
       const all = rankingCurrent.length ? rankingCurrent : legacySleeves;
-      const etfs = ["ALL", ...Array.from(new Set(all.map(row => String(row.etf_code)))).sort()];
-      const filtered = state.sleeveEtf === "ALL" ? all : all.filter(row => String(row.etf_code) === state.sleeveEtf);
-      const sorted = [...filtered].sort((a, b) => (num(b.sharpe_daily_mean) || -9) - (num(a.sharpe_daily_mean) || -9));
-      const targetDeltaSurfaceGrid = rows(DATA.stepA?.target_delta_surface_grid);
-      const targetDeltaBuyholdRows = rows(DATA.stepA?.target_delta_surface_buyhold);
+      const targetDeltaSurfaceGrid = [
+        ...rows(DATA.stepA?.target_delta_surface_grid).filter(row => !dynamicCodes.has(String(row.etf_code).padStart(6, "0"))),
+        ...dynamicGrid
+      ];
+      const targetDeltaBuyholdRows = [
+        ...rows(DATA.stepA?.target_delta_surface_buyhold).filter(row => !dynamicCodes.has(String(row.etf_code).padStart(6, "0"))),
+        ...dynamicBuyhold
+      ];
       const useTargetDeltaSurface = targetDeltaSurfaceGrid.length > 0;
       const surfaceGrid = useTargetDeltaSurface
         ? targetDeltaSurfaceGrid
         : rows(DATA.stepA?.moneyness_refined_surface_grid, rows(DATA.stepA?.parameter_surface_grid));
       const surfaceMeta = useTargetDeltaSurface
-        ? rows(DATA.stepA?.target_delta_surface_metadata)
+        ? [
+            ...rows(DATA.stepA?.target_delta_surface_metadata).filter(row => !dynamicCodes.has(String(row.etf_code).padStart(6, "0"))),
+            ...dynamicMeta
+          ]
         : rows(DATA.stepA?.moneyness_refined_surface_metadata, rows(DATA.stepA?.parameter_surface_metadata));
-      const surfaceEtfs = Array.from(new Set(surfaceMeta.map(row => String(row.etf_code)).filter(Boolean))).sort();
+      const surfaceEtfs = Array.from(new Set(sleevePackages.map(row => String(row.etf_code)).filter(Boolean))).sort();
       if (surfaceEtfs.length && !surfaceEtfs.includes(String(state.surfaceEtf))) state.surfaceEtf = surfaceEtfs[0];
+      state.sleeveEtf = String(state.surfaceEtf);
+      const filtered = all.filter(row => String(row.etf_code) === String(state.surfaceEtf));
+      const sorted = [...filtered].sort((a, b) => (num(b.sharpe_daily_mean) || -9) - (num(a.sharpe_daily_mean) || -9));
       const surfaceMetrics = ["sharpe_daily_mean", "annualized_return_cagr", "annualized_volatility", "max_drawdown", "option_leg_annualized_pnl_contribution"];
       if (!surfaceMetrics.includes(state.surfaceMetric)) state.surfaceMetric = "sharpe_daily_mean";
       const currentSurfaceRows = surfaceGrid.filter(row => String(row.etf_code) === String(state.surfaceEtf));
@@ -1466,8 +1991,10 @@
         ? targetDeltaBuyholdRows.find(row => String(row.etf_code) === String(state.surfaceEtf)) || null
         : null;
       const currentSurfaceMeta = surfaceMeta.find(row => String(row.etf_code) === String(state.surfaceEtf)) || {};
+      renderSurfaceKpis(currentSurfaceRows, currentBuyholdBaseline);
+      const currentDynamicSurface = surfaceRuns.find(run => String(run.etf_code).padStart(6, "0") === String(state.surfaceEtf).padStart(6, "0")) || null;
       const currentSurfaceFigureType = useTargetDeltaSurface ? targetDeltaFigureTypeForMetric(state.surfaceMetric) : state.surfaceMetric;
-      const currentSurfaceFigure = useTargetDeltaSurface
+      const currentSurfaceFigure = currentDynamicSurface ? "" : useTargetDeltaSurface
         ? targetDeltaSurfaceFigurePath(state.surfaceEtf, currentSurfaceFigureType)
         : refinedSurfaceFigurePath(state.surfaceEtf, currentSurfaceFigureType);
       const currentSurfaceFigureCaption = useTargetDeltaSurface
@@ -1493,14 +2020,45 @@
         ["sample_end", "终点"],
         ["source_detail", "来源", v => String(v || "").replace("ETF BuyHold baseline", "纯ETF基准").replace("ver2_1_dte30_full_rule_grid", "历史 DTE30 规则网格").replace("ver2_6_stepA_available_rules", "历史已有规则").replace("ver3_stepA_588000_q100_scaled", "588000 Q100 缩放"), "long-text"]
       ];
-      const parameterGridBaseRows = surfaceGridRowsWithBuyhold(currentSurfaceRows, all, state.surfaceEtf);
+      const parameterGridBaseRows = surfaceGridRowsWithBuyhold(currentSurfaceRows, legacySleeves, state.surfaceEtf);
       const parameterGridRows = sortTableRows(parameterGridBaseRows, parameterGridCols, state.surfaceGridSort);
+      const currentPackage = surfacePackage(state.surfaceEtf);
+      const dateSelection = surfaceDateSelection(state.surfaceEtf, currentPackage);
+      const previewForCurrent = currentSurfacePreview && String(currentSurfacePreview.etf_code).padStart(6, "0") === String(state.surfaceEtf).padStart(6, "0");
+      const savedForCurrent = dynamicSurfaces[String(state.surfaceEtf).padStart(6, "0")] || null;
+      const surfaceRunMessage = previewForCurrent
+        ? `预览已生成：${currentSurfaceRows.length} 个格点，区间 ${currentSurfacePreview.sample?.start} 至 ${currentSurfacePreview.sample?.end}。检查曲面和热力图后确认更新。`
+        : savedForCurrent
+          ? `当前动态图谱：${savedForCurrent.sample?.start} 至 ${savedForCurrent.sample?.end}，共 ${rows(savedForCurrent.surface_grid).length} 个真实格点。`
+          : currentPackage
+            ? "将生成 D10–D50 × 覆盖率10%–100%，共50个真实回测格点。"
+            : "该ETF暂时没有可运行的数据包。";
       byId("content").innerHTML = `
         <div class="grid">
+          <div class="panel span-12 surface-run-panel">
+            <div class="toolbar">
+              <div><h2>生成或更新参数图谱</h2><div class="chart-note">操作顺序：①上传三张原始数据表　②选择ETF和区间　③生成50格点　④确认更新看板。</div></div>
+              <div class="toolbar"><button id="surfaceUpload" class="compact-action" type="button">上传新ETF数据</button><span class="badge">5个Delta × 10档覆盖率</span></div>
+            </div>
+            ${currentPackage ? `<div class="surface-run-grid">
+              <label>已确认可用的ETF<select id="surfaceEtfSelect">${surfaceEtfs.map(etf => {
+                const item = surfacePackage(etf);
+                const availability = item?.date_availability || {};
+                const start = availability.backtest_start || item?.sample_start || "--";
+                const end = availability.backtest_end || item?.sample_end || "--";
+                return `<option value="${esc(etf)}"${etf === String(state.surfaceEtf) ? " selected" : ""}>${esc(etf)} · ${esc(start)} 至 ${esc(end)}</option>`;
+              }).join("")}</select><span class="catalog-status">仅显示已通过校验并可回测的数据包</span></label>
+              <label>开始日期<input id="surfaceStart" type="date" min="${esc(dateSelection.min)}" max="${esc(dateSelection.max)}" value="${esc(dateSelection.start)}"></label>
+              <label>结束日期<input id="surfaceEnd" type="date" min="${esc(dateSelection.min)}" max="${esc(dateSelection.max)}" value="${esc(dateSelection.end)}"></label>
+              <button id="surfaceRun" class="compact-action primary" type="button">生成参数图谱</button>
+              <button id="surfacePublish" class="compact-action" type="button"${previewForCurrent ? "" : " hidden"}>确认更新图谱</button>
+            </div>` : `<div class="empty">正在读取可用ETF数据包…</div>`}
+            <div id="surfaceRunStatus" class="surface-run-status">${esc(surfaceRunMessage)}</div>
+          </div>
           <div class="panel span-7">
             <div class="toolbar">
               <h2>策略腿风险收益排序</h2>
-              <div class="seg">${etfs.map(etf => `<button data-etf="${esc(etf)}" class="${etf === state.sleeveEtf ? "active" : ""}">${esc(etf === "ALL" ? "全部" : etf)}</button>`).join("")}</div>
+              <span class="badge">当前ETF：${esc(state.surfaceEtf)}</span>
             </div>
             <div id="sleeveSharpeChart" class="chart tall"></div>
             ${periodNote(sorted)}
@@ -1511,12 +2069,13 @@
               <h2>动态参数曲面</h2>
               <span class="badge">${esc(currentSurfaceRows.length)} 个真实格点</span>
             </div>
-            <div class="seg">${surfaceEtfs.map(etf => `<button data-surface-etf="${esc(etf)}" class="${etf === String(state.surfaceEtf) ? "active" : ""}">${esc(etf)}</button>`).join("")}</div>
             <div class="seg">${surfaceMetrics.map(metric => `<button data-surface-metric="${esc(metric)}" class="${metric === state.surfaceMetric ? "active" : ""}">${esc(labelSurfaceMetric(metric))}</button>`).join("")}</div>
             <div id="surfaceInteractiveChart" class="surface-chart"></div>
+            <div class="chart-note"><strong>参数热力图</strong>：横轴为覆盖率，纵轴为目标Delta；所有单元格均为真实回测格点。</div>
+            <div id="surfaceHeatmapChart" class="surface-heatmap"></div>
             ${periodNote(currentSurfaceRows)}
             ${currentBuyholdBaseline ? `<div class="chart-note">BuyHold baseline plane: ${esc(labelSurfaceMetric(state.surfaceMetric))} = ${esc(formatSurfaceMetric(state.surfaceMetric, currentBuyholdBaseline[state.surfaceMetric]))}</div>` : ""}
-            ${currentSurfaceFigure ? zoomableImage(assetUrl(currentSurfaceFigure), `${state.surfaceEtf} target-delta coverage surface`, currentSurfaceFigureCaption, "chart-figure") : ""}
+            ${currentSurfaceFigure ? `<details class="surface-original"><summary>查看原有静态图件</summary>${zoomableImage(assetUrl(currentSurfaceFigure), `${state.surfaceEtf} target-delta coverage surface`, currentSurfaceFigureCaption, "chart-figure")}</details>` : ""}
             <div class="chart-note">
               ${esc((useTargetDeltaSurface ? currentSurfaceMeta.available_delta_rules : currentSurfaceMeta.available_moneyness_rules) || "已完成规则")}；覆盖率按 10%-100% 日频动态重算。${useTargetDeltaSurface ? "静态图叠加 coverage × target delta 等值线。" : ""}曲面为前端插值展示，黑点/红星为真实回测格点。
             </div>
@@ -1546,17 +2105,10 @@
             ])}
           </div>
         </div>`;
-      document.querySelectorAll("[data-etf]").forEach(button => {
-        button.addEventListener("click", () => {
-          state.sleeveEtf = button.dataset.etf;
-          renderSleeves();
-        });
-      });
-      document.querySelectorAll("[data-surface-etf]").forEach(button => {
-        button.addEventListener("click", () => {
-          state.surfaceEtf = button.dataset.surfaceEtf;
-          renderSleeves();
-        });
+      byId("surfaceEtfSelect")?.addEventListener("change", event => {
+        state.surfaceEtf = event.target.value;
+        state.sleeveEtf = event.target.value;
+        renderSleeves();
       });
       document.querySelectorAll("[data-surface-metric]").forEach(button => {
         button.addEventListener("click", () => {
@@ -1570,8 +2122,23 @@
           renderSleeves();
         });
       });
+      const surfaceStart = byId("surfaceStart");
+      const surfaceEnd = byId("surfaceEnd");
+      if (surfaceStart && surfaceEnd) {
+        const rememberDates = () => {
+          surfaceDateDrafts[String(state.surfaceEtf).padStart(6, "0")] = { start: surfaceStart.value, end: surfaceEnd.value };
+          syncSurfaceRunStatus();
+        };
+        surfaceStart.addEventListener("change", rememberDates);
+        surfaceEnd.addEventListener("change", rememberDates);
+        if (!previewForCurrent && !savedForCurrent) syncSurfaceRunStatus();
+      }
+      byId("surfaceRun")?.addEventListener("click", runDynamicSurface);
+      byId("surfacePublish")?.addEventListener("click", publishDynamicSurface);
+      byId("surfaceUpload")?.addEventListener("click", () => window.parent?.postMessage({ type: "dashboard-open-view", view: "add-etf" }, "*"));
       barChart("sleeveSharpeChart", sorted.slice(0, 12), "sharpe_daily_mean", row => `${row.etf_code} ${labelSleeveChart(row.sleeve_name)}`, { valueFormat: v => fmt(v, 3), left: 210, rowH: 22, labelFontSize: 10, valueFontSize: 10 });
       renderInteractiveSurface("surfaceInteractiveChart", currentSurfaceRows, state.surfaceMetric, currentBuyholdBaseline);
+      renderSurfaceHeatmap("surfaceHeatmapChart", currentSurfaceRows, state.surfaceMetric);
     }
 
     function renderFixed() {
@@ -1758,6 +2325,64 @@
           xLabel: "Extra option cost, annualized bps"
         }
       );
+    }
+
+    function renderSurfaceHeatmap(id, records, metricName) {
+      const host = byId(id);
+      if (!host) return;
+      const valid = (records || []).filter(row =>
+        num(row.moneyness_axis) !== null &&
+        num(row.coverage) !== null &&
+        num(row[metricName]) !== null
+      );
+      if (!valid.length) {
+        host.innerHTML = `<div class="empty">暂无热力图数据</div>`;
+        return;
+      }
+      const xValues = Array.from(new Set(valid.map(row => num(row.coverage)))).sort((a, b) => a - b);
+      const yValues = Array.from(new Set(valid.map(row => num(row.moneyness_axis)))).sort((a, b) => b - a);
+      const zValues = valid.map(row => num(row[metricName]));
+      const zMin = Math.min(...zValues), zMax = Math.max(...zValues);
+      const width = 760, height = 380, left = 70, top = 34, right = 118, bottom = 62;
+      const plotWidth = width - left - right, plotHeight = height - top - bottom;
+      const cellWidth = plotWidth / xValues.length, cellHeight = plotHeight / yValues.length;
+      const key = (x, y) => `${Number(x).toFixed(6)}|${Number(y).toFixed(6)}`;
+      const pointMap = new Map(valid.map(row => [key(row.coverage, row.moneyness_axis), row]));
+      const best = sortSurfaceRows(valid, metricName)[0];
+      const metricText = value => metricName === "sharpe_daily_mean" ? fmt(value, 2) : `${(Number(value) * 100).toFixed(1)}%`;
+      const cells = [];
+      yValues.forEach((y, yi) => {
+        xValues.forEach((x, xi) => {
+          const row = pointMap.get(key(x, y));
+          if (!row) return;
+          const rawT = normUnit(num(row[metricName]), zMin, zMax);
+          const qualityT = ["max_drawdown", "annualized_volatility"].includes(metricName) ? 1 - rawT : rawT;
+          const px = left + xi * cellWidth, py = top + yi * cellHeight;
+          const isBest = best && row.surface_point_id === best.surface_point_id;
+          cells.push(`<g>
+            <rect x="${px.toFixed(2)}" y="${py.toFixed(2)}" width="${cellWidth.toFixed(2)}" height="${cellHeight.toFixed(2)}" fill="${surfaceColor(qualityT, 0.96)}" stroke="${isBest ? "#bd4b43" : "rgba(255,255,255,.72)"}" stroke-width="${isBest ? 3 : 1}" />
+            <text x="${(px + cellWidth / 2).toFixed(2)}" y="${(py + cellHeight / 2 + 4).toFixed(2)}" text-anchor="middle" fill="${qualityT < 0.32 ? "#ffffff" : "#142534"}" font-size="11" font-weight="${isBest ? 800 : 600}">${esc(metricText(row[metricName]))}</text>
+            <title>${esc(`${row.etf_code} ${row.moneyness_label} / ${row.coverage_label} · ${labelSurfaceMetric(metricName)} ${formatSurfaceMetric(metricName, row[metricName])}`)}</title>
+          </g>`);
+        });
+      });
+      const xLabels = xValues.map((value, index) => `<text x="${(left + (index + .5) * cellWidth).toFixed(2)}" y="${height - bottom + 22}" text-anchor="middle" font-size="10" fill="#566575">${esc(`${Math.round(value * 100)}%`)}</text>`).join("");
+      const yLabels = yValues.map((value, index) => `<text x="${left - 10}" y="${(top + (index + .5) * cellHeight + 4).toFixed(2)}" text-anchor="end" font-size="11" fill="#566575">${esc(`D${Math.round(value * 100)}`)}</text>`).join("");
+      const legend = Array.from({ length: 9 }, (_, index) => {
+        const t = index / 8;
+        return `<rect x="${width - 62}" y="${top + (8 - index) * 22}" width="15" height="23" fill="${surfaceColor(t, .96)}" />`;
+      }).join("");
+      host.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(`${state.surfaceEtf} ${labelSurfaceMetric(metricName)} 参数热力图`)}">
+        <rect width="${width}" height="${height}" fill="#ffffff" />
+        ${cells.join("")}${xLabels}${yLabels}
+        <text x="${left + plotWidth / 2}" y="${height - 12}" text-anchor="middle" font-size="12" fill="#405164">覆盖率</text>
+        <text x="18" y="${top + plotHeight / 2}" text-anchor="middle" font-size="12" fill="#405164" transform="rotate(-90 18 ${top + plotHeight / 2})">目标Delta</text>
+        <text x="${left}" y="20" font-size="12" font-weight="700" fill="#263545">${esc(labelSurfaceMetric(metricName))}</text>
+        ${legend}
+        <text x="${width - 40}" y="${top + 6}" font-size="10" fill="#566575">优</text>
+        <text x="${width - 40}" y="${top + 8 * 22 + 18}" font-size="10" fill="#566575">劣</text>
+        <text x="${width - 88}" y="${height - 28}" font-size="10" fill="#566575">红框：当前最优格点</text>
+      </svg>`;
     }
 
     function renderInteractiveSurface(id, records, metricName, baselineRow = null) {

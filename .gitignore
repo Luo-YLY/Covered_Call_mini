@@ -28,6 +28,7 @@ data/user_submissions/**
 *.tmp
 *.bak
 ~$*
+/dashboard_server*.log
 
 # Generated dashboard artifacts
 dashboard/custom_outputs*/
@@ -35,6 +36,8 @@ dashboard/custom_outputs*/
 # Generated experiment outputs
 outputs/**
 !outputs/
+!outputs/final_acceptance/
+!outputs/final_acceptance/five_etf_acceptance.json
 !outputs/ver3_*/
 !outputs/ver3_*/README.md
 !outputs/ver3_*/manifest.json

@@ -145,7 +145,7 @@
     <section class="hero">
       <div class="eyebrow">LOCAL DATA PACKAGE</div>
       <h1>原始数据与研究底表</h1>
-      <p class="lead">这里集中列出项目目录中的标准化行情输入、冻结复现输入、组合研究底表和单 ETF 周期账本。新增ETF所需的供应商原始表为 Tushare fund_daily、opt_basic 和 opt_daily；ETF元数据不是回测必填项。</p>
+      <p class="lead">这里集中列出项目目录中的标准化行情输入、研究输入、组合研究底表和单 ETF 周期账本。新增ETF的数据来源不限，只需提供ETF日行情、期权合约和期权日行情三份CSV。</p>
       <div class="facts">
         <span class="fact">本地静态文件</span>
         <span class="fact">相对路径</span>
@@ -170,7 +170,7 @@
     const groups = [
       {
         title: "当前标准化研究输入",
-        note: "由Tushare原始表转换，供现有回测读取",
+        note: "由历史供应商原始表转换，供现有回测读取",
         files: [
           ["ETF 日行情", "组合与单 ETF 研究使用的日频行情", "data/raw/etf_prices.csv"],
           ["期权稀疏行情快照", "早期按部分交易日整理的期权研究输入", "data/raw/options.csv"],
@@ -180,11 +180,11 @@
         ]
       },
       {
-        title: "冻结复现输入与组合研究底表",
+        title: "研究输入与组合研究底表",
         note: "用于复现组合曲线、参数曲面和回撤约束结果",
         files: [
-          ["冻结日频 MTM", "冻结兼容引擎的日频盯市输入", "data/frozen_inputs/ver3_0_510050/ver2_1_daily_mtm.csv"],
-          ["冻结周期与状态", "周期划分及市场状态输入", "data/frozen_inputs/ver3_0_510050/ver2_1_periods_with_regime.csv"],
+          ["日频 MTM", "兼容引擎的日频盯市输入", "data/frozen_inputs/ver3_0_510050/ver2_1_daily_mtm.csv"],
+          ["周期与状态", "周期划分及市场状态输入", "data/frozen_inputs/ver3_0_510050/ver2_1_periods_with_regime.csv"],
           ["参数曲面网格", "各 ETF 的期限、Delta 与覆盖率网格结果", "outputs/ver3_0_stepA_moneyness_refined_daily_mtm_surface/summary/ver3_0_stepA_moneyness_refined_daily_mtm_surface_grid.csv"],
           ["参数曲面日路径", "参数组合对应的日频净值与损益路径", "outputs/ver3_0_stepA_moneyness_refined_daily_mtm_surface/daily/ver3_0_stepA_moneyness_refined_daily_mtm_daily_paths.csv"],
           ["固定权重日收益", "候选组合及基准的日收益序列", "outputs/ver3_1_effective_zone_target_delta/portfolio/ver3_1_fixed_weight_daily_returns.csv"],
